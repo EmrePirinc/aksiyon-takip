@@ -273,19 +273,25 @@
         const loginError = document.getElementById('login-error');
 
         function signIn() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            loginError.textContent = "";
-            if (!email || !password) {
-                loginError.textContent = "E-posta ve şifre alanları boş bırakılamaz.";
-                return;
-            }
-            auth.signInWithEmailAndPassword(email, password)
-                .catch((error) => {
-                    console.error("Giriş hatası:", error);
-                    loginError.textContent = "Hatalı e-posta veya şifre.";
-                });
-        }
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    loginError.textContent = "";
+    if (!email || !password) {
+        loginError.textContent = "E-posta ve şifre alanları boş bırakılamaz.";
+        return;
+    }
+
+    auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .then(() => {
+        // Ayarlama başarılı olduktan SONRA giriş yapma işlemini gerçekleştir
+        return auth.signInWithEmailAndPassword(email, password);
+      })
+      .catch((error) => {
+        // Hata durumunda kullanıcıya bilgi ver
+        console.error("Giriş veya kalıcılık ayarı hatası:", error);
+        loginError.textContent = "Hatalı e-posta veya şifre.";
+      });
+}
 
         function signOut() {
             auth.signOut();
