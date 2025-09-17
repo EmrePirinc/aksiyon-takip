@@ -262,13 +262,9 @@
         };
 
         // Firebase'i başlat
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        // Firebase'i başlat
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        // === BU SATIRI EKLEYİN ===
-        const database = firebase.database();
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database(); // Veritabanı burada tanımlanmalı
 
         // --- Firebase Kimlik Doğrulama Fonksiyonları ---
         const loginContainer = document.getElementById('login-container');
@@ -358,10 +354,9 @@ function loadActions() {
                 ...data[key]
             }));
         } else {
-            // Eğer veritabanı boşsa, varsayılan aksiyonları yükle.
-            actions = [...defaultActions];
-            // Varsayılan verileri Firebase'e kaydediyoruz ki herkes aynı şeyi görsün.
-            actionsRef.set(actions); 
+            // Eğer veritabanı boşsa, actions dizisini de boşalt.
+            // Ekranda "Aksiyon bulunamadı" yazısı görünecektir.
+            actions = []; 
         }
         
         renderActions();
