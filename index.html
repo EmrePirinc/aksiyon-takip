@@ -415,8 +415,8 @@ function loadActions() {
                             📅 `+(e.date?formatDate(e.date):"Tarih belirtilmemiş")+`
                         </div>
                         <div class="action-buttons">
-                            <button class="action-btn" onclick="editAction(${e.id})">Düzenle</button>
-                            <button class="action-btn delete" onclick="deleteAction(${e.id})">Sil</button>
+                            <button class="action-btn" onclick="editAction('${e.id}')">Düzenle</button>
+                            <button class="action-btn delete" onclick="deleteAction('${e.id}')">Sil</button>
                         </div>
                     </div>
                 </div>
