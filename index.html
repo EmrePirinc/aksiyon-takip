@@ -823,6 +823,22 @@
             background: rgba(139, 92, 246, 0.05) !important;
         }
         
+        /* --- PRIORITY ACTION INDICATOR --- */
+        .action-card.priority {
+            border: 2px solid var(--accent) !important;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.2);
+        }
+
+        .action-card.priority::after {
+            content: '⭐';
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 1.5rem;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
+            z-index: 5;
+        }
+        
         .assigned-person {
             font-size: 0.8rem;
             color: var(--primary);
@@ -1016,6 +1032,7 @@
         .action-buttons{
             display:flex;
             gap:12px;
+            align-items: stretch; /* Butonların aynı yükseklikte olmasını sağlar */
         }
         
         .action-btn{
@@ -1030,6 +1047,10 @@
             letter-spacing: 0.5px;
             position: relative;
             overflow: hidden;
+            display: flex; /* İkon ve metni hizalamak için */
+            align-items: center;
+            justify-content: center;
+            line-height: 1; /* Dikey hizalamayı iyileştirir */
         }
         
         .action-btn::before {
@@ -1075,8 +1096,8 @@
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             color: white;
             border-color: #f59e0b;
-            font-size: 0.75rem;
-            padding: 6px 12px;
+            font-size: 1.2rem; /* İkonu büyütmek için */
+            padding: 10px 14px; /* Diğer butonlarla hizalamak için */
         }
         
         .action-btn.priority:hover {
@@ -1089,8 +1110,6 @@
             background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
             color: white;
             border-color: #8b5cf6;
-            font-size: 0.75rem;
-            padding: 6px 12px;
         }
         
         .action-btn.postpone:hover {
@@ -1718,6 +1737,7 @@
         let changeCount = 0;
         let lastBackupTime = null;
         let backupHistory = [];
+        let initialLoadComplete = false; // <-- YENİ: UI titremesini önlemek için bayrak
         let backupSettings = {
             autoBackup: true,
             backupInterval: 30,
@@ -1767,13 +1787,16 @@ function loadActions() {
                 };
             }).filter(action => action.id); // Geçersiz ID'leri filtrele
         } else {
-            // Eğer veritabanı boşsa, actions dizisini de boşalt.
-            // Ekranda "Aksiyon bulunamadı" yazısı görünecektir.
-            actions = []; 
+            // Sadece ilk yükleme bittikten sonra burayı çalıştır.
+            // Böylece başlangıçtaki anlık "veri yok" durumu ekranı sıfırlamaz.
+            if (initialLoadComplete) {
+                actions = []; 
+            }
         }
         
         renderActions();
         updateStats();
+        initialLoadComplete = true; // İlk veri paketi işlendi, artık bayrağı kaldırabiliriz.
     });
 }function getTeamType(e){
     if(!e || typeof e !== 'string') return "other";
@@ -1879,7 +1902,7 @@ function loadActions() {
     const t=getTeamType(responsible);
     const a="anadolu"===t?"🏢":"aifteam"===t?"💻":"🤝";
     return`
-                <div class="action-card ${t} ${postponed ? 'postponed' : ''}" data-action-id="${e.id || ''}">
+                <div class="action-card ${t} ${postponed ? 'postponed' : ''} ${priority ? 'priority' : ''}" data-action-id="${e.id || ''}">
                     <div class="action-header">
                         <div>
                             <div class="action-title">${title}</div>
