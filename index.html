@@ -1486,8 +1486,8 @@
             const isOverdue = actionDate && actionDate < today && status !== 'completed';
 
             return `
-                <div class="action-card ${teamType} ${postponed ? 'postponed' : ''}" draggable="true" data-action-id="${id}" ondragstart="drag(event, '${id}')" onclick="openDetailView('${id}')">
-                    <div class="action-header">
+                <div class="action-card ${teamType} ${postponed ? 'postponed' : ''}" draggable="true" data-action-id="${id}" ondragstart="drag(event, '${id}')">
+                    <div class="action-header" onclick="openDetailView('${id}')" style="cursor: pointer;">
                         <div class="action-title-block">
                             <div class="action-title">${priority ? '⭐ ' : ''}${title || ''}</div>
                             <div class="responsible">${responsible || ''}</div>
@@ -1496,17 +1496,17 @@
                         <span class="status-badge ${status}" onclick="event.stopPropagation(); quickStatusChange('${id}', '${status}')">${getStatusText(status)}</span>
                     </div>
 
-                    <div class="action-body">
+                    <div class="action-body" onclick="openDetailView('${id}')" style="cursor: pointer;">
                          ${postponed ? `<div class="update-box"><strong>Ertelendi:</strong> ${postponeReason || ''}</div>` : ''}
                         <div class="action-description">${description || ''}</div>
                     </div>
 
                     <div class="action-footer">
-                        <div class="date ${isOverdue ? 'overdue' : ''}">
+                        <div class="date ${isOverdue ? 'overdue' : ''}" onclick="openDetailView('${id}')" style="cursor: pointer;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                             <span>${date ? formatDate(date) : "Tarih Yok"}</span>
                         </div>
-                        <div class="action-buttons">
+                        <div class="action-buttons" onclick="event.stopPropagation();">
                             <button class="action-btn" data-action="edit" data-action-id="${id}" title="Düzenle">${ICONS.edit}</button>
                             <button class="action-btn ${priority ? 'priority-active' : ''}" data-action="priority" data-action-id="${id}" title="Öncelik">${ICONS.priority}</button>
                             <button class="action-btn" data-action="postpone" data-action-id="${id}" title="Ertele">${ICONS.postpone}</button>
@@ -1652,12 +1652,12 @@
                 const teamType = getTeamType(action.responsible);
                 return `
                     <div class="list-item" style="border-left: 5px solid var(--${teamType});">
-                        <div class="title" onclick="openDetailView('${action.id}')">${action.priority ? '⭐ ' : ''}${action.title}</div>
-                        <div class="responsible">${action.responsible}</div>
-                        <div class="person">${personName}</div>
+                        <div class="title" onclick="openDetailView('${action.id}')" style="cursor: pointer;">${action.priority ? '⭐ ' : ''}${action.title}</div>
+                        <div class="responsible" onclick="openDetailView('${action.id}')" style="cursor: pointer;">${action.responsible}</div>
+                        <div class="person" onclick="openDetailView('${action.id}')" style="cursor: pointer;">${personName}</div>
                         <div class="status"><span class="status-badge ${action.status}" onclick="event.stopPropagation(); quickStatusChange('${action.id}', '${action.status}')">${getStatusText(action.status)}</span></div>
-                        <div class="date">${action.date ? formatDate(action.date) : '-'}</div>
-                        <div class="actions action-buttons">
+                        <div class="date" onclick="openDetailView('${action.id}')" style="cursor: pointer;">${action.date ? formatDate(action.date) : '-'}</div>
+                        <div class="actions action-buttons" onclick="event.stopPropagation();">
                            <button class="action-btn" data-action="edit" data-action-id="${action.id}" title="Düzenle">${ICONS.edit}</button>
                            <button class="action-btn ${action.priority ? 'priority-active' : ''}" data-action="priority" data-action-id="${action.id}" title="Öncelik">${ICONS.priority}</button>
                            <button class="action-btn" data-action="delete" data-action-id="${action.id}" title="Sil">${ICONS.delete}</button>
@@ -1882,6 +1882,7 @@
                         postponeAction(id);
                         break;
                 }
+                return false; // Prevent any further event handling
             }
         });
 
