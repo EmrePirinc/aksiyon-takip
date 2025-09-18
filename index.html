@@ -1597,9 +1597,7 @@
         }
         
         function renderActions() {
-            console.log('renderActions called, currentView:', currentView);
             const filteredActions = getFilteredActions();
-            console.log('Filtered actions:', filteredActions.length);
             
             // Tüm görünümleri gizle
             document.querySelectorAll('.actions-view-container').forEach(c => {
@@ -1958,7 +1956,6 @@
         }
         
         function drag(ev, id) {
-            console.log('Drag started for id:', id);
             ev.dataTransfer.setData("text/plain", id);
             ev.dataTransfer.effectAllowed = "move";
             
@@ -1966,7 +1963,6 @@
             const card = ev.target.closest('.action-card');
             if (card) {
                 card.classList.add('dragging');
-                console.log('Card marked as dragging:', card);
             }
         }
         
@@ -1976,9 +1972,7 @@
             const id = ev.dataTransfer.getData("text/plain");
             const newStatus = ev.currentTarget.dataset.status;
             
-            console.log('Drop event:', { id, newStatus, actions: actions.length });
-            
-            // Dragged element'i bul ve temizle
+            // Dragged element'i temizle
             const draggedEl = document.querySelector('.action-card.dragging');
             if (draggedEl) {
                 draggedEl.classList.remove('dragging');
@@ -1986,28 +1980,17 @@
 
             // Action'ı bul ve güncelle
             const action = actions.find(a => String(a.id) === String(id));
-            console.log('Found action:', action);
             
             if (action && action.status !== newStatus) {
-                console.log('Updating action status:', action.title, 'from', action.status, 'to', newStatus);
-                
-                // Firebase'de güncelle
+                // Firebase'de güncelle - listener otomatik UI'yi güncelleyecek
                 database.ref('actions/' + id).update({ status: newStatus })
                     .then(() => {
-                        console.log('Firebase update successful');
-                        
-                        // Başarılı güncelleme sonrası bildirim göster
                         showNotification(`✅ Aksiyon "${action.title}" ${getStatusText(newStatus)} durumuna taşındı`, 'success');
-                        
-                        // Firebase listener otomatik olarak renderActions() çağıracak
-                        // Manuel çağrıya gerek yok
                     })
                     .catch((error) => {
                         console.error('Error updating action status:', error);
                         showNotification('❌ Aksiyon durumu güncellenirken hata oluştu', 'warning');
                     });
-            } else {
-                console.log('Action not found or status same:', { action: !!action, status: action?.status, newStatus });
             }
         }
         
