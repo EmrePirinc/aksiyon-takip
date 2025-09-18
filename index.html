@@ -1516,7 +1516,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                             <span>${date ? formatDate(date) : "Tarih Yok"}</span>
                         </div>
-                        <div class="action-buttons" onclick="event.stopPropagation();">
+                        <div class="action-buttons">
                             <button class="action-btn" data-action="edit" data-action-id="${id}" title="Düzenle">${ICONS.edit}</button>
                             <button class="action-btn ${priority ? 'priority-active' : ''}" data-action="priority" data-action-id="${id}" title="Öncelik">${ICONS.priority}</button>
                             <button class="action-btn" data-action="postpone" data-action-id="${id}" title="Ertele">${ICONS.postpone}</button>
@@ -1667,7 +1667,7 @@
                         <div class="person" onclick="openDetailView('${action.id}')" style="cursor: pointer;">${personName}</div>
                         <div class="status"><span class="status-badge ${action.status}" onclick="event.stopPropagation(); quickStatusChange('${action.id}', '${action.status}')">${getStatusText(action.status)}</span></div>
                         <div class="date" onclick="openDetailView('${action.id}')" style="cursor: pointer;">${action.date ? formatDate(action.date) : '-'}</div>
-                        <div class="actions action-buttons" onclick="event.stopPropagation();">
+                        <div class="actions action-buttons">
                            <button class="action-btn" data-action="edit" data-action-id="${action.id}" title="Düzenle">${ICONS.edit}</button>
                            <button class="action-btn ${action.priority ? 'priority-active' : ''}" data-action="priority" data-action-id="${action.id}" title="Öncelik">${ICONS.priority}</button>
                            <button class="action-btn" data-action="delete" data-action-id="${action.id}" title="Sil">${ICONS.delete}</button>
@@ -1874,6 +1874,7 @@
             if (button && button.dataset.action && button.dataset.actionId) {
                 e.stopPropagation();
                 e.preventDefault();
+                e.stopImmediatePropagation();
                 
                 const action = button.dataset.action;
                 const id = button.dataset.actionId;
