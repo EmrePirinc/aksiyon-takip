@@ -61,16 +61,16 @@
         }
         
         /* Login Screen */
-        #login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        #login-container { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         }
         
-        .login-box {
-            background: white;
+        .login-box { 
+            background: white; 
             padding: 3rem;
             border-radius: var(--radius-xl);
             box-shadow: var(--shadow-lg);
@@ -104,7 +104,7 @@
         }
         
         .form-group input {
-            width: 100%;
+            width: 100%; 
             padding: 0.75rem;
             border: 1px solid var(--gray-300);
             border-radius: var(--radius);
@@ -118,14 +118,14 @@
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
         
-        .login-box button {
-            width: 100%;
+        .login-box button { 
+            width: 100%; 
             padding: 0.875rem;
             background: var(--primary);
-            color: white;
-            border: none;
+            color: white; 
+            border: none; 
             border-radius: var(--radius);
-            font-size: 1rem;
+            font-size: 1rem; 
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
@@ -710,14 +710,14 @@
                 <div class="form-group">
                     <label for="email">E-posta</label>
                     <input type="email" id="email" placeholder="ornek@email.com" required>
-                </div>
+        </div>
                 <div class="form-group">
                     <label for="password">Şifre</label>
                     <input type="password" id="password" placeholder="Şifrenizi girin" required>
-                </div>
+    </div>
                 <button type="button" onclick="signIn()">Giriş Yap</button>
             </form>
-            
+
             <div id="login-error" style="color: var(--danger); margin-top: 1rem; font-size: 0.875rem;"></div>
         </div>
     </div>
@@ -728,7 +728,7 @@
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h1>📋 Aksiyon Takip</h1>
-            </div>
+                    </div>
             
             <nav class="sidebar-nav">
                 <div class="nav-section">
@@ -736,11 +736,11 @@
                     <div class="nav-item active" onclick="setView('dashboard')">
                         <span class="nav-icon">📊</span>
                         Dashboard
-                    </div>
+                </div>
                     <div class="nav-item" onclick="setView('actions')">
                         <span class="nav-icon">✅</span>
                         Tüm Aksiyonlar
-                    </div>
+            </div>
                     <div class="nav-item" onclick="setView('calendar')">
                         <span class="nav-icon">📅</span>
                         Takvim Görünümü
@@ -756,7 +756,7 @@
                     <div class="nav-item" onclick="filterTeam('AIFTEAM')">
                         <span class="nav-icon">💻</span>
                         AIFTEAM
-                    </div>
+                </div>
                     <div class="nav-item" onclick="filterTeam('Ortak')">
                         <span class="nav-icon">🤝</span>
                         Ortak Projeler
@@ -807,21 +807,21 @@
             <!-- Content -->
             <main class="content">
                 <!-- Stats Grid -->
-                <div class="stats-grid">
+                    <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-card-header">
                             <div class="stat-title">Anadolu Bakır</div>
                             <div class="stat-icon anadolu">🏢</div>
-                        </div>
+                    </div>
                         <div class="stat-value" id="anadoluTotal">0</div>
                         <div class="stat-change">Toplam aksiyon</div>
-                    </div>
+                </div>
                     
                     <div class="stat-card">
                         <div class="stat-card-header">
                             <div class="stat-title">AIFTEAM</div>
                             <div class="stat-icon aifteam">💻</div>
-                        </div>
+            </div>
                         <div class="stat-value" id="aifteamTotal">0</div>
                         <div class="stat-change">Toplam aksiyon</div>
                     </div>
@@ -830,7 +830,7 @@
                         <div class="stat-card-header">
                             <div class="stat-title">Ortak Projeler</div>
                             <div class="stat-icon ortak">🤝</div>
-                        </div>
+                </div>
                         <div class="stat-value" id="ortakTotal">0</div>
                         <div class="stat-change">Toplam aksiyon</div>
                     </div>
@@ -840,36 +840,36 @@
                 <div class="filters" id="filters" style="display: none;">
                     <div class="filters-row">
                         <div class="filter-group">
-                            <span class="filter-label">Durum:</span>
+                    <span class="filter-label">Durum:</span>
                             <div class="filter-buttons">
-                                <button class="filter-btn active" data-filter="all">Tümü</button>
-                                <button class="filter-btn" data-filter="waiting">Bekliyor</button>
+                        <button class="filter-btn active" data-filter="all">Tümü</button>
+                        <button class="filter-btn" data-filter="waiting">Bekliyor</button>
                                 <button class="filter-btn" data-filter="in-progress">Devam Ediyor</button>
                                 <button class="filter-btn" data-filter="completed">Tamamlandı</button>
-                            </div>
-                        </div>
+                    </div>
+                    </div>
                         
                         <div class="filter-group">
                             <span class="filter-label">Öncelik:</span>
                             <div class="filter-buttons">
                                 <button class="filter-btn" onclick="togglePriorityFilter()">⭐ Öncelikli</button>
                                 <button class="filter-btn" onclick="toggleUrgentFilter()">🔥 Acil</button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
+            </div>
+        </div>
+            </div>
 
                 <!-- Actions Grid -->
                 <div class="actions-grid" id="actionsContainer">
                     <!-- Actions will be rendered here -->
-                </div>
-            </main>
         </div>
-    </div>
+            </main>
+            </div>
+        </div>
 
     <!-- Action Modal -->
-    <div class="modal" id="actionModal">
-        <div class="modal-content">
+        <div class="modal" id="actionModal">
+            <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle">Yeni Aksiyon Ekle</h2>
             </div>
@@ -878,7 +878,7 @@
                     <div class="form-group">
                         <label for="actionTitle">Başlık *</label>
                         <input type="text" id="actionTitle" required>
-                    </div>
+            </div>
                     
                     <div class="form-group">
                         <label for="actionResponsible">Sorumlu Takım *</label>
@@ -888,13 +888,13 @@
                             <option value="AIFTEAM">💻 AIFTEAM</option>
                             <option value="Ortak">🤝 Ortak</option>
                         </select>
-                    </div>
-                    
+        </div>
+
                     <div class="form-group">
                         <label for="actionDescription">Açıklama</label>
                         <textarea id="actionDescription" placeholder="Aksiyon detayları..."></textarea>
-                    </div>
-                    
+    </div>
+
                     <div class="form-group">
                         <label for="actionStatus">Durum</label>
                         <select id="actionStatus">
@@ -925,24 +925,25 @@
     </div>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-        // Firebase Configuration
+        // Firebase Configuration (Eski koddan doğru config)
         const firebaseConfig = {
-            apiKey: "AIzaSyDSzSyoHxFNvSUNjV8Uxzb5YwO_9xjQBTI",
-            authDomain: "srtsys-6c6a0.firebaseapp.com",
-            databaseURL: "https://srtsys-6c6a0-default-rtdb.firebaseio.com",
-            projectId: "srtsys-6c6a0",
-            storageBucket: "srtsys-6c6a0.appspot.com",
-            messagingSenderId: "1053019122264",
-            appId: "1:1053019122264:web:4c5b3f0c7d8e9f0a1b2c3d"
+            apiKey: "AIzaSyAFc4_sZ-gVimMsBUjQ-RGwJ90yQyxA0zI",
+            authDomain: "aksiyon-takip.firebaseapp.com",
+            projectId: "aksiyon-takip",
+            storageBucket: "aksiyon-takip.firebasestorage.app",
+            messagingSenderId: "692213499754",
+            appId: "1:692213499754:web:2fea07badfd8eb7c978713",
+            measurementId: "G-0G4J1DL3TL",
+            databaseURL: "https://aksiyon-takip-default-rtdb.europe-west1.firebasedatabase.app"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
         const database = firebase.database();
 
         // Global Variables
@@ -976,30 +977,45 @@
             }
         });
 
-        // Authentication
+        // Authentication (Eski koddan geliştirilmiş)
         function signIn() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const loginError = document.getElementById('login-error');
             
-            auth.signInWithEmailAndPassword(email, password)
+            loginError.textContent = "";
+            
+            if (!email || !password) {
+                loginError.textContent = "E-posta ve şifre alanları boş bırakılamaz.";
+                return;
+            }
+
+            auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+                .then(() => {
+                    // Ayarlama başarılı olduktan SONRA giriş yapma işlemini gerçekleştir
+                    return auth.signInWithEmailAndPassword(email, password);
+                })
                 .catch((error) => {
-                    document.getElementById('login-error').textContent = 
-                        'Giriş başarısız: ' + error.message;
+                    // Hata durumunda kullanıcıya bilgi ver
+                    console.error("Giriş veya kalıcılık ayarı hatası:", error);
+                    loginError.textContent = "Hatalı e-posta veya şifre.";
                 });
         }
 
         function signOut() {
-            auth.signOut();
+            if (confirm('Çıkış yapmak istediğinizden emin misiniz?')) {
+                auth.signOut();
+            }
         }
 
         // Data Loading (Eski koddan geliştirilmiş - UI titremesini önler)
-        function loadActions() {
-            const actionsRef = database.ref('actions');
-            actionsRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                
-                if (data) {
-                    // Firebase veriyi obje olarak verir, biz bunu bir diziye (array) çeviriyoruz.
+function loadActions() {
+    const actionsRef = database.ref('actions');
+    actionsRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        
+        if (data) {
+            // Firebase veriyi obje olarak verir, biz bunu bir diziye (array) çeviriyoruz.
                     actions = Object.keys(data).map(key => {
                         const actionData = data[key] || {};
                         return {
@@ -1020,17 +1036,17 @@
                     // İlk yükleme tamamlandı
                     initialLoadComplete = true;
                     isDataLoading = false;
-                } else {
+        } else {
                     // Sadece ilk yükleme tamamlandıktan sonra boşalt
                     // Bu sayede başlangıçtaki "veri yok" durumu ekranı sıfırlamaz
                     if (initialLoadComplete) {
-                        actions = []; 
+            actions = []; 
                     }
-                }
-                
-                renderActions();
-                updateStats();
-            });
+        }
+        
+        renderActions();
+        updateStats();
+    });
         }
         
         // Kişi verilerini yükleme (Eski koddan)
@@ -1162,7 +1178,7 @@
         }
 
         function saveAction() {
-            const actionData = {
+    const actionData = {
                 title: document.getElementById('actionTitle').value,
                 responsible: document.getElementById('actionResponsible').value,
                 description: document.getElementById('actionDescription').value,
@@ -1178,15 +1194,15 @@
                 return;
             }
 
-            if (editingId) {
-                database.ref('actions/' + editingId).update(actionData);
+    if (editingId) {
+        database.ref('actions/' + editingId).update(actionData);
                 showNotification('Aksiyon güncellendi', 'success');
-            } else {
-                database.ref('actions').push(actionData);
+    } else {
+        database.ref('actions').push(actionData);
                 showNotification('Yeni aksiyon eklendi', 'success');
-            }
+    }
 
-            closeModal();
+    closeModal();
         }
 
         function editAction(id) {
@@ -1320,19 +1336,19 @@
                             </div>
                             ${assignedPerson ? `<div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--gray-600);">👤 ${assignedPerson}</div>` : ''}
                             ${postponed && action.postponeReason ? `<div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--primary); padding: 0.25rem 0.5rem; background: rgba(99, 102, 241, 0.1); border-radius: 0.25rem; display: inline-block;">⏰ ${action.postponeReason}</div>` : ''}
-                        </div>
-                    </div>
+                            </div>
+                            </div>
                     
                     <div class="action-body">
                         <div class="action-description">
                             ${description}
                         </div>
-                    </div>
+                            </div>
                     
                     <div class="action-footer">
                         <div class="action-date">
                             📅 ${formattedDate}
-                        </div>
+                            </div>
                         <div class="action-buttons">
                             <button class="action-btn" onclick="editAction('${action.id || ''}')" title="Düzenle">
                                 ✏️
@@ -1346,9 +1362,9 @@
                             <button class="action-btn danger" onclick="deleteAction('${action.id || ''}')" title="Sil">
                                 🗑️
                             </button>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                            </div>
             `;
         }
         
@@ -1501,7 +1517,7 @@
                     <div style="padding: 0.5rem 1rem; cursor: pointer; font-size: 0.875rem;" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='white'" onclick="openSettings()">⚙️ Ayarlar</div>
                     <div style="height: 1px; background: var(--gray-200); margin: 0.5rem 0;"></div>
                     <div style="padding: 0.5rem 1rem; cursor: pointer; font-size: 0.875rem; color: var(--danger);" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='white'" onclick="signOut()">🚪 Çıkış Yap</div>
-                </div>
+                            </div>
             `;
             
             const userMenu = event.target;
