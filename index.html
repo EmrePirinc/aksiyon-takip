@@ -61,16 +61,16 @@
         }
         
         /* Login Screen */
-        #login-container { 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
+        #login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         }
         
-        .login-box { 
-            background: white; 
+        .login-box {
+            background: white;
             padding: 3rem;
             border-radius: var(--radius-xl);
             box-shadow: var(--shadow-lg);
@@ -104,7 +104,7 @@
         }
         
         .form-group input {
-            width: 100%; 
+            width: 100%;
             padding: 0.75rem;
             border: 1px solid var(--gray-300);
             border-radius: var(--radius);
@@ -118,14 +118,14 @@
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
         
-        .login-box button { 
-            width: 100%; 
+        .login-box button {
+            width: 100%;
             padding: 0.875rem;
             background: var(--primary);
-            color: white; 
-            border: none; 
+            color: white;
+            border: none;
             border-radius: var(--radius);
-            font-size: 1rem; 
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
@@ -651,6 +651,19 @@
             border-color: var(--primary);
         }
         
+        /* Postponed Action Styles (Eski koddan) */
+        .action-card.postponed {
+            background: linear-gradient(0deg, rgba(99, 102, 241, 0.04), rgba(99, 102, 241, 0.02));
+            border: 1px dashed rgba(99, 102, 241, 0.35);
+        }
+        
+        .action-card.postponed .action-date {
+            background: rgba(99, 102, 241, 0.08);
+            color: var(--primary-dark);
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius);
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .sidebar {
@@ -687,38 +700,27 @@
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
+    <!-- Login Screen -->
     <div id="login-container">
         <div class="login-box">
             <h1>📋 Aksiyon Takip</h1>
-            <p>Sistem başlatılıyor...</p>
+            <p>Modern proje yönetimi ve takım işbirliği</p>
             
-            <div style="text-align: center; margin: 2rem 0;">
-                <div style="
-                    width: 40px; 
-                    height: 40px; 
-                    border: 3px solid var(--gray-200); 
-                    border-top: 3px solid var(--primary); 
-                    border-radius: 50%; 
-                    animation: spin 1s linear infinite;
-                    margin: 0 auto;
-                "></div>
-            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">E-posta</label>
+                    <input type="email" id="email" placeholder="ornek@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Şifre</label>
+                    <input type="password" id="password" placeholder="Şifrenizi girin" required>
+                </div>
+                <button type="button" onclick="signIn()">Giriş Yap</button>
+            </form>
             
-            <div style="text-align: center; color: var(--gray-600); font-size: 0.875rem;">
-                Firebase bağlantısı kontrol ediliyor...
-            </div>
-            
-            <div id="login-error" style="color: var(--danger); margin-top: 1rem; font-size: 0.875rem; text-align: center;"></div>
+            <div id="login-error" style="color: var(--danger); margin-top: 1rem; font-size: 0.875rem;"></div>
         </div>
     </div>
-    
-    <style>
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
 
     <!-- App Container -->
     <div id="app-container" style="display: none;">
@@ -726,7 +728,7 @@
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h1>📋 Aksiyon Takip</h1>
-                    </div>
+            </div>
             
             <nav class="sidebar-nav">
                 <div class="nav-section">
@@ -734,11 +736,11 @@
                     <div class="nav-item active" onclick="setView('dashboard')">
                         <span class="nav-icon">📊</span>
                         Dashboard
-                </div>
+                    </div>
                     <div class="nav-item" onclick="setView('actions')">
                         <span class="nav-icon">✅</span>
                         Tüm Aksiyonlar
-            </div>
+                    </div>
                     <div class="nav-item" onclick="setView('calendar')">
                         <span class="nav-icon">📅</span>
                         Takvim Görünümü
@@ -754,7 +756,7 @@
                     <div class="nav-item" onclick="filterTeam('AIFTEAM')">
                         <span class="nav-icon">💻</span>
                         AIFTEAM
-                </div>
+                    </div>
                     <div class="nav-item" onclick="filterTeam('Ortak')">
                         <span class="nav-icon">🤝</span>
                         Ortak Projeler
@@ -805,21 +807,21 @@
             <!-- Content -->
             <main class="content">
                 <!-- Stats Grid -->
-                    <div class="stats-grid">
+                <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-card-header">
                             <div class="stat-title">Anadolu Bakır</div>
                             <div class="stat-icon anadolu">🏢</div>
-                    </div>
+                        </div>
                         <div class="stat-value" id="anadoluTotal">0</div>
                         <div class="stat-change">Toplam aksiyon</div>
-                </div>
+                    </div>
                     
                     <div class="stat-card">
                         <div class="stat-card-header">
                             <div class="stat-title">AIFTEAM</div>
                             <div class="stat-icon aifteam">💻</div>
-            </div>
+                        </div>
                         <div class="stat-value" id="aifteamTotal">0</div>
                         <div class="stat-change">Toplam aksiyon</div>
                     </div>
@@ -828,7 +830,7 @@
                         <div class="stat-card-header">
                             <div class="stat-title">Ortak Projeler</div>
                             <div class="stat-icon ortak">🤝</div>
-                </div>
+                        </div>
                         <div class="stat-value" id="ortakTotal">0</div>
                         <div class="stat-change">Toplam aksiyon</div>
                     </div>
@@ -838,36 +840,36 @@
                 <div class="filters" id="filters" style="display: none;">
                     <div class="filters-row">
                         <div class="filter-group">
-                    <span class="filter-label">Durum:</span>
+                            <span class="filter-label">Durum:</span>
                             <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="all">Tümü</button>
-                        <button class="filter-btn" data-filter="waiting">Bekliyor</button>
+                                <button class="filter-btn active" data-filter="all">Tümü</button>
+                                <button class="filter-btn" data-filter="waiting">Bekliyor</button>
                                 <button class="filter-btn" data-filter="in-progress">Devam Ediyor</button>
                                 <button class="filter-btn" data-filter="completed">Tamamlandı</button>
-                    </div>
-                    </div>
+                            </div>
+                        </div>
                         
                         <div class="filter-group">
                             <span class="filter-label">Öncelik:</span>
                             <div class="filter-buttons">
                                 <button class="filter-btn" onclick="togglePriorityFilter()">⭐ Öncelikli</button>
                                 <button class="filter-btn" onclick="toggleUrgentFilter()">🔥 Acil</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-            </div>
 
                 <!-- Actions Grid -->
                 <div class="actions-grid" id="actionsContainer">
                     <!-- Actions will be rendered here -->
-        </div>
+                </div>
             </main>
-            </div>
         </div>
+    </div>
 
     <!-- Action Modal -->
-        <div class="modal" id="actionModal">
-            <div class="modal-content">
+    <div class="modal" id="actionModal">
+        <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle">Yeni Aksiyon Ekle</h2>
             </div>
@@ -876,7 +878,7 @@
                     <div class="form-group">
                         <label for="actionTitle">Başlık *</label>
                         <input type="text" id="actionTitle" required>
-            </div>
+                    </div>
                     
                     <div class="form-group">
                         <label for="actionResponsible">Sorumlu Takım *</label>
@@ -886,13 +888,13 @@
                             <option value="AIFTEAM">💻 AIFTEAM</option>
                             <option value="Ortak">🤝 Ortak</option>
                         </select>
-        </div>
-
+                    </div>
+                    
                     <div class="form-group">
                         <label for="actionDescription">Açıklama</label>
                         <textarea id="actionDescription" placeholder="Aksiyon detayları..."></textarea>
-    </div>
-
+                    </div>
+                    
                     <div class="form-group">
                         <label for="actionStatus">Durum</label>
                         <select id="actionStatus">
@@ -906,6 +908,13 @@
                         <label for="actionDate">Hedef Tarih</label>
                         <input type="date" id="actionDate">
                     </div>
+                    
+                    <div class="form-group">
+                        <label for="assignedPerson">Atanan Kişi</label>
+                        <select id="assignedPerson">
+                            <option value="">Kişi seçiniz...</option>
+                        </select>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -916,12 +925,12 @@
     </div>
 
     <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-        // Firebase Configuration - Updated for Authentication
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDSzSyoHxFNvSUNjV8Uxzb5YwO_9xjQBTI",
             authDomain: "srtsys-6c6a0.firebaseapp.com",
@@ -932,34 +941,9 @@
             appId: "1:1053019122264:web:4c5b3f0c7d8e9f0a1b2c3d"
         };
 
-        // Firebase initialization with auth bypass
-        let auth, database;
-        let isFirebaseEnabled = true;
-        let isAuthEnabled = false;
-        
-        try {
-            firebase.initializeApp(firebaseConfig);
-            database = firebase.database();
-            console.log('✅ Firebase Database başarıyla başlatıldı');
-            
-            // Authentication'ı test et
-            try {
-                auth = firebase.auth();
-                // Auth test - eğer bu çalışırsa auth aktif
-                auth.onAuthStateChanged(() => {
-                    isAuthEnabled = true;
-                    console.log('✅ Firebase Auth da aktif');
-                });
-            } catch (authError) {
-                console.warn('⚠️ Firebase Auth devre dışı, sadece database kullanılıyor');
-                isAuthEnabled = false;
-            }
-            
-        } catch (error) {
-            console.error('❌ Firebase başlatma hatası:', error);
-            isFirebaseEnabled = false;
-            showNotification('Firebase bağlantısı başarısız. Offline modda çalışılıyor.', 'warning');
-        }
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
 
         // Global Variables
         let actions = [];
@@ -970,117 +954,126 @@
         let priorityFilterActive = false;
         let urgentFilterActive = false;
         
-        // Offline mode için localStorage actions
-        const STORAGE_KEY = 'aksiyon_takip_actions';
+        // UI titremesini önlemek için (Eski koddan)
+        let initialLoadComplete = false;
+        let isDataLoading = true;
+        
+        // Kişi yönetimi ve erteleme (Eski koddan)
+        let persons = [];
+        let currentPostponeId = null;
 
-        // Auth State Management with database-only support
-        setTimeout(() => {
-            if (isFirebaseEnabled && database) {
-                // Firebase Database var, auth olsun olmasın uygulamayı başlat
+        // Auth State Management
+        auth.onAuthStateChanged((user) => {
+            if (user) {
                 document.getElementById('login-container').style.display = 'none';
                 document.getElementById('app-container').style.display = 'flex';
-                document.getElementById('user-name').textContent = 'Firebase Kullanıcısı';
+                document.getElementById('user-name').textContent = user.email.split('@')[0];
                 loadActions();
-                showNotification('Firebase Database ile bağlandı (Auth bypass)', 'success');
+                loadPersons(); // Kişi verilerini de yükle
             } else {
-                // Tamamen offline mode
-                document.getElementById('login-container').style.display = 'none';
-                document.getElementById('app-container').style.display = 'flex';
-                document.getElementById('user-name').textContent = 'Offline Kullanıcısı';
-                loadOfflineActions();
-                showNotification('Offline modda çalışılıyor', 'info');
+                document.getElementById('login-container').style.display = 'flex';
+                document.getElementById('app-container').style.display = 'none';
             }
-        }, 1500);
+        });
 
-        // Simplified Authentication (No longer needed - auto bypass)
-        function signOut() {
-            if (isAuthEnabled && auth) {
-                auth.signOut();
-            } else {
-                // Offline mode - sadece sayfayı yenile
-                location.reload();
-            }
+        // Authentication
+        function signIn() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .catch((error) => {
+                    document.getElementById('login-error').textContent = 
+                        'Giriş başarısız: ' + error.message;
+                });
         }
 
-        // Data Loading (Firebase)
-function loadActions() {
-            if (!isFirebaseEnabled || !database) {
-                loadOfflineActions();
-                return;
-            }
+        function signOut() {
+            auth.signOut();
+        }
 
+        // Data Loading (Eski koddan geliştirilmiş - UI titremesini önler)
+        function loadActions() {
             const actionsRef = database.ref('actions');
-    actionsRef.on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            actions = Object.keys(data).map(key => ({
-                        id: key,
-                        title: data[key].title || 'Başlık yok',
-                        responsible: data[key].responsible || 'Sorumlu yok',
-                        description: data[key].description || 'Açıklama yok',
-                        status: data[key].status || 'waiting',
-                        date: data[key].date || '',
-                        priority: data[key].priority || false,
-                        createdAt: data[key].createdAt || new Date().toISOString()
-            }));
-        } else {
-            actions = []; 
+            actionsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                
+                if (data) {
+                    // Firebase veriyi obje olarak verir, biz bunu bir diziye (array) çeviriyoruz.
+                    actions = Object.keys(data).map(key => {
+                        const actionData = data[key] || {};
+                        return {
+                            id: key,
+                            title: actionData.title || 'Başlık belirtilmemiş',
+                            responsible: actionData.responsible || 'Sorumlu belirtilmemiş',
+                            description: actionData.description || 'Açıklama yok',
+                            status: actionData.status || 'waiting',
+                            date: actionData.date || '',
+                            priority: actionData.priority || false,
+                            postponed: actionData.postponed || false,
+                            postponeReason: actionData.postponeReason || '',
+                            assignedPerson: actionData.assignedPerson || '',
+                            createdAt: actionData.createdAt || new Date().toISOString()
+                        };
+                    }).filter(action => action.id); // Geçersiz ID'leri filtrele
+                    
+                    // İlk yükleme tamamlandı
+                    initialLoadComplete = true;
+                    isDataLoading = false;
+                } else {
+                    // Sadece ilk yükleme tamamlandıktan sonra boşalt
+                    // Bu sayede başlangıçtaki "veri yok" durumu ekranı sıfırlamaz
+                    if (initialLoadComplete) {
+                        actions = []; 
+                    }
                 }
-                // Offline backup'a da kaydet
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(actions));
+                
                 renderActions();
                 updateStats();
             });
         }
         
-        // Offline Data Loading
-        function loadOfflineActions() {
-            const savedActions = localStorage.getItem(STORAGE_KEY);
-            if (savedActions) {
-                actions = JSON.parse(savedActions);
-            } else {
-                // Demo data oluştur
-                actions = [
-                    {
-                        id: 'demo1',
-                        title: 'Demo Aksiyon 1',
-                        responsible: 'Anadolu Bakır',
-                        description: 'Bu bir demo aksiyonudur. Firebase bağlantısı olmadığı için offline modda çalışıyorsunuz.',
-                        status: 'waiting',
-                        date: new Date().toISOString().split('T')[0],
-                        priority: true,
-                        createdAt: new Date().toISOString()
-                    },
-                    {
-                        id: 'demo2',
-                        title: 'Demo Aksiyon 2',
-                        responsible: 'AIFTEAM',
-                        description: 'Veriler localStorage\'da saklanıyor.',
-                        status: 'in-progress',
-                        date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-                        priority: false,
-                        createdAt: new Date().toISOString()
-                    },
-                    {
-                        id: 'demo3',
-                        title: 'Demo Aksiyon 3',
-                        responsible: 'Ortak',
-                        description: 'Firebase API key sorunu çözüldüğünde normal mod aktif olacak.',
-                        status: 'completed',
-                        date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-                        priority: false,
-                        createdAt: new Date().toISOString()
-                    }
-                ];
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(actions));
+        // Kişi verilerini yükleme (Eski koddan)
+        function loadPersons() {
+            // Auth kontrolü ekle
+            if (!auth.currentUser) {
+                console.warn('Kullanıcı giriş yapmamış, persons yüklenemiyor');
+                return;
             }
-        renderActions();
-        updateStats();
+
+            const personsRef = database.ref('persons');
+            personsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    persons = Object.keys(data).map(key => ({
+                        id: key,
+                        name: data[key].name || 'İsimsiz',
+                        team: data[key].team || 'Takım Yok',
+                        email: data[key].email || '',
+                        role: data[key].role || ''
+                    }));
+                } else {
+                    persons = [];
+                }
+                updatePersonDropdown();
+            }, (error) => {
+                console.error('Persons yüklenirken hata:', error);
+                showNotification('⚠️ Kişi verileri yüklenemedi. Firebase kurallarını kontrol edin.', 'warning');
+            });
         }
         
-        // Offline Save
-        function saveOfflineActions() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(actions));
+        function updatePersonDropdown() {
+            const dropdown = document.getElementById('assignedPerson');
+            if (dropdown) {
+                dropdown.innerHTML = '<option value="">Kişi seçiniz...</option>';
+                
+                persons.forEach(person => {
+                    const option = document.createElement('option');
+                    option.value = person.id;
+                    option.textContent = `${person.name} (${person.team})`;
+                    dropdown.appendChild(option);
+                });
+            }
         }
 
         // UI Functions
@@ -1169,12 +1162,13 @@ function loadActions() {
         }
 
         function saveAction() {
-    const actionData = {
+            const actionData = {
                 title: document.getElementById('actionTitle').value,
                 responsible: document.getElementById('actionResponsible').value,
                 description: document.getElementById('actionDescription').value,
                 status: document.getElementById('actionStatus').value,
                 date: document.getElementById('actionDate').value,
+                assignedPerson: document.getElementById('assignedPerson').value,
                 priority: false,
                 createdAt: new Date().toISOString()
             };
@@ -1184,34 +1178,12 @@ function loadActions() {
                 return;
             }
 
-            if (isFirebaseEnabled && database) {
-                // Firebase mode
-    if (editingId) {
-        database.ref('actions/' + editingId).update(actionData);
-                    showNotification('Aksiyon güncellendi', 'success');
-    } else {
-        database.ref('actions').push(actionData);
-                    showNotification('Yeni aksiyon eklendi', 'success');
-                }
+            if (editingId) {
+                database.ref('actions/' + editingId).update(actionData);
+                showNotification('Aksiyon güncellendi', 'success');
             } else {
-                // Offline mode
-                if (editingId) {
-                    const actionIndex = actions.findIndex(a => a.id === editingId);
-                    if (actionIndex !== -1) {
-                        actions[actionIndex] = { ...actions[actionIndex], ...actionData };
-                        showNotification('Aksiyon güncellendi (Offline)', 'success');
-                    }
-                } else {
-                    const newAction = {
-                        id: 'offline_' + Date.now(),
-                        ...actionData
-                    };
-                    actions.push(newAction);
-                    showNotification('Yeni aksiyon eklendi (Offline)', 'success');
-                }
-                saveOfflineActions();
-                renderActions();
-                updateStats();
+                database.ref('actions').push(actionData);
+                showNotification('Yeni aksiyon eklendi', 'success');
             }
 
             closeModal();
@@ -1228,22 +1200,14 @@ function loadActions() {
             document.getElementById('actionDescription').value = action.description || '';
             document.getElementById('actionStatus').value = action.status || 'waiting';
             document.getElementById('actionDate').value = action.date || '';
+            document.getElementById('assignedPerson').value = action.assignedPerson || '';
             document.getElementById('actionModal').classList.add('active');
         }
 
         function deleteAction(id) {
             if (confirm('Bu aksiyonu silmek istediğinizden emin misiniz?')) {
-                if (isFirebaseEnabled && database) {
-                    database.ref('actions/' + id).remove();
-                    showNotification('Aksiyon silindi', 'success');
-                } else {
-                    // Offline mode
-                    actions = actions.filter(a => a.id !== id);
-                    saveOfflineActions();
-                    renderActions();
-                    updateStats();
-                    showNotification('Aksiyon silindi (Offline)', 'success');
-                }
+                database.ref('actions/' + id).remove();
+                showNotification('Aksiyon silindi', 'success');
             }
         }
 
@@ -1251,31 +1215,28 @@ function loadActions() {
             const action = actions.find(a => a.id === id);
             if (action) {
                 const newPriority = !action.priority;
-                
-                if (isFirebaseEnabled && database) {
-                    database.ref('actions/' + id).update({
-                        priority: newPriority
-                    });
-                } else {
-                    // Offline mode
-                    action.priority = newPriority;
-                    saveOfflineActions();
-                    renderActions();
-                }
-                
+                database.ref('actions/' + id).update({
+                    priority: newPriority
+                });
                 showNotification(newPriority ? 'Öncelikli olarak işaretlendi' : 'Öncelik kaldırıldı', 'info');
             }
         }
 
-        // Rendering
+        // Rendering (Eski koddan geliştirilmiş - null kontrollerle)
         function renderActions() {
             const container = document.getElementById('actionsContainer');
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             
             let filteredActions = actions.filter(action => {
-                // Team filter
-                if (currentTeamFilter !== 'all' && action.responsible !== currentTeamFilter) {
-                    return false;
+                // Team filter - responsible alanının varlığını kontrol et
+                if (currentTeamFilter !== 'all') {
+                    if (currentTeamFilter === 'Ortak') {
+                        if (!action.responsible || !action.responsible.includes('Ortak')) {
+                            return false;
+                        }
+                    } else if (action.responsible !== currentTeamFilter) {
+                        return false;
+                    }
                 }
                 
                 // Status filter
@@ -1297,13 +1258,12 @@ function loadActions() {
                     }
                 }
                 
-                // Search filter
+                // Search filter - tüm alanların varlığını kontrol et
                 if (searchTerm && !searchTerm.startsWith('/')) {
-                    const searchFields = [
-                        action.title || '',
-                        action.description || '',
-                        action.responsible || ''
-                    ].join(' ').toLowerCase();
+                    const title = action.title ? action.title.toLowerCase() : '';
+                    const description = action.description ? action.description.toLowerCase() : '';
+                    const responsible = action.responsible ? action.responsible.toLowerCase() : '';
+                    const searchFields = [title, description, responsible].join(' ');
                     
                     return searchFields.includes(searchTerm);
                 }
@@ -1326,56 +1286,106 @@ function loadActions() {
         }
 
         function createActionCard(action) {
-            const teamClass = getTeamClass(action.responsible);
-            const statusText = getStatusText(action.status);
+            // Güvenlik kontrolleri (Eski koddan)
+            if (!action) return '';
+            
+            const title = action.title || 'Başlık belirtilmemiş';
+            const responsible = action.responsible || 'Sorumlu belirtilmemiş';
+            const description = action.description || 'Açıklama yok';
+            const status = action.status || 'waiting';
+            const priority = action.priority || false;
+            const postponed = action.postponed || false;
+            const assignedPerson = action.assignedPerson ? persons.find(p => p.id === action.assignedPerson)?.name : null;
+            
+            const teamClass = getTeamClass(responsible);
+            const statusText = getStatusText(status);
             const formattedDate = action.date ? new Date(action.date).toLocaleDateString('tr-TR') : 'Tarih yok';
-            const isOverdue = action.date && action.date < new Date().toISOString().split('T')[0] && action.status !== 'completed';
+            const isOverdue = action.date && action.date < new Date().toISOString().split('T')[0] && status !== 'completed';
             
             return `
-                <div class="action-card">
+                <div class="action-card ${postponed ? 'postponed' : ''}" data-action-id="${action.id || ''}">
                     <div class="action-card-header">
                         <div style="flex: 1;">
-                            <div class="action-title">${action.title}</div>
+                            <div class="action-title">${title}</div>
                             <div class="action-meta">
                                 <span class="team-badge ${teamClass}">
-                                    ${getTeamIcon(action.responsible)} ${action.responsible}
+                                    ${getTeamIcon(responsible)} ${responsible}
                                 </span>
-                                <span class="status-badge ${action.status}">
+                                <span class="status-badge ${status}">
                                     ${statusText}
                                 </span>
-                                ${action.priority ? '<span style="color: var(--warning); font-weight: 600;">⭐ Öncelikli</span>' : ''}
+                                ${priority ? '<span style="color: var(--warning); font-weight: 600;">⭐ Öncelikli</span>' : ''}
                                 ${isOverdue ? '<span style="color: var(--danger); font-weight: 600;">⚠️ Gecikmiş</span>' : ''}
+                                ${postponed ? '<span style="color: var(--primary); font-weight: 600;">⏰ Ertelendi</span>' : ''}
                             </div>
-                            </div>
-                            </div>
+                            ${assignedPerson ? `<div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--gray-600);">👤 ${assignedPerson}</div>` : ''}
+                            ${postponed && action.postponeReason ? `<div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--primary); padding: 0.25rem 0.5rem; background: rgba(99, 102, 241, 0.1); border-radius: 0.25rem; display: inline-block;">⏰ ${action.postponeReason}</div>` : ''}
+                        </div>
+                    </div>
                     
                     <div class="action-body">
                         <div class="action-description">
-                            ${action.description}
+                            ${description}
                         </div>
-                            </div>
+                    </div>
                     
                     <div class="action-footer">
                         <div class="action-date">
                             📅 ${formattedDate}
-                            </div>
+                        </div>
                         <div class="action-buttons">
-                            <button class="action-btn" onclick="editAction('${action.id}')" title="Düzenle">
+                            <button class="action-btn" onclick="editAction('${action.id || ''}')" title="Düzenle">
                                 ✏️
                             </button>
-                            <button class="action-btn priority" onclick="togglePriority('${action.id}')" title="${action.priority ? 'Önceliği kaldır' : 'Öncelikli yap'}">
-                                ${action.priority ? '⭐' : '☆'}
+                            <button class="action-btn priority" onclick="togglePriority('${action.id || ''}')" title="${priority ? 'Önceliği kaldır' : 'Öncelikli yap'}">
+                                ${priority ? '⭐' : '☆'}
                             </button>
-                            <button class="action-btn danger" onclick="deleteAction('${action.id}')" title="Sil">
+                            <button class="action-btn" onclick="postponeAction('${action.id || ''}')" title="Görevi ertele">
+                                ⏰
+                            </button>
+                            <button class="action-btn danger" onclick="deleteAction('${action.id || ''}')" title="Sil">
                                 🗑️
                             </button>
-                            </div>
                         </div>
-                            </div>
+                    </div>
+                </div>
             `;
+        }
+        
+        // Erteleme fonksiyonları (Eski koddan)
+        function postponeAction(id) {
+            const action = actions.find(a => a.id === id);
+            if (!action) {
+                showNotification('⚠️ Aksiyon bulunamadı!', 'warning');
+                return;
+            }
+
+            const reason = prompt('Erteleme sebebi:');
+            if (!reason) return;
+
+            const newDate = prompt('Yeni hedef tarih (YYYY-MM-DD):');
+            if (!newDate) return;
+
+            const postponeData = {
+                postponed: true,
+                postponeReason: reason,
+                postponeDate: newDate,
+                originalDate: action.date,
+                postponedAt: new Date().toISOString(),
+                date: newDate,
+                status: 'waiting'
+            };
+
+            database.ref('actions/' + id).update(postponeData);
+            showNotification('⏰ Aksiyon ertelendi', 'warning');
         }
 
         function updateStats() {
+            // İlk yükleme tamamlanmamışsa stats'ı güncelleme (Eski koddan)
+            if (!initialLoadComplete && isDataLoading) {
+                return;
+            }
+            
             const anadoluActions = actions.filter(a => a.responsible === 'Anadolu Bakır');
             const aifteamActions = actions.filter(a => a.responsible === 'AIFTEAM');
             const ortakActions = actions.filter(a => a.responsible && a.responsible.includes('Ortak'));
@@ -1491,7 +1501,7 @@ function loadActions() {
                     <div style="padding: 0.5rem 1rem; cursor: pointer; font-size: 0.875rem;" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='white'" onclick="openSettings()">⚙️ Ayarlar</div>
                     <div style="height: 1px; background: var(--gray-200); margin: 0.5rem 0;"></div>
                     <div style="padding: 0.5rem 1rem; cursor: pointer; font-size: 0.875rem; color: var(--danger);" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='white'" onclick="signOut()">🚪 Çıkış Yap</div>
-                            </div>
+                </div>
             `;
             
             const userMenu = event.target;
