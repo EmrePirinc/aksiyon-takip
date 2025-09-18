@@ -188,6 +188,32 @@
         .sidebar-header {
             padding: 1.5rem;
             border-bottom: 1px solid var(--gray-200);
+            text-align: center;
+        }
+        
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .main-logo {
+            height: 48px;
+            transition: var(--transition);
+            filter: brightness(1.1);
+        }
+        
+        .main-logo:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+        
+        .logo-subtitle {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            text-align: center;
         }
         
         .sidebar-header h1 {
@@ -839,57 +865,125 @@
             gap: 1rem;
         }
         
-        /* Filters */
-        .filters {
+        /* Smart Filters */
+        .smart-filters {
             background: white;
-            padding: 1.5rem;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--gray-200);
             margin-bottom: 2rem;
+            overflow: hidden;
         }
         
-        .filters-row {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            flex-wrap: wrap;
+        .filter-section {
+            padding: 1.5rem;
         }
         
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .filter-section:not(:last-child) {
+            border-bottom: 1px solid var(--gray-200);
         }
         
-        .filter-label {
+        .filter-header {
+            margin-bottom: 1rem;
+        }
+        
+        .filter-title {
             font-size: 0.875rem;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--gray-700);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
         }
         
-        .filter-buttons {
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+        }
+        
+        .smart-filter-btn {
             display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 0.5rem;
-        }
-        
-        .filter-btn {
-            padding: 0.5rem 1rem;
+            padding: 1rem;
             border-radius: var(--radius);
-            font-size: 0.75rem;
-            font-weight: 500;
+            border: 1px solid var(--gray-200);
+            background: var(--gray-50);
             cursor: pointer;
             transition: var(--transition);
-            border: 1px solid var(--gray-300);
-            background: white;
-            color: var(--gray-700);
         }
         
-        .filter-btn:hover,
-        .filter-btn.active {
+        .smart-filter-btn:hover {
+            background: var(--gray-100);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .smart-filter-btn.active {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
+        }
+        
+        .filter-icon {
+            font-size: 1.25rem;
+        }
+        
+        .filter-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .filter-count {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            background: var(--gray-200);
+            color: var(--gray-600);
+            min-width: 1.5rem;
+            text-align: center;
+        }
+        
+        .smart-filter-btn.active .filter-count {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .action-filter-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-200);
+            background: var(--gray-50);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .action-filter-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .action-icon {
+            font-size: 1.25rem;
+        }
+        
+        .action-text {
+            font-size: 0.875rem;
+            font-weight: 500;
         }
         
         /* Postponed Action Styles (Eski koddan) */
@@ -968,12 +1062,10 @@
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                    <img src="https://www.aifteam.com.tr/wp-content/uploads/2023/05/aifteam-yatay.svg" alt="AIFTEAM" style="height: 32px;">
-                    <span style="font-size: 0.75rem; color: var(--gray-500);">×</span>
-                    <img src="https://www.anadolubakir.com/dsm_include/img/logo/logo.png" alt="Anadolu Bakır" style="height: 32px;">
+                <div class="logo-container">
+                    <img src="https://www.aifteam.com.tr/wp-content/uploads/2023/05/aifteam-yatay.svg" alt="AIFTEAM" class="main-logo">
+                    <div class="logo-subtitle">Aksiyon Takip Sistemi</div>
                 </div>
-                <h1>📋 Aksiyon Takip</h1>
             </div>
             
             <nav class="sidebar-nav">
@@ -1057,30 +1149,61 @@
                     </div>
                 </div>
 
-                <!-- Filters -->
-                <div class="filters" id="filters" style="display: none;">
-                    <div class="filters-row">
-                        <div class="filter-group">
-                    <span class="filter-label">Durum:</span>
-                            <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="all">Tümü</button>
-                        <button class="filter-btn" data-filter="waiting">Bekliyor</button>
-                                <button class="filter-btn" data-filter="in-progress">Devam Ediyor</button>
-                                <button class="filter-btn" data-filter="completed">Tamamlandı</button>
-                    </div>
-                    </div>
-                        
-                        <div class="filter-group">
-                            <span class="filter-label">Filtreler:</span>
-                            <div class="filter-buttons">
-                                <button class="filter-btn" onclick="toggleUrgentFilter()">🔥 Acil</button>
-                                <button class="filter-btn" onclick="openPersonManagement()">👥 Kişiler</button>
-                                <button class="filter-btn" onclick="exportToExcel()">📊 Excel</button>
-                                <button class="filter-btn" onclick="exportToWord()">📄 Word</button>
-                            </div>
+                <!-- Smart Filters -->
+                <div class="smart-filters">
+                    <div class="filter-section">
+                        <div class="filter-header">
+                            <span class="filter-title">🎯 Hızlı Filtreler</span>
                         </div>
-        </div>
-            </div>
+                        <div class="filter-grid">
+                            <button class="smart-filter-btn active" data-filter="all">
+                                <span class="filter-icon">📊</span>
+                                <span class="filter-text">Tümü</span>
+                                <span class="filter-count" id="allCount">0</span>
+                            </button>
+                            <button class="smart-filter-btn" data-filter="waiting">
+                                <span class="filter-icon">⏳</span>
+                                <span class="filter-text">Bekliyor</span>
+                                <span class="filter-count" id="waitingFilterCount">0</span>
+                            </button>
+                            <button class="smart-filter-btn" data-filter="in-progress">
+                                <span class="filter-icon">🔄</span>
+                                <span class="filter-text">Devam</span>
+                                <span class="filter-count" id="progressFilterCount">0</span>
+                            </button>
+                            <button class="smart-filter-btn" data-filter="completed">
+                                <span class="filter-icon">✅</span>
+                                <span class="filter-text">Tamam</span>
+                                <span class="filter-count" id="completedFilterCount">0</span>
+                            </button>
+                            <button class="smart-filter-btn" onclick="toggleUrgentFilter()">
+                                <span class="filter-icon">🔥</span>
+                                <span class="filter-text">Acil</span>
+                                <span class="filter-count" id="urgentFilterCount">0</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-section">
+                        <div class="filter-header">
+                            <span class="filter-title">🚀 Hızlı İşlemler</span>
+                        </div>
+                        <div class="action-grid">
+                            <button class="action-filter-btn" onclick="openPersonManagement()">
+                                <span class="action-icon">👥</span>
+                                <span class="action-text">Kişiler</span>
+                            </button>
+                            <button class="action-filter-btn" onclick="exportToExcel()">
+                                <span class="action-icon">📊</span>
+                                <span class="action-text">Excel</span>
+                            </button>
+                            <button class="action-filter-btn" onclick="exportToWord()">
+                                <span class="action-icon">📄</span>
+                                <span class="action-text">Word</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Actions Grid -->
                 <div class="actions-grid" id="actionsContainer">
@@ -1415,8 +1538,8 @@ function loadActions() {
         }
 
         function toggleFilters() {
-            const filters = document.getElementById('filters');
-            filters.style.display = filters.style.display === 'none' ? 'block' : 'none';
+            // Filters are now always visible, this function is deprecated
+            showNotification('Filtreler artık her zaman görünür', 'info');
         }
 
         function togglePriorityFilter() {
@@ -1642,7 +1765,7 @@ function loadActions() {
                             <div class="action-title">${title}</div>
                             <div class="action-meta">
                                 <span class="team-badge ${teamClass}">
-                                    ${getTeamIcon(responsible)} ${responsible}
+                                    ${getTeamLogo(responsible)} ${responsible}
                                 </span>
                                 <span class="status-badge ${status}">
                                     ${statusText}
@@ -1726,6 +1849,36 @@ function loadActions() {
             document.getElementById('anadoluTotal').textContent = anadoluActions.length;
             document.getElementById('aifteamTotal').textContent = aifteamActions.length;
             document.getElementById('ortakTotal').textContent = ortakActions.length;
+            
+            // Update filter counts
+            updateFilterCounts();
+        }
+        
+        function updateFilterCounts() {
+            const allCount = actions.length;
+            const waitingCount = actions.filter(a => a.status === 'waiting').length;
+            const progressCount = actions.filter(a => a.status === 'in-progress').length;
+            const completedCount = actions.filter(a => a.status === 'completed').length;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const urgentCount = actions.filter(a => 
+                (a.date && a.date < today && a.status !== 'completed') || a.priority
+            ).length;
+            
+            const elements = {
+                'allCount': allCount,
+                'waitingFilterCount': waitingCount,
+                'progressFilterCount': progressCount,
+                'completedFilterCount': completedCount,
+                'urgentFilterCount': urgentCount
+            };
+            
+            Object.entries(elements).forEach(([id, count]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = count;
+                }
+            });
         }
 
         // Helper Functions
@@ -1741,6 +1894,14 @@ function loadActions() {
             if (!responsible) return '❓';
             if (responsible === 'Anadolu Bakır') return '🏢';
             if (responsible === 'AIFTEAM') return '💻';
+            if (responsible.includes('Ortak')) return '🤝';
+            return '❓';
+        }
+        
+        function getTeamLogo(responsible) {
+            if (!responsible) return '❓';
+            if (responsible === 'Anadolu Bakır') return '<img src="https://www.anadolubakir.com/dsm_include/img/logo/logo.png" alt="AB" style="height: 16px; vertical-align: middle;">';
+            if (responsible === 'AIFTEAM') return '<img src="https://www.aifteam.com.tr/wp-content/uploads/2023/05/aifteam-yatay.svg" alt="AIF" style="height: 16px; vertical-align: middle;">';
             if (responsible.includes('Ortak')) return '🤝';
             return '❓';
         }
@@ -2115,7 +2276,7 @@ function loadActions() {
                         ${action.priority ? ' ⭐' : ''}
                     </div>
                     <div style="font-size: 0.75rem; color: var(--gray-600); margin-bottom: 0.5rem;">
-                        <span class="team-badge ${teamClass}">${getTeamIcon(action.responsible)}</span>
+                        <span class="team-badge ${teamClass}">${getTeamLogo(action.responsible)}</span>
                         ${action.responsible}
                     </div>
                     ${formattedDate ? `<div style="font-size: 0.75rem; color: var(--gray-500);">📅 ${formattedDate}</div>` : ''}
@@ -2314,14 +2475,6 @@ function loadActions() {
                             </div>
                         </div>
                         
-                        <div class="form-group">
-                            <label>📱 Hızlı İşlemler</label>
-                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                                <button class="btn btn-secondary" onclick="exportToExcel(); closeProfile();">📊 Excel</button>
-                                <button class="btn btn-secondary" onclick="exportToWord(); closeProfile();">📄 Word</button>
-                                <button class="btn btn-secondary" onclick="openPersonManagement(); closeProfile();">👥 Kişiler</button>
-                            </div>
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" onclick="closeProfile()">Kapat</button>
@@ -2442,10 +2595,10 @@ function loadActions() {
             }
         });
 
-        // Filter event listeners
+        // Smart Filter event listeners
         document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('filter-btn') && e.target.dataset.filter) {
-                document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+            if (e.target.classList.contains('smart-filter-btn') && e.target.dataset.filter) {
+                document.querySelectorAll('.smart-filter-btn[data-filter]').forEach(btn => {
                     btn.classList.remove('active');
                 });
                 e.target.classList.add('active');
