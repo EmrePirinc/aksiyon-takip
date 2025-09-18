@@ -53,6 +53,20 @@
             --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
         }
         
+        /* Dark Mode */
+        [data-theme="dark"] {
+            --gray-50: #0f172a;
+            --gray-100: #1e293b;
+            --gray-200: #334155;
+            --gray-300: #475569;
+            --gray-400: #64748b;
+            --gray-500: #94a3b8;
+            --gray-600: #cbd5e1;
+            --gray-700: #e2e8f0;
+            --gray-800: #f1f5f9;
+            --gray-900: #f8fafc;
+        }
+        
         body {
             font-family: var(--font-sans);
             background: var(--gray-50);
@@ -373,6 +387,181 @@
             gap: 1.5rem;
         }
         
+        /* Calendar View */
+        .calendar-view {
+            display: none;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+        }
+        
+        .calendar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .calendar-nav button {
+            padding: 0.5rem;
+            border: 1px solid var(--gray-300);
+            background: white;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .calendar-nav button:hover {
+            background: var(--gray-50);
+        }
+        
+        .calendar-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+        
+        .calendar-day-header {
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            color: var(--gray-600);
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
+            font-size: 0.875rem;
+        }
+        
+        .calendar-day {
+            min-height: 120px;
+            padding: 0.5rem;
+            border-right: 1px solid var(--gray-200);
+            border-bottom: 1px solid var(--gray-200);
+            position: relative;
+        }
+        
+        .calendar-day:nth-child(7n) {
+            border-right: none;
+        }
+        
+        .calendar-day.other-month {
+            background: var(--gray-50);
+            color: var(--gray-400);
+        }
+        
+        .calendar-day.today {
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .calendar-date {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .calendar-event {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            margin-bottom: 0.25rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .calendar-event.waiting {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+        
+        .calendar-event.in-progress {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--team-anadolu);
+        }
+        
+        .calendar-event.completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+        
+        /* Kanban Board */
+        .kanban-view {
+            display: none;
+            gap: 1.5rem;
+        }
+        
+        .kanban-column {
+            flex: 1;
+            background: var(--gray-50);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            min-height: 600px;
+        }
+        
+        .kanban-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .kanban-title {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+        
+        .kanban-count {
+            background: var(--gray-200);
+            color: var(--gray-600);
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .kanban-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .kanban-card {
+            background: white;
+            padding: 1rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            cursor: grab;
+            transition: var(--transition);
+        }
+        
+        .kanban-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+        
+        .kanban-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+        
         .action-card {
             background: white;
             border-radius: var(--radius-lg);
@@ -385,6 +574,43 @@
         .action-card:hover {
             box-shadow: var(--shadow-md);
             transform: translateY(-2px);
+        }
+        
+        .action-card:hover .contextual-actions {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .contextual-actions {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .contextual-btn {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+        
+        .contextual-btn:hover {
+            background: white;
+            box-shadow: var(--shadow-md);
+            transform: scale(1.1);
         }
         
         .action-card-header {
@@ -741,6 +967,10 @@
                         <span class="nav-icon">✅</span>
                         Tüm Aksiyonlar
             </div>
+                    <div class="nav-item" onclick="setView('kanban')">
+                        <span class="nav-icon">📋</span>
+                        Kanban Board
+                    </div>
                     <div class="nav-item" onclick="setView('calendar')">
                         <span class="nav-icon">📅</span>
                         Takvim Görünümü
@@ -794,6 +1024,9 @@
                 <div class="header-actions">
                     <button class="btn btn-secondary" onclick="toggleFilters()">
                         🔍 Filtreler
+                    </button>
+                    <button class="btn btn-secondary" onclick="toggleTheme()" id="themeToggle">
+                        🌙 Dark
                     </button>
                     <button class="btn btn-primary" onclick="openModal()">
                         ➕ Yeni Aksiyon
@@ -862,7 +1095,55 @@
                 <!-- Actions Grid -->
                 <div class="actions-grid" id="actionsContainer">
                     <!-- Actions will be rendered here -->
-        </div>
+                </div>
+                
+                <!-- Calendar View -->
+                <div class="calendar-view" id="calendarView">
+                    <div class="calendar-header">
+                        <div class="calendar-nav">
+                            <button onclick="changeMonth(-1)">‹</button>
+                            <div class="calendar-title" id="calendarTitle">Ekim 2024</div>
+                            <button onclick="changeMonth(1)">›</button>
+                        </div>
+                        <button class="btn btn-secondary" onclick="goToToday()">Bugün</button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar will be rendered here -->
+                    </div>
+                </div>
+                
+                <!-- Kanban View -->
+                <div class="kanban-view" id="kanbanView">
+                    <div class="kanban-column">
+                        <div class="kanban-header">
+                            <div class="kanban-title">⏳ Bekliyor</div>
+                            <div class="kanban-count" id="waitingCount">0</div>
+                        </div>
+                        <div class="kanban-cards" id="waitingCards" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <!-- Waiting cards -->
+                        </div>
+                    </div>
+                    
+                    <div class="kanban-column">
+                        <div class="kanban-header">
+                            <div class="kanban-title">🔄 Devam Ediyor</div>
+                            <div class="kanban-count" id="progressCount">0</div>
+                        </div>
+                        <div class="kanban-cards" id="progressCards" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <!-- In-progress cards -->
+                        </div>
+                    </div>
+                    
+                    <div class="kanban-column">
+                        <div class="kanban-header">
+                            <div class="kanban-title">✅ Tamamlandı</div>
+                            <div class="kanban-count" id="completedCount">0</div>
+                        </div>
+                        <div class="kanban-cards" id="completedCards" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <!-- Completed cards -->
+                        </div>
+                    </div>
+                </div>
             </main>
             </div>
         </div>
@@ -971,6 +1252,7 @@
                 document.getElementById('user-name').textContent = user.email.split('@')[0];
                 loadActions();
                 loadPersons(); // Kişi verilerini de yükle
+                loadTheme(); // Tema ayarını yükle
             } else {
                 document.getElementById('login-container').style.display = 'flex';
                 document.getElementById('app-container').style.display = 'none';
@@ -1099,8 +1381,21 @@ function loadActions() {
                 item.classList.remove('active');
             });
             event.target.classList.add('active');
-            renderActions();
-            showNotification(`${view === 'dashboard' ? 'Dashboard' : view === 'actions' ? 'Tüm Aksiyonlar' : 'Takvim'} görünümüne geçildi`, 'info');
+            
+            // Hide all views
+            document.getElementById('actionsContainer').style.display = view === 'dashboard' || view === 'actions' ? 'grid' : 'none';
+            document.getElementById('calendarView').style.display = view === 'calendar' ? 'block' : 'none';
+            document.getElementById('kanbanView').style.display = view === 'kanban' ? 'flex' : 'none';
+            
+            if (view === 'calendar') {
+                renderCalendar();
+            } else if (view === 'kanban') {
+                renderKanban();
+            } else {
+                renderActions();
+            }
+            
+            showNotification(`${view === 'dashboard' ? 'Dashboard' : view === 'actions' ? 'Tüm Aksiyonlar' : view === 'calendar' ? 'Takvim' : 'Kanban'} görünümüne geçildi`, 'info');
         }
 
         function filterTeam(team) {
@@ -1320,6 +1615,18 @@ function loadActions() {
             
             return `
                 <div class="action-card ${postponed ? 'postponed' : ''}" data-action-id="${action.id || ''}">
+                    <div class="contextual-actions">
+                        <button class="contextual-btn" onclick="togglePriority('${action.id || ''}')" title="${priority ? 'Önceliği kaldır' : 'Öncelikli yap'}">
+                            ${priority ? '⭐' : '☆'}
+                        </button>
+                        <button class="contextual-btn" onclick="editAction('${action.id || ''}')" title="Düzenle">
+                            ✏️
+                        </button>
+                        <button class="contextual-btn" onclick="deleteAction('${action.id || ''}')" title="Sil" style="color: var(--danger);">
+                            🗑️
+                        </button>
+                    </div>
+                    
                     <div class="action-card-header">
                         <div style="flex: 1;">
                             <div class="action-title">${title}</div>
@@ -1336,19 +1643,19 @@ function loadActions() {
                             </div>
                             ${assignedPerson ? `<div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--gray-600);">👤 ${assignedPerson}</div>` : ''}
                             ${postponed && action.postponeReason ? `<div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--primary); padding: 0.25rem 0.5rem; background: rgba(99, 102, 241, 0.1); border-radius: 0.25rem; display: inline-block;">⏰ ${action.postponeReason}</div>` : ''}
-                            </div>
-                            </div>
+                        </div>
+                    </div>
                     
                     <div class="action-body">
                         <div class="action-description">
                             ${description}
                         </div>
-                            </div>
+                    </div>
                     
                     <div class="action-footer">
                         <div class="action-date">
                             📅 ${formattedDate}
-                            </div>
+                        </div>
                         <div class="action-buttons">
                             <button class="action-btn" onclick="editAction('${action.id || ''}')" title="Düzenle">
                                 ✏️
@@ -1362,9 +1669,9 @@ function loadActions() {
                             <button class="action-btn danger" onclick="deleteAction('${action.id || ''}')" title="Sil">
                                 🗑️
                             </button>
-                            </div>
                         </div>
-                            </div>
+                    </div>
+                </div>
             `;
         }
         
@@ -1495,6 +1802,169 @@ function loadActions() {
 
         function openSettings() {
             showNotification('Ayarlar sayfası yakında eklenecek', 'info');
+        }
+        
+        // Calendar Functions
+        let currentCalendarDate = new Date();
+        
+        function renderCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            // Update title
+            const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
+                              'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+            document.getElementById('calendarTitle').textContent = `${monthNames[month]} ${year}`;
+            
+            // Generate calendar grid
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+            
+            // Add day headers
+            const dayHeaders = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+            dayHeaders.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = day;
+                calendarGrid.appendChild(dayHeader);
+            });
+            
+            // Add calendar days
+            const currentDate = new Date(startDate);
+            for (let i = 0; i < 42; i++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                
+                if (currentDate.getMonth() !== month) {
+                    dayElement.classList.add('other-month');
+                }
+                
+                if (currentDate.toDateString() === new Date().toDateString()) {
+                    dayElement.classList.add('today');
+                }
+                
+                const dateStr = currentDate.toISOString().split('T')[0];
+                const dayActions = actions.filter(action => action.date === dateStr);
+                
+                dayElement.innerHTML = `
+                    <div class="calendar-date">${currentDate.getDate()}</div>
+                    ${dayActions.map(action => `
+                        <div class="calendar-event ${action.status}" onclick="editAction('${action.id}')" title="${action.title}">
+                            ${action.title.substring(0, 20)}${action.title.length > 20 ? '...' : ''}
+                        </div>
+                    `).join('')}
+                `;
+                
+                calendarGrid.appendChild(dayElement);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        }
+        
+        function changeMonth(direction) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+            renderCalendar();
+        }
+        
+        function goToToday() {
+            currentCalendarDate = new Date();
+            renderCalendar();
+        }
+        
+        // Kanban Functions
+        function renderKanban() {
+            const waitingActions = actions.filter(a => a.status === 'waiting');
+            const progressActions = actions.filter(a => a.status === 'in-progress');
+            const completedActions = actions.filter(a => a.status === 'completed');
+            
+            document.getElementById('waitingCount').textContent = waitingActions.length;
+            document.getElementById('progressCount').textContent = progressActions.length;
+            document.getElementById('completedCount').textContent = completedActions.length;
+            
+            document.getElementById('waitingCards').innerHTML = waitingActions.map(action => createKanbanCard(action)).join('');
+            document.getElementById('progressCards').innerHTML = progressActions.map(action => createKanbanCard(action)).join('');
+            document.getElementById('completedCards').innerHTML = completedActions.map(action => createKanbanCard(action)).join('');
+        }
+        
+        function createKanbanCard(action) {
+            const teamClass = getTeamClass(action.responsible);
+            const formattedDate = action.date ? new Date(action.date).toLocaleDateString('tr-TR') : '';
+            
+            return `
+                <div class="kanban-card" draggable="true" ondragstart="drag(event)" data-action-id="${action.id}">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--gray-900);">
+                        ${action.title}
+                        ${action.priority ? ' ⭐' : ''}
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--gray-600); margin-bottom: 0.5rem;">
+                        <span class="team-badge ${teamClass}">${getTeamIcon(action.responsible)}</span>
+                        ${action.responsible}
+                    </div>
+                    ${formattedDate ? `<div style="font-size: 0.75rem; color: var(--gray-500);">📅 ${formattedDate}</div>` : ''}
+                    <div style="margin-top: 0.5rem; display: flex; gap: 0.25rem;">
+                        <button class="action-btn" onclick="editAction('${action.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;">✏️</button>
+                        <button class="action-btn priority" onclick="togglePriority('${action.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;">${action.priority ? '⭐' : '☆'}</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Drag and Drop Functions
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+        
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.dataset.actionId);
+            ev.target.classList.add('dragging');
+        }
+        
+        function drop(ev) {
+            ev.preventDefault();
+            const actionId = ev.dataTransfer.getData("text");
+            const targetColumn = ev.target.closest('.kanban-cards');
+            
+            if (targetColumn) {
+                let newStatus = 'waiting';
+                if (targetColumn.id === 'progressCards') newStatus = 'in-progress';
+                if (targetColumn.id === 'completedCards') newStatus = 'completed';
+                
+                database.ref('actions/' + actionId).update({ status: newStatus });
+                showNotification(`Durum güncellendi: ${getStatusText(newStatus)}`, 'success');
+            }
+            
+            document.querySelectorAll('.kanban-card').forEach(card => {
+                card.classList.remove('dragging');
+            });
+        }
+
+        // Theme Toggle Function
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const themeToggle = document.getElementById('themeToggle');
+            themeToggle.innerHTML = newTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
+            
+            showNotification(`${newTheme === 'dark' ? 'Dark' : 'Light'} mode aktif`, 'info');
+        }
+        
+        // Load saved theme
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.innerHTML = savedTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
+            }
         }
 
         function toggleUserMenu() {
