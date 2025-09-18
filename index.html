@@ -750,13 +750,15 @@
             margin-bottom: var(--space-2);
         }
 
-        /* Kanban Görünümü */
+        /* Kanban Görünümü - Dikey 3 Sütun */
         #actionsContainerKanban {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: var(--space-6);
             align-items: start;
             min-height: 70vh;
+            height: calc(100vh - 300px);
+            max-height: 80vh;
         }
         .kanban-col {
             background-color: var(--gray-100);
@@ -765,6 +767,8 @@
             min-height: 60vh;
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
+            max-height: 100%;
         }
         .kanban-col-header {
             font-size: 1.1rem;
@@ -773,6 +777,10 @@
             border-bottom: 2px solid var(--gray-200);
             margin-bottom: var(--space-4);
             flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            background: var(--gray-100);
+            z-index: 10;
         }
         .kanban-col .action-card {
             margin-bottom: var(--space-4);
@@ -943,6 +951,8 @@
             #actionsContainerKanban { 
                 grid-template-columns: 1fr;
                 gap: var(--space-3);
+                height: auto;
+                min-height: 50vh;
             }
         }
         @media (max-width: 768px) {
@@ -1931,81 +1941,246 @@
                 return;
             }
 
-            // Kütüphanenin yüklenip yüklenmediğini kontrol et
-            if (typeof htmlDocx === 'undefined') {
-                alert("Word aktarma kütüphanesi yüklenemedi. Lütfen sayfayı yenileyin.");
-                return;
-            }
-
+            const anadoluActions = actions.filter(a => a.responsible === "Anadolu Bakır");
+            const aifteamActions = actions.filter(a => a.responsible === "AIFTEAM");
+            const ortakActions = actions.filter(a => a.responsible && a.responsible.includes("Ortak"));
+            
+            const reportDate = new Date().toLocaleDateString('tr-TR');
+            
             let htmlContent = `
-                <!DOCTYPE html>
-                <html>
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+                      xmlns:w='urn:schemas-microsoft-com:office:word'
+                      xmlns='http://www.w3.org/TR/REC-html40'>
                 <head>
-                    <meta charset="UTF-8">
-                    <title>Aksiyon Raporu</title>
+                    <meta charset='utf-8'>
+                    <title>Aksiyon Takip Raporu</title>
                     <style>
-                        body { font-family: Arial, sans-serif; margin: 20px; }
-                        h1 { color: #333; border-bottom: 2px solid #6366f1; padding-bottom: 10px; }
-                        h2 { color: #555; margin-top: 25px; }
-                        .action-item { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
-                        .priority { color: #f59e0b; font-weight: bold; }
-                        .status-completed { color: #10b981; font-weight: bold; }
-                        .status-in-progress { color: #6366f1; font-weight: bold; }
-                        .status-waiting { color: #f59e0b; font-weight: bold; }
-                        .team-anadolu { border-left: 4px solid #dc2626; }
-                        .team-aifteam { border-left: 4px solid #2563eb; }
-                        .team-ortak { border-left: 4px solid #9333ea; }
+                        body {
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            margin: 20px;
+                        }
+                        h1 {
+                            color: #2c3e50;
+                            border-bottom: 3px solid #3498db;
+                            padding-bottom: 10px;
+                            margin-bottom: 20px;
+                        }
+                        h2 {
+                            color: #34495e;
+                            background-color: #ecf0f1;
+                            padding: 10px;
+                            margin-top: 30px;
+                            margin-bottom: 15px;
+                        }
+                        .stats-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 30px;
+                        }
+                        .stats-table th, .stats-table td {
+                            border: 1px solid #ddd;
+                            padding: 10px;
+                            text-align: left;
+                        }
+                        .stats-table th {
+                            background-color: #3498db;
+                            color: white;
+                        }
+                        .stats-table tr:nth-child(even) {
+                            background-color: #f9f9f9;
+                        }
+                        .action-item {
+                            margin-bottom: 20px;
+                            padding: 15px;
+                            border: 1px solid #ddd;
+                            background-color: #f9f9f9;
+                            page-break-inside: avoid;
+                        }
+                        .action-title {
+                            font-weight: bold;
+                            color: #2c3e50;
+                            font-size: 16px;
+                            margin-bottom: 8px;
+                        }
+                        .action-field {
+                            margin: 5px 0;
+                        }
+                        .field-label {
+                            font-weight: bold;
+                            color: #666;
+                            display: inline-block;
+                            width: 100px;
+                        }
+                        .status {
+                            display: inline-block;
+                            padding: 3px 8px;
+                            border-radius: 4px;
+                            font-size: 12px;
+                            font-weight: bold;
+                        }
+                        .status.completed {
+                            background-color: #27ae60;
+                            color: white;
+                        }
+                        .status.in-progress {
+                            background-color: #3498db;
+                            color: white;
+                        }
+                        .status.waiting {
+                            background-color: #f39c12;
+                            color: white;
+                        }
+                        .team-anadolu {
+                            border-left: 4px solid #e74c3c;
+                        }
+                        .team-aifteam {
+                            border-left: 4px solid #3498db;
+                        }
+                        .team-ortak {
+                            border-left: 4px solid #9b59b6;
+                        }
+                        @page {
+                            margin: 2cm;
+                        }
                     </style>
                 </head>
                 <body>
-                    <h1>🚀 Aksiyon Takip Raporu</h1>
-                    <p><strong>Oluşturma Tarihi:</strong> ${new Date().toLocaleDateString('tr-TR')}</p>
-                    <p><strong>Toplam Aksiyon Sayısı:</strong> ${actions.length}</p>
-                    <hr/>
-            `;
-
-            // Takım bazında gruplandır
-            const groupedActions = {
-                'Anadolu Bakır': actions.filter(a => a.responsible === 'Anadolu Bakır'),
-                'AIFTEAM': actions.filter(a => a.responsible === 'AIFTEAM'),
-                'Ortak': actions.filter(a => a.responsible && a.responsible.includes('Ortak'))
-            };
-
-            Object.keys(groupedActions).forEach(team => {
-                const teamActions = groupedActions[team];
-                if (teamActions.length > 0) {
-                    htmlContent += `<h2>${team === 'Ortak' ? '🤝 Ortak Aksiyonlar' : team === 'Anadolu Bakır' ? '🏢 Anadolu Bakır' : '💻 AIFTEAM'} (${teamActions.length} aksiyon)</h2>`;
+                    <h1>📋 Aksiyon Takip Raporu</h1>
+                    <p><strong>Rapor Tarihi:</strong> ${reportDate}</p>
                     
-                    teamActions.forEach(action => {
-                        const person = persons.find(p => p.id === action.assignedPerson);
-                        const teamClass = action.responsible === 'Anadolu Bakır' ? 'team-anadolu' : 
-                                        action.responsible === 'AIFTEAM' ? 'team-aifteam' : 'team-ortak';
-                        
-                        htmlContent += `
-                            <div class="action-item ${teamClass}">
-                                <h3>${action.priority ? '<span class="priority">⭐ </span>' : ''}${action.title}</h3>
-                                <p><strong>Sorumlu Takım:</strong> ${action.responsible || '-'}</p>
-                                <p><strong>Atanan Kişi:</strong> ${person ? person.name : 'Atanmamış'}</p>
-                                <p><strong>Durum:</strong> <span class="status-${action.status}">${getStatusText(action.status)}</span></p>
-                                <p><strong>Hedef Tarih:</strong> ${action.date ? formatDate(action.date) : 'Belirtilmemiş'}</p>
-                                ${action.postponeReason ? `<p><strong>Erteleme Sebebi:</strong> ${action.postponeReason}</p>` : ''}
-                                <p><strong>Açıklama:</strong> ${action.description || '-'}</p>
+                    <h2>📊 Özet İstatistikler</h2>
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Takım</th>
+                                <th>Toplam</th>
+                                <th>Tamamlanan</th>
+                                <th>Devam Eden</th>
+                                <th>Bekleyen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Anadolu Bakır</td>
+                                <td>${anadoluActions.length}</td>
+                                <td>${anadoluActions.filter(a => a.status === 'completed').length}</td>
+                                <td>${anadoluActions.filter(a => a.status === 'in-progress').length}</td>
+                                <td>${anadoluActions.filter(a => a.status === 'waiting').length}</td>
+                            </tr>
+                            <tr>
+                                <td>AIFTEAM</td>
+                                <td>${aifteamActions.length}</td>
+                                <td>${aifteamActions.filter(a => a.status === 'completed').length}</td>
+                                <td>${aifteamActions.filter(a => a.status === 'in-progress').length}</td>
+                                <td>${aifteamActions.filter(a => a.status === 'waiting').length}</td>
+                            </tr>
+                            <tr>
+                                <td>Ortak</td>
+                                <td>${ortakActions.length}</td>
+                                <td>${ortakActions.filter(a => a.status === 'completed').length}</td>
+                                <td>${ortakActions.filter(a => a.status === 'in-progress').length}</td>
+                                <td>${ortakActions.filter(a => a.status === 'waiting').length}</td>
+                            </tr>
+                            <tr style="font-weight: bold; background-color: #ecf0f1;">
+                                <td>TOPLAM</td>
+                                <td>${actions.length}</td>
+                                <td>${actions.filter(a => a.status === 'completed').length}</td>
+                                <td>${actions.filter(a => a.status === 'in-progress').length}</td>
+                                <td>${actions.filter(a => a.status === 'waiting').length}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+            `;
+            
+            if (anadoluActions.length > 0) {
+                htmlContent += `<h2>🏢 Anadolu Bakır Aksiyonları (${anadoluActions.length})</h2>`;
+                anadoluActions.forEach(action => {
+                    htmlContent += `
+                        <div class="action-item team-anadolu">
+                            <div class="action-title">${action.title}</div>
+                            <div class="action-field">
+                                <span class="field-label">Durum:</span>
+                                <span class="status ${action.status}">${getStatusText(action.status)}</span>
                             </div>
-                        `;
-                    });
-                }
-            });
-
-            htmlContent += `</body></html>`;
-
-            try {
-                // htmlDocx kütüphanesini kullan
-                const converted = htmlDocx.asBlob(htmlContent);
-                saveAs(converted, `AksiyonRaporu_${new Date().toISOString().split('T')[0]}.docx`);
-            } catch (error) {
-                console.error('Word aktarma hatası:', error);
-                alert('Word dosyası oluşturulurken hata oluştu. Lütfen tekrar deneyin.');
+                            <div class="action-field">
+                                <span class="field-label">Tarih:</span>
+                                ${action.date ? formatDate(action.date) : "Belirtilmemiş"}
+                            </div>
+                            <div class="action-field">
+                                <span class="field-label">Açıklama:</span><br>
+                                ${action.description}
+                            </div>
+                        </div>
+                    `;
+                });
             }
+            
+            if (aifteamActions.length > 0) {
+                htmlContent += `<h2>💻 AIFTEAM Aksiyonları (${aifteamActions.length})</h2>`;
+                aifteamActions.forEach(action => {
+                    htmlContent += `
+                        <div class="action-item team-aifteam">
+                            <div class="action-title">${action.title}</div>
+                            <div class="action-field">
+                                <span class="field-label">Durum:</span>
+                                <span class="status ${action.status}">${getStatusText(action.status)}</span>
+                            </div>
+                            <div class="action-field">
+                                <span class="field-label">Tarih:</span>
+                                ${action.date ? formatDate(action.date) : "Belirtilmemiş"}
+                            </div>
+                            <div class="action-field">
+                                <span class="field-label">Açıklama:</span><br>
+                                ${action.description}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            if (ortakActions.length > 0) {
+                htmlContent += `<h2>🤝 Ortak Aksiyonlar (${ortakActions.length})</h2>`;
+                ortakActions.forEach(action => {
+                    htmlContent += `
+                        <div class="action-item team-ortak">
+                            <div class="action-title">${action.title}</div>
+                            <div class="action-field">
+                                <span class="field-label">Durum:</span>
+                                <span class="status ${action.status}">${getStatusText(action.status)}</span>
+                            </div>
+                            <div class="action-field">
+                                <span class="field-label">Tarih:</span>
+                                ${action.date ? formatDate(action.date) : "Belirtilmemiş"}
+                            </div>
+                            <div class="action-field">
+                                <span class="field-label">Açıklama:</span><br>
+                                ${action.description}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            htmlContent += `
+                </body>
+                </html>
+            `;
+            
+            // Simple Word export using blob
+            const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const fileName = `Aksiyon_Takip_Raporu_${new Date().toISOString().split('T')[0]}.doc`;
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showNotification('📄 Word raporu başarıyla oluşturuldu!', 'success');
         }
 
     </script>
