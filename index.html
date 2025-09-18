@@ -1757,6 +1757,109 @@ function loadActions() {
             }
         }
 
+        function quickStatusChange(id, currentStatus) {
+            const action = actions.find(a => a.id === id);
+            if (!action) return;
+
+            let newStatus;
+            switch(currentStatus) {
+                case 'waiting':
+                    newStatus = 'in-progress';
+                    break;
+                case 'in-progress':
+                    newStatus = 'completed';
+                    break;
+                case 'completed':
+                    newStatus = 'waiting';
+                    break;
+                default:
+                    newStatus = 'waiting';
+            }
+
+            database.ref('actions/' + id).update({
+                status: newStatus
+            });
+            
+            const statusText = getStatusText(newStatus);
+            showNotification(`Durum "${statusText}" olarak güncellendi`, 'success');
+        }
+
+        function duplicateAction(id) {
+            const action = actions.find(a => a.id === id);
+            if (!action) return;
+
+            const newAction = {
+                ...action,
+                id: null, // Yeni ID oluşturulacak
+                title: action.title + ' (Kopya)',
+                status: 'waiting',
+                priority: false,
+                postponed: false,
+                postponeReason: '',
+                createdAt: new Date().toISOString()
+            };
+
+            delete newAction.id; // ID'yi kaldır ki Firebase yeni oluştursun
+
+            database.ref('actions').push(newAction).then(() => {
+                showNotification('Aksiyon kopyalandı', 'success');
+            }).catch((error) => {
+                console.error('Kopyalama hatası:', error);
+                showNotification('Kopyalama sırasında hata oluştu', 'error');
+            });
+        }
+
+        function showUrgentActions() {
+            urgentFilterActive = !urgentFilterActive;
+            renderActions();
+            showNotification(urgentFilterActive ? 'Acil filtresi aktif' : 'Acil filtresi deaktif', 'info');
+        }
+
+        function showAllCompleted() {
+            currentStatusFilter = 'completed';
+            document.querySelectorAll('.smart-filter-btn[data-filter]').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.querySelector('.smart-filter-btn[data-filter="completed"]').classList.add('active');
+            renderActions();
+            updateFilterCounts();
+            showNotification('Tamamlanan aksiyonlar gösteriliyor', 'info');
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            renderActions();
+            showNotification('Arama temizlendi', 'info');
+        }
+
+        function bulkStatusUpdate(status) {
+            const selectedCards = document.querySelectorAll('.action-card.selected');
+            if (selectedCards.length === 0) {
+                showNotification('Lütfen güncellenecek aksiyonları seçin', 'warning');
+                return;
+            }
+
+            const promises = [];
+            selectedCards.forEach(card => {
+                const actionId = card.dataset.actionId;
+                if (actionId) {
+                    promises.push(database.ref('actions/' + actionId).update({ status: status }));
+                }
+            });
+
+            Promise.all(promises).then(() => {
+                showNotification(`${selectedCards.length} aksiyon güncellendi`, 'success');
+                // Seçimi temizle
+                document.querySelectorAll('.action-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                renderActions();
+            }).catch((error) => {
+                console.error('Toplu güncelleme hatası:', error);
+                showNotification('Toplu güncelleme sırasında hata oluştu', 'error');
+            });
+        }
+
         // Rendering (Eski koddan geliştirilmiş - null kontrollerle)
         function renderActions() {
             const container = document.getElementById('actionsContainer');
