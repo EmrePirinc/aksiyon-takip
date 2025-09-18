@@ -1346,12 +1346,18 @@
         }
         
         function cleanEmptyActions() {
-            const emptyActions = actions.filter(action => 
-                !action.title || !action.responsible || action.title.trim() === '' || action.responsible.trim() === ''
-            );
+            const emptyActions = actions.filter(action => {
+                // Daha güvenli kontrol - sadece gerçekten boş olanları tespit et
+                const hasNoTitle = !action.title || (typeof action.title === 'string' && action.title.trim() === '');
+                const hasNoResponsible = !action.responsible || (typeof action.responsible === 'string' && action.responsible.trim() === '');
+                const hasNoDescription = !action.description || (typeof action.description === 'string' && action.description.trim() === '');
+                
+                // Sadece title VE responsible eksikse boş say
+                return hasNoTitle && hasNoResponsible;
+            });
             
             if (emptyActions.length > 0) {
-                console.log('Found empty actions, cleaning:', emptyActions);
+                console.log('Found empty actions, cleaning:', emptyActions.map(a => ({ id: a.id, title: a.title, responsible: a.responsible })));
                 
                 // Boş action'ları Firebase'den sil
                 emptyActions.forEach(action => {
@@ -1365,9 +1371,11 @@
                 });
                 
                 // Local array'den de kaldır
-                actions = actions.filter(action => 
-                    action.title && action.responsible && action.title.trim() !== '' && action.responsible.trim() !== ''
-                );
+                actions = actions.filter(action => {
+                    const hasNoTitle = !action.title || (typeof action.title === 'string' && action.title.trim() === '');
+                    const hasNoResponsible = !action.responsible || (typeof action.responsible === 'string' && action.responsible.trim() === '');
+                    return !(hasNoTitle && hasNoResponsible);
+                });
             }
         }
         
