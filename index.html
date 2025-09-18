@@ -211,7 +211,7 @@
         .feature-list {
             display: flex;
             justify-content: space-around;
-            margin-top: 15px;
+            margin-top: 15px; 
         }
         
         .feature-item {
@@ -252,7 +252,7 @@
 
         /* --- GOOGLE FONTS --- */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        
+
         /* --- SİZİN MEVCUT CSS KODLARINIZ BURADA BAŞLIYOR --- */
         * {
             margin: 0;
@@ -823,22 +823,6 @@
             background: rgba(139, 92, 246, 0.05) !important;
         }
         
-        /* --- PRIORITY ACTION INDICATOR --- */
-        .action-card.priority {
-            border: 2px solid var(--accent) !important;
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.2);
-        }
-
-        .action-card.priority::after {
-            content: '⭐';
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            font-size: 1.5rem;
-            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
-            z-index: 5;
-        }
-        
         .assigned-person {
             font-size: 0.8rem;
             color: var(--primary);
@@ -1032,7 +1016,6 @@
         .action-buttons{
             display:flex;
             gap:12px;
-            align-items: stretch; /* Butonların aynı yükseklikte olmasını sağlar */
         }
         
         .action-btn{
@@ -1047,10 +1030,6 @@
             letter-spacing: 0.5px;
             position: relative;
             overflow: hidden;
-            display: flex; /* İkon ve metni hizalamak için */
-            align-items: center;
-            justify-content: center;
-            line-height: 1; /* Dikey hizalamayı iyileştirir */
         }
         
         .action-btn::before {
@@ -1096,8 +1075,8 @@
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             color: white;
             border-color: #f59e0b;
-            font-size: 1.2rem; /* İkonu büyütmek için */
-            padding: 10px 14px; /* Diğer butonlarla hizalamak için */
+            font-size: 0.75rem;
+            padding: 6px 12px;
         }
         
         .action-btn.priority:hover {
@@ -1110,6 +1089,8 @@
             background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
             color: white;
             border-color: #8b5cf6;
+            font-size: 0.75rem;
+            padding: 6px 12px;
         }
         
         .action-btn.postpone:hover {
@@ -1454,15 +1435,24 @@
                     </div>
                     <div class="toolbar-stats">
                         <div class="stat-item">
-                            <span class="stat-value" id="totalActions">0</span>
+                            <span class="stat-value" id="totalActions">
+                                <span class="loading-indicator" style="display: none;">⏳</span>
+                                <span class="stat-number">0</span>
+                            </span>
                             <span class="stat-label">Toplam</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-value" id="pendingActions">0</span>
+                            <span class="stat-value" id="pendingActions">
+                                <span class="loading-indicator" style="display: none;">⏳</span>
+                                <span class="stat-number">0</span>
+                            </span>
                             <span class="stat-label">Bekleyen</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-value" id="completedToday">0</span>
+                            <span class="stat-value" id="completedToday">
+                                <span class="loading-indicator" style="display: none;">⏳</span>
+                                <span class="stat-number">0</span>
+                            </span>
                             <span class="stat-label">Bugün</span>
                         </div>
                     </div>
@@ -1705,7 +1695,7 @@
 
         // F5 flash sorunu için loading state
         let authChecked = false;
-        
+
         auth.onAuthStateChanged((user) => {
             if (user) {
                 loginContainer.style.display = 'none';
@@ -1714,6 +1704,7 @@
                 
                 // Kullanıcı giriş yapmışsa verileri yükle
                 if (!authChecked) {
+                    showLoadingStats(); // Loading durumunu göster
                     loadActions();
                     loadPersons();
                     initBackupSystem();
@@ -1737,7 +1728,6 @@
         let changeCount = 0;
         let lastBackupTime = null;
         let backupHistory = [];
-        let initialLoadComplete = false; // <-- YENİ: UI titremesini önlemek için bayrak
         let backupSettings = {
             autoBackup: true,
             backupInterval: 30,
@@ -1745,6 +1735,10 @@
             dailyReminder: true
         };
         let backupTimer = null;
+        
+        // UI titremesini önlemek için
+        let initialLoadComplete = false;
+        let isDataLoading = true;
         function initBackupSystem(){const e=localStorage.getItem("backupSettings");if(e){backupSettings=JSON.parse(e);document.getElementById("autoBackup").checked=backupSettings.autoBackup;document.getElementById("backupInterval").value=backupSettings.backupInterval;document.getElementById("backupOnChange").checked=backupSettings.backupOnChange;document.getElementById("dailyReminder").checked=backupSettings.dailyReminder}const t=localStorage.getItem("backupHistory");if(t){backupHistory=JSON.parse(t);updateBackupHistory()}const a=localStorage.getItem("lastBackupTime");if(a){lastBackupTime=new Date(a);updateBackupStatus()}if(backupSettings.autoBackup){startBackupTimer()}checkDailyReminder()}function createBackup(e=false){const t={version:"1.0",timestamp:(new Date).toISOString(),actions:actions,stats:{total:actions.length,completed:actions.filter(e=>"completed"===e.status).length,inProgress:actions.filter(e=>"in-progress"===e.status).length,waiting:actions.filter(e=>"waiting"===e.status).length}};const a={id:Date.now(),date:(new Date).toISOString(),actionCount:actions.length,size:JSON.stringify(t).length};if(backupHistory.unshift(a),backupHistory.length>10){backupHistory=backupHistory.slice(0,10)}localStorage.setItem("backup_"+a.id,JSON.stringify(t));localStorage.setItem("backupHistory",JSON.stringify(backupHistory));localStorage.setItem("lastBackupTime",a.date);lastBackupTime=new Date(a.date);updateBackupStatus();updateBackupHistory();if(!e){downloadBackup(t);showSuccessMessage("Yedekleme başarıyla oluşturuldu!")}changeCount=0}function downloadBackup(e){const t=new Blob([JSON.stringify(e,null,2)],{type:"application/json"});const a=URL.createObjectURL(t);const n=document.createElement("a");const o=(new Date).toISOString().replace(/[:.]/g,"-").slice(0,-5);n.href=a;n.download=`Aksiyon_Yedek_${o}.json`;document.body.appendChild(n);n.click();document.body.removeChild(n);URL.revokeObjectURL(a)}function restoreBackup(e){if(confirm("Bu yedeği geri yüklemek istediğinizden emin misiniz? Mevcut veriler kaybolacak!")){const t=localStorage.getItem("backup_"+e);if(t){const e=JSON.parse(t);actions=e.actions;saveActions();renderActions();updateStats();showSuccessMessage("Yedek başarıyla geri yüklendi!")}}}function updateBackupStatus(){const e=document.getElementById("backupStatus");const t=document.getElementById("backupTime");if(lastBackupTime){const a=(new Date);const n=Math.floor((a-lastBackupTime)/1e3/60);if(n<30){e.className="backup-status success";t.textContent=`Son yedek: ${n} dakika önce`}else if(n<60){e.className="backup-status warning";t.textContent=`Son yedek: ${n} dakika önce`}else if(n<1440){e.className="backup-status warning";const a=Math.floor(n/60);t.textContent=`Son yedek: ${a} saat önce`}else{e.className="backup-status danger";const a=Math.floor(n/1440);t.textContent=`Son yedek: ${a} gün önce`}}else{e.className="backup-status warning";t.textContent="Son yedek: Henüz alınmadı"}}function updateBackupHistory(){const e=document.getElementById("backupList");if(0===backupHistory.length){e.innerHTML='<div style="text-align: center; color: #999;">Henüz yedek yok</div>';return}e.innerHTML=backupHistory.map(e=>{const t=new Date(e.date);const a=t.toLocaleDateString("tr-TR")+" "+t.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});const n=Math.round(e.size/1024);return`
                     <div class="backup-item">
                         <div>
@@ -1783,12 +1777,19 @@ function loadActions() {
                     description: actionData.description || 'Açıklama yok',
                     status: actionData.status || 'waiting',
                     date: actionData.date || '',
-                    priority: actionData.priority || false
+                    priority: actionData.priority || false,
+                    postponed: actionData.postponed || false,
+                    postponeReason: actionData.postponeReason || '',
+                    assignedPerson: actionData.assignedPerson || ''
                 };
             }).filter(action => action.id); // Geçersiz ID'leri filtrele
+            
+            // İlk yükleme tamamlandı
+            initialLoadComplete = true;
+            isDataLoading = false;
         } else {
-            // Sadece ilk yükleme bittikten sonra burayı çalıştır.
-            // Böylece başlangıçtaki anlık "veri yok" durumu ekranı sıfırlamaz.
+            // Sadece ilk yükleme tamamlandıktan sonra boşalt
+            // Bu sayede başlangıçtaki "veri yok" durumu ekranı sıfırlamaz
             if (initialLoadComplete) {
                 actions = []; 
             }
@@ -1796,7 +1797,6 @@ function loadActions() {
         
         renderActions();
         updateStats();
-        initialLoadComplete = true; // İlk veri paketi işlendi, artık bayrağı kaldırabiliriz.
     });
 }function getTeamType(e){
     if(!e || typeof e !== 'string') return "other";
@@ -1805,6 +1805,11 @@ function loadActions() {
     if("Anadolu Bakır"===e)return"anadolu";
     return"other";
 }function updateStats(){
+    // İlk yükleme tamamlanmamışsa stats'ı güncelleme
+    if (!initialLoadComplete && isDataLoading) {
+        return;
+    }
+    
     const e=actions.filter(e=>e.responsible==="Anadolu Bakır");
     document.getElementById("anadoluTotal").textContent=e.length;
     document.getElementById("anadoluProgress").textContent=e.filter(e=>"in-progress"===e.status).length;
@@ -1902,7 +1907,7 @@ function loadActions() {
     const t=getTeamType(responsible);
     const a="anadolu"===t?"🏢":"aifteam"===t?"💻":"🤝";
     return`
-                <div class="action-card ${t} ${postponed ? 'postponed' : ''} ${priority ? 'priority' : ''}" data-action-id="${e.id || ''}">
+                <div class="action-card ${t} ${postponed ? 'postponed' : ''}" data-action-id="${e.id || ''}">
                     <div class="action-header">
                         <div>
                             <div class="action-title">${title}</div>
@@ -1963,9 +1968,9 @@ function loadActions() {
         database.ref('actions').push(actionData);
     }
 
-        // 3. Sadece formu kapat. Ekranın güncellenmesini loadActions'taki dinleyici
-        //    otomatik olarak yapacak!
-        closeModal();
+    // 3. Sadece formu kapat. Ekranın güncellenmesini loadActions'taki dinleyici
+    //    otomatik olarak yapacak!
+    closeModal();
     });
 
     // --- YENİ PRATİK ÖZELLİKLER ---
@@ -2200,6 +2205,9 @@ function loadActions() {
 
     // İstatistikleri güncelle
     function updateQuickStats() {
+        // Loading göstergelerini gizle
+        document.querySelectorAll('.loading-indicator').forEach(el => el.style.display = 'none');
+        
         const total = actions.length;
         const pending = actions.filter(a => a.status === 'waiting' || a.status === 'in-progress').length;
         
@@ -2210,9 +2218,16 @@ function loadActions() {
             return true; // Şimdilik tümü
         }).length;
 
-        document.getElementById('totalActions').textContent = total;
-        document.getElementById('pendingActions').textContent = pending;
-        document.getElementById('completedToday').textContent = completedToday;
+        // Stat-number span'larını güncelle
+        document.querySelector('#totalActions .stat-number').textContent = total;
+        document.querySelector('#pendingActions .stat-number').textContent = pending;
+        document.querySelector('#completedToday .stat-number').textContent = completedToday;
+    }
+    
+    // Loading durumunu göster
+    function showLoadingStats() {
+        document.querySelectorAll('.loading-indicator').forEach(el => el.style.display = 'inline');
+        document.querySelectorAll('.stat-number').forEach(el => el.textContent = '');
     }
 
     // Card selection sistemi
@@ -2268,25 +2283,42 @@ function loadActions() {
 
     // Kişi yönetimi fonksiyonları
     function loadPersons() {
+        // Auth kontrolü ekle
+        if (!auth.currentUser) {
+            console.warn('Kullanıcı giriş yapmamış, persons yüklenemiyor');
+            return;
+        }
+
         const personsRef = database.ref('persons');
         personsRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 persons = Object.keys(data).map(key => ({
                     id: key,
-                    ...data[key]
+                    name: data[key].name || 'İsimsiz',
+                    team: data[key].team || 'Takım Yok',
+                    email: data[key].email || '',
+                    role: data[key].role || ''
                 }));
             } else {
                 persons = [];
             }
             updatePersonDropdown();
             renderPersonList();
+        }, (error) => {
+            console.error('Persons yüklenirken hata:', error);
+            showNotification('⚠️ Kişi verileri yüklenemedi. Firebase kurallarını kontrol edin.', 'warning');
         });
     }
 
     function openPersonManagement() {
         document.getElementById('personModal').classList.add('active');
         renderPersonList();
+        
+        // Firebase kuralları uyarısı
+        if (persons.length === 0 && !auth.currentUser) {
+            showNotification('⚠️ Kişi yönetimi için giriş yapmanız gerekiyor!', 'warning');
+        }
     }
 
     function closePersonModal() {
@@ -2401,23 +2433,47 @@ function loadActions() {
     document.getElementById('personForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
+        // Auth kontrolü
+        if (!auth.currentUser) {
+            showNotification('⚠️ Giriş yapmanız gerekiyor!', 'warning');
+            return;
+        }
+        
         const personData = {
             name: document.getElementById('personName').value,
             team: document.getElementById('personTeam').value,
             email: document.getElementById('personEmail').value,
-            role: document.getElementById('personRole').value
+            role: document.getElementById('personRole').value,
+            createdAt: new Date().toISOString(),
+            createdBy: auth.currentUser.email
         };
 
         const editId = this.dataset.editId;
         if (editId) {
             // Güncelleme
-            database.ref('persons/' + editId).update(personData);
-            showNotification('👤 Kişi güncellendi', 'success');
+            database.ref('persons/' + editId).update(personData)
+                .then(() => {
+                    showNotification('👤 Kişi güncellendi', 'success');
+                })
+                .catch((error) => {
+                    console.error('Kişi güncelleme hatası:', error);
+                    showNotification('❌ Kişi güncellenemedi: ' + error.message, 'warning');
+                });
             delete this.dataset.editId;
         } else {
             // Yeni ekleme
-            database.ref('persons').push(personData);
-            showNotification('👤 Yeni kişi eklendi', 'success');
+            database.ref('persons').push(personData)
+                .then(() => {
+                    showNotification('👤 Yeni kişi eklendi', 'success');
+                })
+                .catch((error) => {
+                    console.error('Kişi ekleme hatası:', error);
+                    if (error.code === 'PERMISSION_DENIED') {
+                        showNotification('❌ Firebase kuralları: persons collection\'ına yazma izni yok!', 'warning');
+                    } else {
+                        showNotification('❌ Kişi eklenemedi: ' + error.message, 'warning');
+                    }
+                });
         }
 
         this.reset();
@@ -2469,7 +2525,7 @@ function loadActions() {
         }
 
         closeModal();
-    });document.getElementById("searchInput").addEventListener("input",renderActions);document.querySelectorAll(".team-filter-btn").forEach(e=>{e.addEventListener("click",t=>{document.querySelectorAll(".team-filter-btn").forEach(e=>e.classList.remove("active"));t.currentTarget.classList.add("active");t.currentTarget.classList.add("all"===t.currentTarget.dataset.team?"all":"Anadolu Bakır"===t.currentTarget.dataset.team?"anadolu":"AIFTEAM"===t.currentTarget.dataset.team?"aifteam":"ortak");currentTeamFilter=t.currentTarget.dataset.team;renderActions()})});document.querySelectorAll(".filter-btn").forEach(e=>{e.addEventListener("click",t=>{document.querySelectorAll(".filter-btn").forEach(e=>e.classList.remove("active"));t.target.classList.add("active");currentStatusFilter=t.target.dataset.filter;renderActions()})});document.querySelectorAll(".view-btn").forEach(e=>{e.addEventListener("click",t=>{document.querySelectorAll(".view-btn").forEach(e=>e.classList.remove("active"));t.target.classList.add("active");currentView=t.target.dataset.view;renderActions()})});document.getElementById("actionModal").addEventListener("click",e=>{if("actionModal"===e.target.id){closeModal()}});function exportToExcel(){const e=actions.map(e=>({ID:e.id,Başlık:e.title,Sorumlu:e.responsible,Açıklama:e.description,Durum:getStatusText(e.status),"Hedef Tarih":e.date||"Belirtilmemiş",Takım:"Anadolu Bakır"===e.responsible?"Anadolu Bakır":"AIFTEAM"===e.responsible?"AIFTEAM":"Ortak"}));const t=XLSX.utils.book_new();const a=XLSX.utils.json_to_sheet(e);const n=[{wch:8},{wch:35},{wch:25},{wch:60},{wch:15},{wch:15},{wch:15}];a["!cols"]=n;XLSX.utils.book_append_sheet(t,a,"Tüm Aksiyonlar");const o=e.filter(e=>"Anadolu Bakır"===e.Takım);if(o.length>0){const e=XLSX.utils.json_to_sheet(o);e["!cols"]=n;XLSX.utils.book_append_sheet(t,e,"Anadolu Bakır")}const i=e.filter(e=>"AIFTEAM"===e.Takım);if(i.length>0){const e=XLSX.utils.json_to_sheet(i);e["!cols"]=n;XLSX.utils.book_append_sheet(t,e,"AIFTEAM")}const r=e.filter(e=>"Ortak"===e.Takım);if(r.length>0){const e=XLSX.utils.json_to_sheet(r);e["!cols"]=n;XLSX.utils.book_append_sheet(t,e,"Ortak")}const l=[{Takım:"Anadolu Bakır",Toplam:o.length,Tamamlanan:o.filter(e=>"Tamamlandı"===e.Durum).length,"Devam Eden":o.filter(e=>"Devam Ediyor"===e.Durum).length,Bekleyen:o.filter(e=>"Bekliyor"===e.Durum).length},{Takım:"AIFTEAM",Toplam:i.length,Tamamlanan:i.filter(e=>"Tamamlandı"===e.Durum).length,"Devam Eden":i.filter(e=>"Devam Ediyor"===e.Durum).length,Bekleyen:i.filter(e=>"Bekliyor"===e.Durum).length},{Takım:"Ortak",Toplam:r.length,Tamamlanan:r.filter(e=>"Tamamlandı"===e.Durum).length,"Devam Eden":r.filter(e=>"Devam Ediyor"===e.Durum).length,Bekleyen:r.filter(e=>"Bekliyor"===e.Durum).length}];const s=XLSX.utils.json_to_sheet(l);s["!cols"]=[{wch:20},{wch:10},{wch:12},{wch:12},{wch:12}];XLSX.utils.book_append_sheet(t,s,"İstatistikler");const c=(new Date).toISOString().split("T")[0];XLSX.writeFile(t,`Aksiyon_Takip_${c}.xlsx`)}function exportToWord(){const e=actions.filter(e=>"Anadolu Bakır"===e.responsible);const t=actions.filter(e=>"AIFTEAM"===e.responsible);const a=actions.filter(e=>e.responsible.includes("Ortak"));const n=(new Date).toLocaleDateString("tr-TR");let o=`
+});document.getElementById("searchInput").addEventListener("input",renderActions);document.querySelectorAll(".team-filter-btn").forEach(e=>{e.addEventListener("click",t=>{document.querySelectorAll(".team-filter-btn").forEach(e=>e.classList.remove("active"));t.currentTarget.classList.add("active");t.currentTarget.classList.add("all"===t.currentTarget.dataset.team?"all":"Anadolu Bakır"===t.currentTarget.dataset.team?"anadolu":"AIFTEAM"===t.currentTarget.dataset.team?"aifteam":"ortak");currentTeamFilter=t.currentTarget.dataset.team;renderActions()})});document.querySelectorAll(".filter-btn").forEach(e=>{e.addEventListener("click",t=>{document.querySelectorAll(".filter-btn").forEach(e=>e.classList.remove("active"));t.target.classList.add("active");currentStatusFilter=t.target.dataset.filter;renderActions()})});document.querySelectorAll(".view-btn").forEach(e=>{e.addEventListener("click",t=>{document.querySelectorAll(".view-btn").forEach(e=>e.classList.remove("active"));t.target.classList.add("active");currentView=t.target.dataset.view;renderActions()})});document.getElementById("actionModal").addEventListener("click",e=>{if("actionModal"===e.target.id){closeModal()}});function exportToExcel(){const e=actions.map(e=>({ID:e.id,Başlık:e.title,Sorumlu:e.responsible,Açıklama:e.description,Durum:getStatusText(e.status),"Hedef Tarih":e.date||"Belirtilmemiş",Takım:"Anadolu Bakır"===e.responsible?"Anadolu Bakır":"AIFTEAM"===e.responsible?"AIFTEAM":"Ortak"}));const t=XLSX.utils.book_new();const a=XLSX.utils.json_to_sheet(e);const n=[{wch:8},{wch:35},{wch:25},{wch:60},{wch:15},{wch:15},{wch:15}];a["!cols"]=n;XLSX.utils.book_append_sheet(t,a,"Tüm Aksiyonlar");const o=e.filter(e=>"Anadolu Bakır"===e.Takım);if(o.length>0){const e=XLSX.utils.json_to_sheet(o);e["!cols"]=n;XLSX.utils.book_append_sheet(t,e,"Anadolu Bakır")}const i=e.filter(e=>"AIFTEAM"===e.Takım);if(i.length>0){const e=XLSX.utils.json_to_sheet(i);e["!cols"]=n;XLSX.utils.book_append_sheet(t,e,"AIFTEAM")}const r=e.filter(e=>"Ortak"===e.Takım);if(r.length>0){const e=XLSX.utils.json_to_sheet(r);e["!cols"]=n;XLSX.utils.book_append_sheet(t,e,"Ortak")}const l=[{Takım:"Anadolu Bakır",Toplam:o.length,Tamamlanan:o.filter(e=>"Tamamlandı"===e.Durum).length,"Devam Eden":o.filter(e=>"Devam Ediyor"===e.Durum).length,Bekleyen:o.filter(e=>"Bekliyor"===e.Durum).length},{Takım:"AIFTEAM",Toplam:i.length,Tamamlanan:i.filter(e=>"Tamamlandı"===e.Durum).length,"Devam Eden":i.filter(e=>"Devam Ediyor"===e.Durum).length,Bekleyen:i.filter(e=>"Bekliyor"===e.Durum).length},{Takım:"Ortak",Toplam:r.length,Tamamlanan:r.filter(e=>"Tamamlandı"===e.Durum).length,"Devam Eden":r.filter(e=>"Devam Ediyor"===e.Durum).length,Bekleyen:r.filter(e=>"Bekliyor"===e.Durum).length}];const s=XLSX.utils.json_to_sheet(l);s["!cols"]=[{wch:20},{wch:10},{wch:12},{wch:12},{wch:12}];XLSX.utils.book_append_sheet(t,s,"İstatistikler");const c=(new Date).toISOString().split("T")[0];XLSX.writeFile(t,`Aksiyon_Takip_${c}.xlsx`)}function exportToWord(){const e=actions.filter(e=>"Anadolu Bakır"===e.responsible);const t=actions.filter(e=>"AIFTEAM"===e.responsible);const a=actions.filter(e=>e.responsible.includes("Ortak"));const n=(new Date).toLocaleDateString("tr-TR");let o=`
                 <html xmlns:o='urn:schemas-microsoft-com:office:office' 
                       xmlns:w='urn:schemas-microsoft-com:office:word'
                       xmlns='http://www.w3.org/TR/REC-html40'>
