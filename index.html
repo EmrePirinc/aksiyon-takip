@@ -687,42 +687,6 @@
             opacity: 1;
         }
         
-        .action-card:hover .contextual-actions {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .contextual-actions {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            display: flex;
-            gap: 0.5rem;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
-        }
-        
-        .contextual-btn {
-            width: 2rem;
-            height: 2rem;
-            border-radius: 50%;
-            border: none;
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.875rem;
-            transition: var(--transition);
-        }
-        
-        .contextual-btn:hover {
-            background: white;
-            box-shadow: var(--shadow-md);
-            transform: scale(1.1);
-        }
         
         .action-card-header {
             padding: 1.5rem 1.5rem 0;
@@ -995,22 +959,29 @@
             gap: 0.5rem;
             padding: 1rem;
             border-radius: var(--radius);
-            border: 1px solid var(--gray-200);
-            background: var(--gray-50);
+            border: 2px solid var(--gray-300);
+            background: white;
+            color: var(--gray-700);
             cursor: pointer;
             transition: var(--transition);
+            opacity: 0.8;
         }
         
         .smart-filter-btn:hover {
-            background: var(--gray-100);
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
             transform: translateY(-1px);
             box-shadow: var(--shadow-sm);
+            opacity: 1;
         }
         
         .smart-filter-btn.active {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
+            opacity: 1;
+            box-shadow: var(--shadow-md);
         }
         
         .filter-icon {
@@ -1031,6 +1002,12 @@
             color: var(--gray-600);
             min-width: 1.5rem;
             text-align: center;
+            transition: var(--transition);
+        }
+        
+        .smart-filter-btn:hover .filter-count {
+            background: var(--primary-light);
+            color: var(--primary);
         }
         
         .smart-filter-btn.active .filter-count {
@@ -1861,18 +1838,6 @@ function loadActions() {
             
             return `
                 <div class="action-card ${postponed ? 'postponed' : ''}" data-action-id="${action.id || ''}">
-                    <div class="contextual-actions">
-                        <button class="contextual-btn" onclick="togglePriority('${action.id || ''}')" title="${priority ? 'Önceliği kaldır' : 'Öncelikli yap'}">
-                            ${priority ? '⭐' : '☆'}
-                        </button>
-                        <button class="contextual-btn" onclick="editAction('${action.id || ''}')" title="Düzenle">
-                            ✏️
-                        </button>
-                        <button class="contextual-btn" onclick="deleteAction('${action.id || ''}')" title="Sil" style="color: var(--danger);">
-                            🗑️
-                        </button>
-                    </div>
-                    
                     <div class="action-card-header">
                         <div style="flex: 1;">
                             <div class="action-title">${title}</div>
@@ -1904,16 +1869,16 @@ function loadActions() {
                         </div>
                         <div class="action-buttons">
                             <button class="action-btn" onclick="editAction('${action.id || ''}')" title="Düzenle">
-                                ✏️
+                                ✏️ Düzenle
                             </button>
                             <button class="action-btn priority" onclick="togglePriority('${action.id || ''}')" title="${priority ? 'Önceliği kaldır' : 'Öncelikli yap'}">
-                                ${priority ? '⭐' : '☆'}
+                                ${priority ? '⭐ Öncelik' : '☆ Öncelik'}
                             </button>
                             <button class="action-btn" onclick="postponeAction('${action.id || ''}')" title="Görevi ertele">
-                                ⏰
+                                ⏰ Ertele
                             </button>
                             <button class="action-btn danger" onclick="deleteAction('${action.id || ''}')" title="Sil">
-                                🗑️
+                                🗑️ Sil
                             </button>
                         </div>
                     </div>
