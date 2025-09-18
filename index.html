@@ -66,11 +66,20 @@
             --gray-800: #f1f5f9;
             --gray-900: #f8fafc;
             
+            /* Dark mode specific colors */
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --primary-light: #a5b4fc;
+            
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            
             /* Dark mode shadows */
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
         }
         
         body {
@@ -958,64 +967,29 @@
     <div id="app-container" style="display: none;">
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
+        <div class="sidebar-header">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                    <img src="https://www.aifteam.com.tr/wp-content/uploads/2023/05/aifteam-yatay.svg" alt="AIFTEAM" style="height: 32px;">
+                    <span style="font-size: 0.75rem; color: var(--gray-500);">×</span>
+                    <img src="https://www.anadolubakir.com/dsm_include/img/logo/logo.png" alt="Anadolu Bakır" style="height: 32px;">
+                </div>
                 <h1>📋 Aksiyon Takip</h1>
-                    </div>
+            </div>
             
             <nav class="sidebar-nav">
                 <div class="nav-section">
-                    <div class="nav-section-title">Ana Menü</div>
+                    <div class="nav-section-title">Görünümler</div>
                     <div class="nav-item active" onclick="setView('dashboard')">
                         <span class="nav-icon">📊</span>
                         Dashboard
-                </div>
-                    <div class="nav-item" onclick="setView('actions')">
-                        <span class="nav-icon">✅</span>
-                        Tüm Aksiyonlar
-            </div>
+                    </div>
                     <div class="nav-item" onclick="setView('kanban')">
                         <span class="nav-icon">📋</span>
                         Kanban Board
                     </div>
                     <div class="nav-item" onclick="setView('calendar')">
                         <span class="nav-icon">📅</span>
-                        Takvim Görünümü
-                    </div>
-                </div>
-                
-                <div class="nav-section">
-                    <div class="nav-section-title">Takımlar</div>
-                    <div class="nav-item" onclick="filterTeam('Anadolu Bakır')">
-                        <span class="nav-icon">🏢</span>
-                        Anadolu Bakır
-                    </div>
-                    <div class="nav-item" onclick="filterTeam('AIFTEAM')">
-                        <span class="nav-icon">💻</span>
-                        AIFTEAM
-                </div>
-                    <div class="nav-item" onclick="filterTeam('Ortak')">
-                        <span class="nav-icon">🤝</span>
-                        Ortak Projeler
-                    </div>
-                </div>
-                
-                <div class="nav-section">
-                    <div class="nav-section-title">Araçlar</div>
-                    <div class="nav-item" onclick="exportToExcel()">
-                        <span class="nav-icon">📊</span>
-                        Excel Export
-                    </div>
-                    <div class="nav-item" onclick="exportToWord()">
-                        <span class="nav-icon">📄</span>
-                        Word Export
-                    </div>
-                    <div class="nav-item" onclick="openPersonManagement()">
-                        <span class="nav-icon">👥</span>
-                        Kişi Yönetimi
-                    </div>
-                    <div class="nav-item" onclick="openSettings()">
-                        <span class="nav-icon">⚙️</span>
-                        Ayarlar
+                        Takvim
                     </div>
                 </div>
             </nav>
@@ -1100,6 +1074,9 @@
                             <span class="filter-label">Filtreler:</span>
                             <div class="filter-buttons">
                                 <button class="filter-btn" onclick="toggleUrgentFilter()">🔥 Acil</button>
+                                <button class="filter-btn" onclick="openPersonManagement()">👥 Kişiler</button>
+                                <button class="filter-btn" onclick="exportToExcel()">📊 Excel</button>
+                                <button class="filter-btn" onclick="exportToWord()">📄 Word</button>
                             </div>
                         </div>
         </div>
@@ -2292,8 +2269,98 @@ function loadActions() {
         }
         
         function showUserProfile() {
-            showNotification('👤 Profil özelliği yakında eklenecek', 'info');
             document.querySelector('.user-dropdown-menu')?.remove();
+            
+            const profileModal = document.createElement('div');
+            profileModal.className = 'modal active';
+            profileModal.id = 'profileModal';
+            profileModal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>👤 Kullanıcı Profili</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div style="text-align: center; margin-bottom: 2rem;">
+                            <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem;">
+                                👤
+                            </div>
+                            <h3 style="margin: 0; color: var(--gray-900);">${auth.currentUser?.email || 'Kullanıcı'}</h3>
+                            <p style="color: var(--gray-600); margin: 0.5rem 0;">Aksiyon Takip Sistemi</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>📊 İstatistiklerim</label>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 0.5rem;">
+                                <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: var(--radius);">
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);" id="userTotalActions">0</div>
+                                    <div style="font-size: 0.75rem; color: var(--gray-600);">Toplam</div>
+                                </div>
+                                <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: var(--radius);">
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);" id="userCompletedActions">0</div>
+                                    <div style="font-size: 0.75rem; color: var(--gray-600);">Tamamlanan</div>
+                                </div>
+                                <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: var(--radius);">
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--warning);" id="userPendingActions">0</div>
+                                    <div style="font-size: 0.75rem; color: var(--gray-600);">Bekleyen</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>🎨 Tercihler</label>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                <button class="btn btn-secondary" onclick="setTheme('light')">☀️ Light</button>
+                                <button class="btn btn-secondary" onclick="setTheme('dark')">🌙 Dark</button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>📱 Hızlı İşlemler</label>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                <button class="btn btn-secondary" onclick="exportToExcel(); closeProfile();">📊 Excel</button>
+                                <button class="btn btn-secondary" onclick="exportToWord(); closeProfile();">📄 Word</button>
+                                <button class="btn btn-secondary" onclick="openPersonManagement(); closeProfile();">👥 Kişiler</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeProfile()">Kapat</button>
+                        <button class="btn btn-danger" onclick="signOut()">🚪 Çıkış Yap</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(profileModal);
+            updateProfileStats();
+        }
+        
+        function closeProfile() {
+            const modal = document.getElementById('profileModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        function updateProfileStats() {
+            const userEmail = auth.currentUser?.email;
+            if (!userEmail) return;
+            
+            // Kullanıcının oluşturduğu aksiyonları say (basit yaklaşım)
+            const userActions = actions.filter(action => 
+                action.createdBy === userEmail || 
+                action.responsible?.toLowerCase().includes(userEmail.split('@')[0].toLowerCase())
+            );
+            
+            const total = userActions.length;
+            const completed = userActions.filter(a => a.status === 'completed').length;
+            const pending = userActions.filter(a => a.status !== 'completed').length;
+            
+            const totalEl = document.getElementById('userTotalActions');
+            const completedEl = document.getElementById('userCompletedActions');
+            const pendingEl = document.getElementById('userPendingActions');
+            
+            if (totalEl) totalEl.textContent = total;
+            if (completedEl) completedEl.textContent = completed;
+            if (pendingEl) pendingEl.textContent = pending;
         }
         
         function closePersonManagement() {
