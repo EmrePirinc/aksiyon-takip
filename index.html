@@ -1163,6 +1163,23 @@
             background: var(--gray-50);
             border-left: 3px solid var(--primary);
         }
+
+        /* --- BULK ACTION BAR --- */
+        .bulk-bar {
+            position: sticky;
+            bottom: 0;
+            background: rgba(255,255,255,.95);
+            border-top: 1px solid var(--gray-200);
+            padding: 10px 14px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .bulk-bar.active { display: flex; }
+        .bulk-bar .bulk-actions { display:flex; gap:8px; }
+        .bulk-bar .bulk-btn { padding:8px 10px; border:1px solid var(--gray-300); border-radius:8px; background:#fff; font-size:.85rem; cursor:pointer; }
+        .bulk-bar .bulk-btn.primary { border-color: var(--primary); color: var(--primary); }
         
         .date {
             display: flex;
@@ -2118,31 +2135,50 @@ function loadActions() {
         listContainer.className = 'split-layout';
         const rows = a.map((row, idx) => `
             <div class="list-row" data-row-idx="${idx}" data-id="${row.id}" onclick="openDetail('${row.id}')">
-                <input type="checkbox" onclick="event.stopPropagation();" />
+                <input type="checkbox" class="row-check" onclick="event.stopPropagation(); updateBulkBar()" />
                 <div class="row-title">${row.priority ? '⭐' : '☆'} ${row.title}</div>
-                <div>${getStatusText(row.status)}</div>
+                <div>
+                    <select onchange="event.stopPropagation(); quickChangeStatus('${row.id}', this.value)">
+                        <option value="waiting" ${row.status==='waiting'?'selected':''}>Bekliyor</option>
+                        <option value="in-progress" ${row.status==='in-progress'?'selected':''}>Devam</option>
+                        <option value="completed" ${row.status==='completed'?'selected':''}>Tamam</option>
+                    </select>
+                </div>
                 <div>${row.responsible}</div>
                 <div class="row-actions">
-                    <button class="action-btn edit" onclick="event.stopPropagation(); editAction('${row.id}')">✏️</button>
                     <button class="action-btn priority" onclick="event.stopPropagation(); togglePriority('${row.id}')">${row.priority ? '⭐' : '☆'}</button>
                     <button class="action-btn postpone" onclick="event.stopPropagation(); postponeAction('${row.id}')">⏰</button>
+                    <button class="action-btn edit" onclick="event.stopPropagation(); editAction('${row.id}')">✏️</button>
                 </div>
             </div>
         `).join('');
         listContainer.innerHTML = `
             <div class="filters-panel">
-                <div style="font-weight:600; margin-bottom:8px;">Filtreler</div>
-                <div style="color:#6b7280; font-size:.9rem;">Üstteki mevcut filtreleri kullanın.</div>
+                <div style="font-weight:600; margin-bottom:8px;">Kaydedilmiş Görünümler</div>
+                <div id="savedViews"></div>
+                <div style="margin-top:12px; display:flex; gap:6px;">
+                    <input id="viewName" placeholder="Görünüm adı" style="flex:1; border:1px solid var(--gray-300); padding:6px 8px; border-radius:8px;" />
+                    <button class="export-btn" onclick="saveCurrentView()">Kaydet</button>
+                </div>
             </div>
             <div class="list-panel">
                 <div class="list-header">
-                    <div></div>
+                    <div><input type="checkbox" id="checkAll" onclick="toggleCheckAll(this.checked)"></div>
                     <div>Başlık</div>
                     <div>Durum</div>
                     <div>Sorumlu</div>
                     <div>İşlemler</div>
                 </div>
                 <div class="list-rows">${rows || '<div style="padding:16px; color:#6b7280;">Kayıt yok</div>'}</div>
+                <div class="bulk-bar" id="bulkBar">
+                    <div><span id="selectedCount">0</span> öğe seçildi</div>
+                    <div class="bulk-actions">
+                        <button class="bulk-btn" onclick="bulkChangeStatus('waiting')">Bekliyor</button>
+                        <button class="bulk-btn" onclick="bulkChangeStatus('in-progress')">Devam</button>
+                        <button class="bulk-btn primary" onclick="bulkChangeStatus('completed')">Tamamla</button>
+                        <button class="bulk-btn" onclick="bulkDelete()">Sil</button>
+                    </div>
+                </div>
             </div>
             <div class="detail-drawer" id="detailDrawer"><div style="color:#6b7280">Bir aksiyon seçin</div></div>
         `;
@@ -2252,7 +2288,7 @@ function loadActions() {
                     <button class="action-btn priority" onclick="togglePriority('${a.id}')">${a.priority?'⭐':'☆'}</button>
                     <button class="action-btn postpone" onclick="postponeAction('${a.id}')">⏰ Ertele</button>
                 </div>
-            `}document.addEventListener('keydown',function(ev){if(currentView!=='list')return;const k=ev.key.toLowerCase();if(k==='j'||ev.key==='ArrowDown'){ev.preventDefault();focusRowByOffset(1);}else if(k==='k'||ev.key==='ArrowUp'){ev.preventDefault();focusRowByOffset(-1);}else if(ev.key==='Enter'){ev.preventDefault();triggerOnActive('open');}else if(k==='e'){ev.preventDefault();triggerOnActive('edit');}else if(k==='p'){ev.preventDefault();triggerOnActive('priority');}});function editAction(e){const t=actions.find(t=>t.id===e);if(!t)return;editingId=e;document.getElementById("modalTitle").textContent="Aksiyonu Düzenle";document.getElementById("actionTitle").value=t.title;document.getElementById("actionResponsible").value=t.responsible;document.getElementById("actionDescription").value=t.description;document.getElementById("actionStatus").value=t.status;document.getElementById("actionDate").value=t.date||"";document.getElementById("actionModal").classList.add("active")}function deleteAction(id) {
+            `}function updateBulkBar(){const checks=[...document.querySelectorAll('.row-check:checked')];const bar=document.getElementById('bulkBar');const cnt=document.getElementById('selectedCount');if(!bar||!cnt)return;cnt.textContent=checks.length;bar.classList.toggle('active',checks.length>0);}function toggleCheckAll(checked){document.querySelectorAll('.row-check').forEach(c=>{c.checked=checked});updateBulkBar()}function bulkChangeStatus(status){const ids=[...document.querySelectorAll('.row-check:checked')].map(c=>c.closest('.list-row').getAttribute('data-id'));ids.forEach(id=>{database.ref('actions/'+id).update({status})});showNotification('📝 '+ids.length+' öğe güncellendi','success');updateBulkBar();renderActions()}function bulkDelete(){const ids=[...document.querySelectorAll('.row-check:checked')].map(c=>c.closest('.list-row').getAttribute('data-id'));if(ids.length===0)return;if(!confirm(ids.length+' öğe silinecek, emin misiniz?'))return;ids.forEach(id=>database.ref('actions/'+id).remove());showNotification('🗑️ '+ids.length+' öğe silindi','success');updateBulkBar();renderActions()}function quickChangeStatus(id,value){database.ref('actions/'+id).update({status:value});showNotification('Durum güncellendi','success')}function saveCurrentView(){const name=document.getElementById('viewName').value.trim();if(!name){showNotification('Görünüm adı girin','warning');return;}const view={team:currentTeamFilter,status:currentStatusFilter,priority:!!priorityFilterActive,urgent:!!urgentFilterActive,search:document.getElementById('searchInput').value};const list=JSON.parse(localStorage.getItem('savedViews')||'[]');list.unshift({id:Date.now(),name,view});localStorage.setItem('savedViews',JSON.stringify(list));renderSavedViews();document.getElementById('viewName').value='';showNotification('Görünüm kaydedildi','success')}function renderSavedViews(){const c=document.getElementById('savedViews');if(!c)return;const list=JSON.parse(localStorage.getItem('savedViews')||'[]');c.innerHTML=list.map(v=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f3f4f6;"><button class="export-btn" style="padding:6px 10px;" onclick='applySavedView(${JSON.stringify(v.view)})'>${v.name}</button><button class="export-btn" style="padding:6px 10px;" onclick='deleteSavedView(${v.id})'>Sil</button></div>`).join('')||'<div style="color:#6b7280">Kayıt yok</div>'}function applySavedView(view){currentTeamFilter=view.team||'all';currentStatusFilter=view.status||'all';priorityFilterActive=!!view.priority;urgentFilterActive=!!view.urgent;document.getElementById('searchInput').value=view.search||'';renderActions();showNotification('Görünüm uygulandı','success')}function deleteSavedView(id){const list=JSON.parse(localStorage.getItem('savedViews')||'[]').filter(v=>v.id!==id);localStorage.setItem('savedViews',JSON.stringify(list));renderSavedViews();showNotification('Silindi','success')}document.addEventListener('keydown',function(ev){if(currentView!=='list')return;const k=ev.key.toLowerCase();if(k==='j'||ev.key==='ArrowDown'){ev.preventDefault();focusRowByOffset(1);}else if(k==='k'||ev.key==='ArrowUp'){ev.preventDefault();focusRowByOffset(-1);}else if(ev.key==='Enter'){ev.preventDefault();triggerOnActive('open');}else if(k==='e'){ev.preventDefault();triggerOnActive('edit');}else if(k==='p'){ev.preventDefault();triggerOnActive('priority');}});function editAction(e){const t=actions.find(t=>t.id===e);if(!t)return;editingId=e;document.getElementById("modalTitle").textContent="Aksiyonu Düzenle";document.getElementById("actionTitle").value=t.title;document.getElementById("actionResponsible").value=t.responsible;document.getElementById("actionDescription").value=t.description;document.getElementById("actionStatus").value=t.status;document.getElementById("actionDate").value=t.date||"";document.getElementById("actionModal").classList.add("active")}function deleteAction(id) {
     if (confirm("Bu aksiyonu silmek istediğinizden emin misiniz?")) {
         // Firebase veritabanından ilgili ID'ye sahip aksiyonu kaldır/sil.
         database.ref('actions/' + id).remove();
