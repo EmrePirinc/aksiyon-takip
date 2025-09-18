@@ -1409,8 +1409,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal()">İptal</button>
-                <button class="btn btn-primary" onclick="saveAction()">Kaydet</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">İptal</button>
+                <button type="submit" class="btn btn-primary">Kaydet</button>
             </div>
         </div>
     </div>
@@ -1464,6 +1464,7 @@
                 loadPersons(); // Kişi verilerini de yükle
                 loadTheme(); // Tema ayarını yükle
                 loadViewState(); // View state'i geri yükle
+                initializeEventListeners(); // Event listener'ları başlat
             } else {
                 document.getElementById('login-container').style.display = 'flex';
                 document.getElementById('app-container').style.display = 'none';
@@ -1630,7 +1631,22 @@ function loadActions() {
 
         function filterTeam(team) {
             currentTeamFilter = team;
-            renderActions();
+            
+            // Update all views
+            if (currentView === 'calendar') {
+                renderCalendar();
+            } else if (currentView === 'kanban') {
+                renderKanban();
+            } else {
+                renderActions();
+            }
+            
+            // Update filter counts
+            updateFilterCounts();
+            
+            // Save state
+            saveViewState();
+            
             showNotification(`${team} takımı filtrelendi`, 'info');
         }
 
@@ -1703,7 +1719,7 @@ function loadActions() {
         }
 
         function saveAction() {
-    const actionData = {
+            const actionData = {
                 title: document.getElementById('actionTitle').value,
                 responsible: document.getElementById('actionResponsible').value,
                 description: document.getElementById('actionDescription').value,
@@ -1719,15 +1735,15 @@ function loadActions() {
                 return;
             }
 
-    if (editingId) {
-        database.ref('actions/' + editingId).update(actionData);
+            if (editingId) {
+                database.ref('actions/' + editingId).update(actionData);
                 showNotification('Aksiyon güncellendi', 'success');
-    } else {
-        database.ref('actions').push(actionData);
+            } else {
+                database.ref('actions').push(actionData);
                 showNotification('Yeni aksiyon eklendi', 'success');
-    }
+            }
 
-    closeModal();
+            closeModal();
         }
 
         function editAction(id) {
@@ -2694,25 +2710,48 @@ function loadActions() {
 
         // Smart Filter event listeners
         document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('smart-filter-btn') && e.target.dataset.filter) {
-                document.querySelectorAll('.smart-filter-btn[data-filter]').forEach(btn => {
-                    btn.classList.remove('active');
+            if (e.target.closest('.smart-filter-btn') && e.target.closest('.smart-filter-btn').dataset.filter) {
+                const btn = e.target.closest('.smart-filter-btn');
+                document.querySelectorAll('.smart-filter-btn[data-filter]').forEach(button => {
+                    button.classList.remove('active');
                 });
-                e.target.classList.add('active');
-                currentStatusFilter = e.target.dataset.filter;
+                btn.classList.add('active');
+                currentStatusFilter = btn.dataset.filter;
                 renderActions();
+                updateFilterCounts();
             }
         });
 
-        // Modal click outside to close
-        document.getElementById('actionModal').addEventListener('click', (e) => {
-            if (e.target.id === 'actionModal') {
-                closeModal();
+        // Initialize event listeners after Firebase auth loads
+        function initializeEventListeners() {
+            // Modal click outside to close
+            const actionModal = document.getElementById('actionModal');
+            if (actionModal) {
+                actionModal.addEventListener('click', (e) => {
+                    if (e.target.id === 'actionModal') {
+                        closeModal();
+                    }
+                });
             }
-        });
 
-        // Search input listener
-        document.getElementById('searchInput').addEventListener('input', renderActions);
+            // Search input listener
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', renderActions);
+            }
+            
+            // Action form submit listener
+            const actionForm = document.getElementById('actionForm');
+            if (actionForm) {
+                actionForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveAction();
+                });
+            }
+            
+            // Load theme immediately
+            loadTheme();
+        }
 
         // Mobile sidebar toggle
         function toggleSidebar() {
