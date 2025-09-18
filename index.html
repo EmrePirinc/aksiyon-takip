@@ -1897,6 +1897,49 @@
             }
         });
 
+        // ESC key handler for closing modals
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const activeModal = document.querySelector('.modal.active');
+                if (activeModal) {
+                    // Close the active modal
+                    activeModal.classList.remove('active');
+                    activeModal.style.display = 'none';
+                    
+                    // Reset any form data if needed
+                    if (activeModal.id === 'actionModal') {
+                        document.getElementById('actionForm').reset();
+                        editingId = null;
+                    } else if (activeModal.id === 'personModal') {
+                        document.getElementById('personForm').reset();
+                        delete document.getElementById('personForm').dataset.editId;
+                    } else if (activeModal.id === 'postponeModal') {
+                        document.getElementById('postponeForm').reset();
+                        currentPostponeId = null;
+                    }
+                    
+                    // Close user dropdown if open
+                    const userDropdown = document.getElementById('userDropdown');
+                    if (userDropdown && userDropdown.classList.contains('active')) {
+                        userDropdown.classList.remove('active');
+                        document.querySelector('.user-profile').classList.remove('active');
+                    }
+                    
+                    // Close backup settings if open
+                    const backupSettings = document.getElementById('backupSettings');
+                    if (backupSettings && backupSettings.classList.contains('active')) {
+                        backupSettings.classList.remove('active');
+                    }
+                    
+                    // Close backup notification if open
+                    const backupNotification = document.getElementById('backupNotification');
+                    if (backupNotification && backupNotification.classList.contains('active')) {
+                        backupNotification.classList.remove('active');
+                    }
+                }
+            }
+        });
+
         // Close dropdown on outside click
         document.addEventListener('click', function(e) {
             const userMenu = e.target.closest('.user-menu');
