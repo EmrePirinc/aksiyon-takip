@@ -1652,6 +1652,12 @@
         }
 
         function createActionCard(action) {
+            // Action objesi geçerli mi kontrol et
+            if (!action || !action.id) {
+                console.error('Invalid action object:', action);
+                return '';
+            }
+            
             const { id, title, responsible, description, status, date, priority, postponed, postponeReason, assignedPerson } = action;
             const teamType = getTeamType(responsible);
             
@@ -1662,12 +1668,18 @@
             const actionDate = date ? new Date(date + 'T00:00:00') : null; // Ensure local timezone
             const isOverdue = actionDate && actionDate < today && status !== 'completed';
 
+            // Boş action'ları filtrele
+            if (!title || !responsible) {
+                console.warn('Skipping empty action:', action);
+                return '';
+            }
+
             return `
                 <div class="action-card ${teamType} ${postponed ? 'postponed' : ''}" draggable="true" data-action-id="${id}" ondragstart="drag(event, '${id}')">
                     <div class="action-header" onclick="openDetailView('${id}')" style="cursor: pointer;">
                         <div class="action-title-block">
-                            <div class="action-title">${priority ? '⭐ ' : ''}${title || ''}</div>
-                            <div class="responsible">${responsible || ''}</div>
+                            <div class="action-title">${priority ? '⭐ ' : ''}${title || 'Başlıksız Aksiyon'}</div>
+                            <div class="responsible">${responsible || 'Atanmamış'}</div>
                              ${personName ? `<div class="assigned-person">${ICONS.user} ${personName}</div>` : ''}
                         </div>
                         <span class="status-badge ${status}" onclick="event.stopPropagation(); quickStatusChange('${id}', '${status}')">${getStatusText(status)}</span>
@@ -1675,7 +1687,7 @@
 
                     <div class="action-body" onclick="openDetailView('${id}')" style="cursor: pointer;">
                          ${postponed ? `<div class="update-box"><strong>Ertelendi:</strong> ${postponeReason || ''}</div>` : ''}
-                        <div class="action-description">${description || ''}</div>
+                        <div class="action-description">${description || 'Açıklama yok'}</div>
                     </div>
 
                     <div class="action-footer">
@@ -1972,19 +1984,11 @@
                     .then(() => {
                         console.log('Firebase update successful');
                         
-                        // Action'ı local array'de güncelle
-                        const actionIndex = actions.findIndex(a => String(a.id) === String(id));
-                        if (actionIndex !== -1) {
-                            actions[actionIndex].status = newStatus;
-                            console.log('Local action updated:', actions[actionIndex]);
-                        }
-                        
-                        // Başarılı güncelleme sonrası UI'yi yenile
+                        // Başarılı güncelleme sonrası bildirim göster
                         showNotification(`✅ Aksiyon "${action.title}" ${getStatusText(newStatus)} durumuna taşındı`, 'success');
                         
-                        // UI'yi yenile - tüm görünümleri güncelle
-                        console.log('Calling renderActions...');
-                        renderActions();
+                        // Firebase listener otomatik olarak renderActions() çağıracak
+                        // Manuel çağrıya gerek yok
                     })
                     .catch((error) => {
                         console.error('Error updating action status:', error);
