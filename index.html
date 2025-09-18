@@ -804,8 +804,19 @@
             flex-shrink: 0;
         }
         .kanban-col .action-card:active { cursor: grabbing; }
-        .kanban-col.drag-over { background-color: var(--primary-bg); border: 2px dashed var(--primary-light); }
-        .action-card.dragging { opacity: 0.5; transform: rotate(3deg); }
+        .kanban-col.drag-over { 
+            background-color: var(--primary-bg); 
+            border: 2px dashed var(--primary-light); 
+            transform: scale(1.02);
+            transition: all 0.2s ease;
+        }
+        .action-card.dragging { 
+            opacity: 0.6; 
+            transform: rotate(3deg) scale(1.05); 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transition: all 0.2s ease;
+        }
 
         /* Takvim Görünümü */
         #actionsContainerCalendar { background: var(--white); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow); }
@@ -1888,10 +1899,12 @@
         function drag(ev, id) {
             ev.dataTransfer.setData("text/plain", id);
             ev.dataTransfer.effectAllowed = "move";
-            setTimeout(() => { 
-                const card = document.querySelector(`[data-action-id="${id}"]`);
-                if (card) card.classList.add('dragging'); 
-            }, 0);
+            
+            // Drag başladığında card'ı işaretle
+            const card = ev.target.closest('.action-card');
+            if (card) {
+                card.classList.add('dragging');
+            }
         }
         
         function drop(ev) {
@@ -1900,18 +1913,38 @@
             const id = ev.dataTransfer.getData("text/plain");
             const newStatus = ev.currentTarget.dataset.status;
             
+            // Dragged element'i bul ve temizle
             const draggedEl = document.querySelector('.action-card.dragging');
-            if (draggedEl) draggedEl.classList.remove('dragging');
+            if (draggedEl) {
+                draggedEl.classList.remove('dragging');
+            }
 
-            const action = actions.find(a => a.id === id);
-            if(action && action.status !== newStatus) {
-                database.ref('actions/' + id).update({ status: newStatus });
+            // Action'ı bul ve güncelle
+            const action = actions.find(a => String(a.id) === String(id));
+            if (action && action.status !== newStatus) {
+                // Firebase'de güncelle
+                database.ref('actions/' + id).update({ status: newStatus })
+                    .then(() => {
+                        // Başarılı güncelleme sonrası UI'yi yenile
+                        showNotification(`✅ Aksiyon "${action.title}" ${getStatusText(newStatus)} durumuna taşındı`, 'success');
+                    })
+                    .catch((error) => {
+                        console.error('Error updating action status:', error);
+                        showNotification('❌ Aksiyon durumu güncellenirken hata oluştu', 'warning');
+                    });
             }
         }
         
         document.addEventListener('dragend', (e) => {
-             const draggedEl = document.querySelector('.action-card.dragging');
-             if (draggedEl) draggedEl.classList.remove('dragging');
+            // Tüm dragging class'larını temizle
+            document.querySelectorAll('.action-card.dragging').forEach(el => {
+                el.classList.remove('dragging');
+            });
+            
+            // Tüm drag-over class'larını temizle
+            document.querySelectorAll('.kanban-col.drag-over').forEach(el => {
+                el.classList.remove('drag-over');
+            });
         });
 
         // --- KİŞİ YÖNETİMİ ---
