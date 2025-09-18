@@ -445,15 +445,16 @@
         }
         
         .stat-logo {
-            width: 2.5rem;
-            height: 2.5rem;
+            width: 4rem;
+            height: 4rem;
             border-radius: var(--radius);
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid var(--gray-200);
-            padding: 0.25rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--gray-200);
+            padding: 0.5rem;
+            box-shadow: var(--shadow-sm);
         }
         
         .stat-logo img {
@@ -1189,7 +1190,7 @@
                         <div class="stat-card-header">
                             <div class="stat-title">Anadolu Bakır</div>
                             <div class="stat-logo">
-                                <img src="https://www.anadolubakir.com/dsm_include/img/logo/logo.png" alt="Anadolu Bakır" style="height: 32px;">
+                                <img src="https://www.anadolubakir.com/dsm_include/img/logo/logo.png" alt="Anadolu Bakır">
                             </div>
                         </div>
                         <div class="stat-value" id="anadoluTotal">0</div>
@@ -1200,7 +1201,7 @@
                         <div class="stat-card-header">
                             <div class="stat-title">AIFTEAM</div>
                             <div class="stat-logo">
-                                <img src="https://www.aifteam.com.tr/wp-content/uploads/2023/05/aifteam-yatay.svg" alt="AIFTEAM" style="height: 32px;">
+                                <img src="https://www.aifteam.com.tr/wp-content/uploads/2023/05/aifteam-yatay.svg" alt="AIFTEAM">
                             </div>
                         </div>
                         <div class="stat-value" id="aifteamTotal">0</div>
@@ -1211,10 +1212,10 @@
                         <div class="stat-card-header">
                             <div class="stat-title">Ortak Projeler</div>
                             <div class="stat-logo">
-                                <div style="display: flex; align-items: center; gap: 0.25rem;">
-                                    <img src="https://www.aifteam.com.tr/wp-content/uploads/2023/05/aifteam-yatay.svg" alt="AIF" style="height: 20px;">
-                                    <span style="font-size: 0.75rem; color: var(--gray-400);">×</span>
-                                    <img src="https://www.anadolubakir.com/dsm_include/img/logo/logo.png" alt="AB" style="height: 20px;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <img src="https://www.aifteam.com.tr/wp-content/uploads/2023/05/aifteam-yatay.svg" alt="AIF" style="height: 24px;">
+                                    <span style="font-size: 1rem; color: var(--gray-400); font-weight: bold;">×</span>
+                                    <img src="https://www.anadolubakir.com/dsm_include/img/logo/logo.png" alt="AB" style="height: 24px;">
                                 </div>
                             </div>
                         </div>
@@ -2686,6 +2687,39 @@ function loadActions() {
                 updateFilterCounts();
             }
         });
+
+        // Make functions globally accessible for onclick attributes
+        window.editAction = editAction;
+        window.togglePriority = togglePriority;
+        window.postponeAction = postponeAction;
+        window.deleteAction = deleteAction;
+        window.filterTeam = filterTeam;
+        window.toggleUrgentFilter = toggleUrgentFilter;
+        window.exportToExcel = exportToExcel;
+        window.exportToWord = exportToWord;
+        window.toggleTheme = toggleTheme;
+        window.openPersonManagement = openPersonManagement;
+        window.openSettings = openSettings;
+        window.showUserProfile = showUserProfile;
+        window.closeModal = closeModal;
+        window.closePersonManagement = closePersonManagement;
+        window.closeSettings = closeSettings;
+        window.closeProfile = closeProfile;
+        window.setView = setView;
+        window.toggleSidebar = toggleSidebar;
+        window.openModal = openModal;
+        window.saveAction = saveAction;
+        window.quickStatusChange = quickStatusChange;
+        window.duplicateAction = duplicateAction;
+        window.showUrgentActions = showUrgentActions;
+        window.showAllCompleted = showAllCompleted;
+        window.clearSearch = clearSearch;
+        window.bulkStatusUpdate = bulkStatusUpdate;
+        window.addNewPerson = addNewPerson;
+        window.editPerson = editPerson;
+        window.deletePerson = deletePerson;
+        window.closePostponeModal = closePostponeModal;
+        window.postponeActionConfirm = postponeActionConfirm;
 
         // Initialize event listeners after Firebase auth loads
         function initializeEventListeners() {
