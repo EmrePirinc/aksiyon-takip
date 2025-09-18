@@ -53,34 +53,6 @@
             --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
         }
         
-        /* Dark Mode */
-        [data-theme="dark"] {
-            --gray-50: #0f172a;
-            --gray-100: #1e293b;
-            --gray-200: #334155;
-            --gray-300: #475569;
-            --gray-400: #64748b;
-            --gray-500: #94a3b8;
-            --gray-600: #cbd5e1;
-            --gray-700: #e2e8f0;
-            --gray-800: #f1f5f9;
-            --gray-900: #f8fafc;
-            
-            /* Dark mode specific colors */
-            --primary: #818cf8;
-            --primary-dark: #6366f1;
-            --primary-light: #a5b4fc;
-            
-            --success: #34d399;
-            --warning: #fbbf24;
-            --danger: #f87171;
-            
-            /* Dark mode shadows */
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px 0 rgba(0, 0, 0, 0.4);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
-        }
         
         body {
             font-family: var(--font-sans);
@@ -174,9 +146,9 @@
         
         /* Sidebar */
         .sidebar {
-            width: var(--sidebar-width);
-            background: linear-gradient(180deg, white 0%, var(--gray-50) 100%);
-            border-right: 1px solid var(--gray-200);
+            width: 320px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border-right: 1px solid #e2e8f0;
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -184,38 +156,56 @@
             left: 0;
             top: 0;
             z-index: 10;
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         
         .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--gray-200);
+            padding: 2rem 2rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
             text-align: center;
+        }
+        
+        .sidebar-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
         }
         
         .logo-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
         }
         
         .main-logo {
-            height: 48px;
-            transition: var(--transition);
-            filter: brightness(1.1);
+            height: 70px;
+            transition: all 0.3s ease;
+            filter: brightness(1.2) drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
         
         .main-logo:hover {
-            transform: scale(1.05);
-            filter: brightness(1.2);
+            transform: scale(1.02);
+            filter: brightness(1.3) drop-shadow(0 4px 8px rgba(0,0,0,0.15));
         }
         
         .logo-subtitle {
-            font-size: 0.875rem;
+            font-size: 1.1rem;
             font-weight: 600;
-            color: var(--gray-600);
+            color: rgba(255, 255, 255, 0.9);
             text-align: center;
+            letter-spacing: 0.5px;
         }
         
         .sidebar-header h1 {
@@ -226,42 +216,51 @@
         
         .sidebar-nav {
             flex: 1;
-            padding: 1rem 0;
+            padding: 2rem 0;
             overflow-y: auto;
         }
         
         .nav-section {
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
         
         .nav-section-title {
-            padding: 0 1.5rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--gray-500);
+            padding: 0 2rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #64748b;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
         }
         
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1.5rem;
-            color: var(--gray-700);
+            gap: 1rem;
+            padding: 1rem 2rem;
+            color: #475569;
             text-decoration: none;
-            transition: var(--transition);
+            transition: all 0.3s ease;
             cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            border-left: 4px solid transparent;
         }
         
-        .nav-item:hover, .nav-item.active {
-            background: var(--gray-100);
-            color: var(--primary);
+        .nav-item:hover {
+            background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 100%);
+            color: #3b82f6;
+            transform: translateX(4px);
         }
         
         .nav-item.active {
-            border-right: 2px solid var(--primary);
+            background: linear-gradient(90deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1d4ed8;
+            border-left-color: #3b82f6;
+            font-weight: 700;
+            box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.1);
         }
         
         .nav-icon {
@@ -389,14 +388,14 @@
         }
         
         .stat-card {
-            background: linear-gradient(135deg, white 0%, var(--gray-50) 100%);
-            padding: 1.5rem;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--gray-200);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
             position: relative;
             overflow: hidden;
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
         
         .stat-card::before {
@@ -405,8 +404,8 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
         }
         
         .clickable-stat {
@@ -414,9 +413,9 @@
         }
         
         .clickable-stat:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
-            background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-color: #3b82f6;
         }
         
         .clickable-stat[data-team="anadolu"]:hover {
@@ -464,15 +463,18 @@
         }
         
         .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--gray-900);
+            font-size: 3rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 1rem 0;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         
         .stat-change {
-            font-size: 0.75rem;
-            color: var(--gray-500);
-            margin-top: 0.25rem;
+            font-size: 1rem;
+            color: #64748b;
+            font-weight: 500;
+            margin-top: 0.5rem;
         }
         
         /* Action Cards */
@@ -957,69 +959,154 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
-            padding: 1rem;
-            border-radius: var(--radius);
-            border: 2px solid var(--gray-300);
-            background: white;
-            color: var(--gray-700);
+            gap: 0.75rem;
+            padding: 1.5rem 1rem;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            color: #475569;
             cursor: pointer;
-            transition: var(--transition);
-            opacity: 0.8;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .smart-filter-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .smart-filter-btn:hover {
-            background: var(--primary-light);
-            color: var(--primary);
-            border-color: var(--primary);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-sm);
-            opacity: 1;
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-color: #3b82f6;
+        }
+        
+        .smart-filter-btn:hover::before {
+            opacity: 0.05;
         }
         
         .smart-filter-btn.active {
-            background: var(--primary);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
-            border-color: var(--primary);
-            opacity: 1;
-            box-shadow: var(--shadow-md);
+            border-color: #3b82f6;
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -2px rgba(59, 130, 246, 0.1);
+        }
+        
+        .smart-filter-btn.active::before {
+            opacity: 0;
         }
         
         .filter-icon {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
+            position: relative;
+            z-index: 1;
         }
         
         .filter-text {
-            font-size: 0.875rem;
-            font-weight: 500;
+            font-size: 0.9rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
         }
         
         .filter-count {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.25rem 0.5rem;
-            border-radius: 9999px;
-            background: var(--gray-200);
-            color: var(--gray-600);
-            min-width: 1.5rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            background: #f1f5f9;
+            color: #475569;
+            min-width: 2rem;
             text-align: center;
-            transition: var(--transition);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            border: 1px solid #e2e8f0;
         }
         
         .smart-filter-btn:hover .filter-count {
-            background: var(--primary-light);
-            color: var(--primary);
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-color: #3b82f6;
         }
         
         .smart-filter-btn.active .filter-count {
             background: rgba(255, 255, 255, 0.2);
             color: white;
+            border-color: rgba(255, 255, 255, 0.3);
         }
         
         .action-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+        
+        .modern-action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.5rem 1rem;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .modern-action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modern-action-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-color: #10b981;
+        }
+        
+        .modern-action-btn:hover::before {
+            opacity: 0.05;
+        }
+        
+        .modern-action-btn .action-icon {
+            font-size: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .modern-action-btn .action-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .modern-action-btn .action-subtitle {
+            font-size: 0.75rem;
+            color: #64748b;
+            position: relative;
+            z-index: 1;
         }
         
         .action-filter-btn {
@@ -1130,8 +1217,8 @@
                 <div class="logo-container">
                     <img src="https://www.aifteam.com.tr/wp-content/uploads/2023/05/aifteam-yatay.svg" alt="AIFTEAM" class="main-logo">
                     <div class="logo-subtitle">Aksiyon Takip Sistemi</div>
+                    </div>
                 </div>
-            </div>
             
             <nav class="sidebar-nav">
                 <div class="nav-section">
@@ -1139,7 +1226,7 @@
                     <div class="nav-item active" onclick="setView('dashboard')">
                         <span class="nav-icon">📊</span>
                         Dashboard
-                    </div>
+            </div>
                     <div class="nav-item" onclick="setView('kanban')">
                         <span class="nav-icon">📋</span>
                         Kanban Board
@@ -1147,10 +1234,10 @@
                     <div class="nav-item" onclick="setView('calendar')">
                         <span class="nav-icon">📅</span>
                         Takvim
-                    </div>
                 </div>
+                    </div>
             </nav>
-        </div>
+                </div>
 
         <!-- Main Content -->
         <div class="main-content">
@@ -1170,9 +1257,6 @@
                     <button class="btn btn-secondary" onclick="toggleFilters()">
                         🔍 Filtreler
                     </button>
-                    <button class="btn btn-secondary" onclick="toggleTheme()" id="themeToggle">
-                        🌙 Dark
-                    </button>
                     <button class="btn btn-primary" onclick="openModal()">
                         ➕ Yeni Aksiyon
                     </button>
@@ -1185,25 +1269,25 @@
             <!-- Content -->
             <main class="content">
                 <!-- Stats Grid -->
-                <div class="stats-grid">
+                    <div class="stats-grid">
                     <div class="stat-card clickable-stat" onclick="filterTeam('Anadolu Bakır')" data-team="anadolu">
                         <div class="stat-card-header">
                             <div class="stat-title">Anadolu Bakır</div>
                             <div class="stat-logo">
                                 <img src="https://www.anadolubakir.com/dsm_include/img/logo/logo.png" alt="Anadolu Bakır">
-                            </div>
-                        </div>
+                    </div>
+                </div>
                         <div class="stat-value" id="anadoluTotal">0</div>
                         <div class="stat-change">Toplam aksiyon • Filtrelemek için tıklayın</div>
-                    </div>
+            </div>
                     
                     <div class="stat-card clickable-stat" onclick="filterTeam('AIFTEAM')" data-team="aifteam">
                         <div class="stat-card-header">
                             <div class="stat-title">AIFTEAM</div>
                             <div class="stat-logo">
                                 <img src="https://www.aifteam.com.tr/wp-content/uploads/2023/05/aifteam-yatay.svg" alt="AIFTEAM">
-                            </div>
-                        </div>
+                    </div>
+                </div>
                         <div class="stat-value" id="aifteamTotal">0</div>
                         <div class="stat-change">Toplam aksiyon • Filtrelemek için tıklayın</div>
                     </div>
@@ -1226,10 +1310,10 @@
 
                 <!-- Smart Filters -->
                 <div class="smart-filters">
-                    <div class="filter-section">
+                <div class="filter-section">
                         <div class="filter-header">
                             <span class="filter-title">🎯 Hızlı Filtreler</span>
-                        </div>
+                    </div>
                         <div class="filter-grid">
                             <button class="smart-filter-btn active" data-filter="all">
                                 <span class="filter-icon">📊</span>
@@ -1256,34 +1340,42 @@
                                 <span class="filter-text">Acil</span>
                                 <span class="filter-count" id="urgentFilterCount">0</span>
                             </button>
-                        </div>
+                    </div>
                     </div>
                     
                     <div class="filter-section">
                         <div class="filter-header">
                             <span class="filter-title">🚀 Hızlı İşlemler</span>
-                        </div>
-                        <div class="action-grid">
-                            <button class="action-filter-btn" onclick="openPersonManagement()">
-                                <span class="action-icon">👥</span>
-                                <span class="action-text">Kişiler</span>
-                            </button>
-                            <button class="action-filter-btn" onclick="exportToExcel()">
-                                <span class="action-icon">📊</span>
-                                <span class="action-text">Excel</span>
-                            </button>
-                            <button class="action-filter-btn" onclick="exportToWord()">
-                                <span class="action-icon">📄</span>
-                                <span class="action-text">Word</span>
-                            </button>
-                        </div>
-                    </div>
                 </div>
+                        <div class="action-grid">
+                            <button class="modern-action-btn" onclick="openPersonManagement()">
+                                <div class="action-icon">👥</div>
+                                <div class="action-text">Kişiler</div>
+                                <div class="action-subtitle">Yönet</div>
+                            </button>
+                            <button class="modern-action-btn" onclick="exportToExcel()">
+                                <div class="action-icon">📊</div>
+                                <div class="action-text">Excel</div>
+                                <div class="action-subtitle">Dışa Aktar</div>
+                            </button>
+                            <button class="modern-action-btn" onclick="exportToWord()">
+                                <div class="action-icon">📄</div>
+                                <div class="action-text">Word</div>
+                                <div class="action-subtitle">Dışa Aktar</div>
+                            </button>
+                            <button class="modern-action-btn" onclick="showUserProfile()">
+                                <div class="action-icon">👤</div>
+                                <div class="action-text">Profil</div>
+                                <div class="action-subtitle">Görüntüle</div>
+                            </button>
+                        </div>
+        </div>
+            </div>
 
                 <!-- Actions Grid -->
                 <div class="actions-grid" id="actionsContainer">
                     <!-- Actions will be rendered here -->
-                </div>
+        </div>
                 
                 <!-- Calendar View -->
                 <div class="calendar-view" id="calendarView">
@@ -1292,13 +1384,13 @@
                             <button onclick="changeMonth(-1)">‹</button>
                             <div class="calendar-title" id="calendarTitle">Ekim 2024</div>
                             <button onclick="changeMonth(1)">›</button>
-                        </div>
+            </div>
                         <button class="btn btn-secondary" onclick="goToToday()">Bugün</button>
-                    </div>
+        </div>
                     <div class="calendar-grid" id="calendarGrid">
                         <!-- Calendar will be rendered here -->
-                    </div>
-                </div>
+            </div>
+        </div>
                 
                 <!-- Kanban View -->
                 <div class="kanban-view" id="kanbanView">
@@ -1401,14 +1493,14 @@
     <script>
         // Firebase Configuration (Eski koddan doğru config)
         const firebaseConfig = {
-            apiKey: "AIzaSyAFc4_sZ-gVimMsBUjQ-RGwJ90yQyxA0zI",
-            authDomain: "aksiyon-takip.firebaseapp.com",
-            projectId: "aksiyon-takip",
-            storageBucket: "aksiyon-takip.firebasestorage.app",
-            messagingSenderId: "692213499754",
-            appId: "1:692213499754:web:2fea07badfd8eb7c978713",
-            measurementId: "G-0G4J1DL3TL",
-            databaseURL: "https://aksiyon-takip-default-rtdb.europe-west1.firebasedatabase.app"
+          apiKey: "AIzaSyAFc4_sZ-gVimMsBUjQ-RGwJ90yQyxA0zI",
+          authDomain: "aksiyon-takip.firebaseapp.com",
+          projectId: "aksiyon-takip",
+          storageBucket: "aksiyon-takip.firebasestorage.app",
+          messagingSenderId: "692213499754",
+          appId: "1:692213499754:web:2fea07badfd8eb7c978713",
+          measurementId: "G-0G4J1DL3TL",
+          databaseURL: "https://aksiyon-takip-default-rtdb.europe-west1.firebasedatabase.app"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -1451,33 +1543,33 @@
 
         // Authentication (Eski koddan geliştirilmiş)
         function signIn() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
             const loginError = document.getElementById('login-error');
             
-            loginError.textContent = "";
+    loginError.textContent = "";
             
-            if (!email || !password) {
-                loginError.textContent = "E-posta ve şifre alanları boş bırakılamaz.";
-                return;
-            }
+    if (!email || !password) {
+        loginError.textContent = "E-posta ve şifre alanları boş bırakılamaz.";
+        return;
+    }
 
-            auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
-                .then(() => {
-                    // Ayarlama başarılı olduktan SONRA giriş yapma işlemini gerçekleştir
-                    return auth.signInWithEmailAndPassword(email, password);
-                })
-                .catch((error) => {
-                    // Hata durumunda kullanıcıya bilgi ver
-                    console.error("Giriş veya kalıcılık ayarı hatası:", error);
-                    loginError.textContent = "Hatalı e-posta veya şifre.";
-                });
-        }
+    auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .then(() => {
+        // Ayarlama başarılı olduktan SONRA giriş yapma işlemini gerçekleştir
+        return auth.signInWithEmailAndPassword(email, password);
+      })
+      .catch((error) => {
+        // Hata durumunda kullanıcıya bilgi ver
+        console.error("Giriş veya kalıcılık ayarı hatası:", error);
+        loginError.textContent = "Hatalı e-posta veya şifre.";
+      });
+}
 
         function signOut() {
             if (confirm('Çıkış yapmak istediğinizden emin misiniz?')) {
-                auth.signOut();
-            }
+            auth.signOut();
+        }
         }
 
         // Data Loading (Eski koddan geliştirilmiş - UI titremesini önler)
@@ -1697,7 +1789,7 @@ function loadActions() {
         }
 
         function saveAction() {
-            const actionData = {
+    const actionData = {
                 title: document.getElementById('actionTitle').value,
                 responsible: document.getElementById('actionResponsible').value,
                 description: document.getElementById('actionDescription').value,
@@ -1713,15 +1805,15 @@ function loadActions() {
                 return;
             }
 
-            if (editingId) {
-                database.ref('actions/' + editingId).update(actionData);
+    if (editingId) {
+        database.ref('actions/' + editingId).update(actionData);
                 showNotification('Aksiyon güncellendi', 'success');
-            } else {
-                database.ref('actions').push(actionData);
+    } else {
+        database.ref('actions').push(actionData);
                 showNotification('Yeni aksiyon eklendi', 'success');
-            }
+    }
 
-            closeModal();
+    closeModal();
         }
 
         function editAction(id) {
@@ -2267,12 +2359,12 @@ function loadActions() {
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2>👥 Kişi Yönetimi</h2>
-                    </div>
+                            </div>
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="newPersonName">Ad Soyad *</label>
                             <input type="text" id="newPersonName" required>
-                        </div>
+                            </div>
                         <div class="form-group">
                             <label for="newPersonTeam">Takım *</label>
                             <select id="newPersonTeam" required>
@@ -2285,11 +2377,11 @@ function loadActions() {
                         <div class="form-group">
                             <label for="newPersonEmail">E-posta</label>
                             <input type="email" id="newPersonEmail">
-                        </div>
+                            </div>
                         <div class="form-group">
                             <label for="newPersonRole">Pozisyon</label>
                             <input type="text" id="newPersonRole">
-                        </div>
+                            </div>
                         <button class="btn btn-primary" onclick="addNewPerson()">👤 Kişi Ekle</button>
                         
                         <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
@@ -2298,11 +2390,11 @@ function loadActions() {
                                 <!-- Persons list will be rendered here -->
                             </div>
                         </div>
-                    </div>
+                            </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" onclick="closePersonManagement()">Kapat</button>
-                    </div>
-                </div>
+                            </div>
+                            </div>
             `;
             document.body.appendChild(personModal);
             renderPersonsList();
@@ -2316,7 +2408,7 @@ function loadActions() {
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2>⚙️ Ayarlar</h2>
-                    </div>
+                        </div>
                     <div class="modal-body">
                         <div class="form-group">
                             <label>🎨 Tema</label>
