@@ -1339,48 +1339,12 @@
                 actions = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
                 console.log('Actions loaded:', actions.length);
                 
-                // Boş action'ları temizle
-                cleanEmptyActions();
-                
                 console.log('Calling renderActions...');
                 renderActions();
                 updateStats();
             });
         }
         
-        function cleanEmptyActions() {
-            const emptyActions = actions.filter(action => {
-                // Daha güvenli kontrol - sadece gerçekten boş olanları tespit et
-                const hasNoTitle = !action.title || (typeof action.title === 'string' && action.title.trim() === '');
-                const hasNoResponsible = !action.responsible || (typeof action.responsible === 'string' && action.responsible.trim() === '');
-                const hasNoDescription = !action.description || (typeof action.description === 'string' && action.description.trim() === '');
-                
-                // Sadece title VE responsible eksikse boş say
-                return hasNoTitle && hasNoResponsible;
-            });
-            
-            if (emptyActions.length > 0) {
-                console.log('Found empty actions, cleaning:', emptyActions.map(a => ({ id: a.id, title: a.title, responsible: a.responsible })));
-                
-                // Boş action'ları Firebase'den sil
-                emptyActions.forEach(action => {
-                    database.ref('actions/' + action.id).remove()
-                        .then(() => {
-                            console.log('Empty action removed:', action.id);
-                        })
-                        .catch((error) => {
-                            console.error('Error removing empty action:', error);
-                        });
-                });
-                
-                // Local array'den de kaldır
-                actions = actions.filter(action => {
-                    const hasNoTitle = !action.title || (typeof action.title === 'string' && action.title.trim() === '');
-                    const hasNoResponsible = !action.responsible || (typeof action.responsible === 'string' && action.responsible.trim() === '');
-                    return !(hasNoTitle && hasNoResponsible);
-                });
-            }
-        }
         
         function loadPersons() {
             const personsRef = database.ref('persons');
