@@ -687,66 +687,38 @@
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
+    <!-- Loading Screen -->
     <div id="login-container">
         <div class="login-box">
             <h1>📋 Aksiyon Takip</h1>
-            <p>Modern proje yönetimi ve takım işbirliği</p>
+            <p>Sistem başlatılıyor...</p>
             
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="email">E-posta</label>
-                    <input type="email" id="email" placeholder="ornek@email.com" required>
-        </div>
-                <div class="form-group">
-                    <label for="password">Şifre</label>
-                    <input type="password" id="password" placeholder="Şifrenizi girin" required>
-    </div>
-                <button type="button" onclick="signIn()">Giriş Yap</button>
-            </form>
+            <div style="text-align: center; margin: 2rem 0;">
+                <div style="
+                    width: 40px; 
+                    height: 40px; 
+                    border: 3px solid var(--gray-200); 
+                    border-top: 3px solid var(--primary); 
+                    border-radius: 50%; 
+                    animation: spin 1s linear infinite;
+                    margin: 0 auto;
+                "></div>
+            </div>
             
-            <div style="margin-top: 1rem; text-align: center; display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
-                <button type="button" onclick="createUser()" style="
-                    background: var(--success); 
-                    color: white; 
-                    border: none; 
-                    padding: 0.5rem 1rem; 
-                    border-radius: var(--radius); 
-                    font-size: 0.875rem; 
-                    cursor: pointer;
-                    transition: var(--transition);
-                " onmouseover="this.style.background='#0d9488'" onmouseout="this.style.background='var(--success)'">
-                    📝 Kayıt Ol
-                </button>
-                <button type="button" onclick="signInWithTestUser()" style="
-                    background: var(--gray-100); 
-                    color: var(--gray-700); 
-                    border: 1px solid var(--gray-300); 
-                    padding: 0.5rem 1rem; 
-                    border-radius: var(--radius); 
-                    font-size: 0.875rem; 
-                    cursor: pointer;
-                    transition: var(--transition);
-                " onmouseover="this.style.background='var(--gray-200)'" onmouseout="this.style.background='var(--gray-100)'">
-                    🧪 Test Kullanıcısı
-                </button>
-                <button type="button" onclick="signIn()" style="
-                    background: var(--warning); 
-                    color: white; 
-                    border: none; 
-                    padding: 0.5rem 1rem; 
-                    border-radius: var(--radius); 
-                    font-size: 0.875rem; 
-                    cursor: pointer;
-                    transition: var(--transition);
-                " onmouseover="this.style.background='#d97706'" onmouseout="this.style.background='var(--warning)'">
-                    🔄 Offline Mode
-                </button>
+            <div style="text-align: center; color: var(--gray-600); font-size: 0.875rem;">
+                Firebase bağlantısı kontrol ediliyor...
             </div>
             
             <div id="login-error" style="color: var(--danger); margin-top: 1rem; font-size: 0.875rem; text-align: center;"></div>
         </div>
     </div>
+    
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 
     <!-- App Container -->
     <div id="app-container" style="display: none;">
@@ -960,15 +932,29 @@
             appId: "1:1053019122264:web:4c5b3f0c7d8e9f0a1b2c3d"
         };
 
-        // Firebase initialization with error handling
+        // Firebase initialization with auth bypass
         let auth, database;
         let isFirebaseEnabled = true;
+        let isAuthEnabled = false;
         
         try {
-        firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
+            firebase.initializeApp(firebaseConfig);
             database = firebase.database();
-            console.log('✅ Firebase başarıyla başlatıldı');
+            console.log('✅ Firebase Database başarıyla başlatıldı');
+            
+            // Authentication'ı test et
+            try {
+                auth = firebase.auth();
+                // Auth test - eğer bu çalışırsa auth aktif
+                auth.onAuthStateChanged(() => {
+                    isAuthEnabled = true;
+                    console.log('✅ Firebase Auth da aktif');
+                });
+            } catch (authError) {
+                console.warn('⚠️ Firebase Auth devre dışı, sadece database kullanılıyor');
+                isAuthEnabled = false;
+            }
+            
         } catch (error) {
             console.error('❌ Firebase başlatma hatası:', error);
             isFirebaseEnabled = false;
@@ -987,162 +973,33 @@
         // Offline mode için localStorage actions
         const STORAGE_KEY = 'aksiyon_takip_actions';
 
-        // Auth State Management with offline support
-        if (isFirebaseEnabled && auth) {
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    document.getElementById('login-container').style.display = 'none';
-                    document.getElementById('app-container').style.display = 'flex';
-                    document.getElementById('user-name').textContent = user.email.split('@')[0];
-                    loadActions();
-                } else {
-                    document.getElementById('login-container').style.display = 'flex';
-                    document.getElementById('app-container').style.display = 'none';
-                }
-            });
-        } else {
-            // Offline mode - direkt uygulamaya geç
-            setTimeout(() => {
+        // Auth State Management with database-only support
+        setTimeout(() => {
+            if (isFirebaseEnabled && database) {
+                // Firebase Database var, auth olsun olmasın uygulamayı başlat
                 document.getElementById('login-container').style.display = 'none';
                 document.getElementById('app-container').style.display = 'flex';
-                document.getElementById('user-name').textContent = 'Demo Kullanıcısı';
-                loadOfflineActions();
-            }, 1000);
-        }
-
-        // Authentication
-        function signIn() {
-            if (!isFirebaseEnabled || !auth) {
-                // Offline mode - direkt giriş yap
+                document.getElementById('user-name').textContent = 'Firebase Kullanıcısı';
+                loadActions();
+                showNotification('Firebase Database ile bağlandı (Auth bypass)', 'success');
+            } else {
+                // Tamamen offline mode
                 document.getElementById('login-container').style.display = 'none';
                 document.getElementById('app-container').style.display = 'flex';
-                document.getElementById('user-name').textContent = 'Demo Kullanıcısı';
+                document.getElementById('user-name').textContent = 'Offline Kullanıcısı';
                 loadOfflineActions();
-                showNotification('Offline modda giriş yapıldı', 'info');
-                return;
+                showNotification('Offline modda çalışılıyor', 'info');
             }
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            if (!email || !password) {
-                document.getElementById('login-error').textContent = 'E-posta ve şifre alanları zorunludur';
-                return;
-            }
-            
-            // Loading state
-            const loginBtn = document.querySelector('.login-box button');
-            const originalText = loginBtn.textContent;
-            loginBtn.textContent = 'Giriş yapılıyor...';
-            loginBtn.disabled = true;
-            
-            auth.signInWithEmailAndPassword(email, password)
-                .catch((error) => {
-                    console.error('Firebase Auth Error:', error);
-                    
-                    let errorMessage = 'Giriş başarısız: ';
-                    switch (error.code) {
-                        case 'auth/user-not-found':
-                            errorMessage += 'Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı.';
-                            break;
-                        case 'auth/wrong-password':
-                            errorMessage += 'Yanlış şifre.';
-                            break;
-                        case 'auth/invalid-email':
-                            errorMessage += 'Geçersiz e-posta adresi.';
-                            break;
-                        case 'auth/too-many-requests':
-                            errorMessage += 'Çok fazla başarısız giriş denemesi. Lütfen daha sonra tekrar deneyin.';
-                            break;
-                        case 'auth/network-request-failed':
-                            errorMessage += 'İnternet bağlantısı sorunu.';
-                            break;
-                        case 'auth/internal-error':
-                            errorMessage = 'Firebase API key sorunu. Offline modda devam etmek için sayfayı yenileyin.';
-                            break;
-                        default:
-                            errorMessage += error.message;
-                            break;
-                    }
-                    
-                    document.getElementById('login-error').textContent = errorMessage;
-                })
-                .finally(() => {
-                    // Reset button
-                    loginBtn.textContent = originalText;
-                    loginBtn.disabled = false;
-                });
-        }
-        
-        // Test kullanıcısı ile giriş
-        function signInWithTestUser() {
-            const testEmail = 'test@example.com';
-            const testPassword = 'test123';
-            
-            // Önce test kullanıcısını oluşturmaya çalış
-            auth.createUserWithEmailAndPassword(testEmail, testPassword)
-      .then(() => {
-                    showNotification('Test kullanıcısı oluşturuldu ve giriş yapıldı', 'success');
-      })
-      .catch((error) => {
-                    if (error.code === 'auth/email-already-in-use') {
-                        // Kullanıcı zaten var, giriş yap
-                        auth.signInWithEmailAndPassword(testEmail, testPassword)
-                            .catch((loginError) => {
-                                console.error('Test kullanıcısı giriş hatası:', loginError);
-                                document.getElementById('login-error').textContent = 
-                                    'Test kullanıcısı giriş hatası: ' + loginError.message;
-                            });
-                    } else {
-                        console.error('Test kullanıcısı oluşturma hatası:', error);
-                        document.getElementById('login-error').textContent = 
-                            'Test kullanıcısı oluşturma hatası: ' + error.message;
-                    }
-                });
-        }
-        
-        // Manuel kullanıcı kayıt fonksiyonu
-        function createUser() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            if (!email || !password) {
-                document.getElementById('login-error').textContent = 'E-posta ve şifre alanları zorunludur';
-                return;
-            }
-            
-            if (password.length < 6) {
-                document.getElementById('login-error').textContent = 'Şifre en az 6 karakter olmalıdır';
-                return;
-            }
-            
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(() => {
-                    showNotification('Kullanıcı başarıyla oluşturuldu ve giriş yapıldı', 'success');
-                })
-                .catch((error) => {
-                    console.error('Kullanıcı oluşturma hatası:', error);
-                    let errorMessage = 'Kayıt başarısız: ';
-                    switch (error.code) {
-                        case 'auth/email-already-in-use':
-                            errorMessage += 'Bu e-posta adresi zaten kullanımda.';
-                            break;
-                        case 'auth/invalid-email':
-                            errorMessage += 'Geçersiz e-posta adresi.';
-                            break;
-                        case 'auth/weak-password':
-                            errorMessage += 'Şifre çok zayıf. En az 6 karakter olmalıdır.';
-                            break;
-                        default:
-                            errorMessage += error.message;
-                            break;
-                    }
-                    document.getElementById('login-error').textContent = errorMessage;
-                });
-        }
+        }, 1500);
 
+        // Simplified Authentication (No longer needed - auto bypass)
         function signOut() {
-            auth.signOut();
+            if (isAuthEnabled && auth) {
+                auth.signOut();
+            } else {
+                // Offline mode - sadece sayfayı yenile
+                location.reload();
+            }
         }
 
         // Data Loading (Firebase)
