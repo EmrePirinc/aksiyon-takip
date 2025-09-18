@@ -1336,9 +1336,39 @@
             actionsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 actions = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+                
+                // Boş action'ları temizle
+                cleanEmptyActions();
+                
                 renderActions();
                 updateStats();
             });
+        }
+        
+        function cleanEmptyActions() {
+            const emptyActions = actions.filter(action => 
+                !action.title || !action.responsible || action.title.trim() === '' || action.responsible.trim() === ''
+            );
+            
+            if (emptyActions.length > 0) {
+                console.log('Found empty actions, cleaning:', emptyActions);
+                
+                // Boş action'ları Firebase'den sil
+                emptyActions.forEach(action => {
+                    database.ref('actions/' + action.id).remove()
+                        .then(() => {
+                            console.log('Empty action removed:', action.id);
+                        })
+                        .catch((error) => {
+                            console.error('Error removing empty action:', error);
+                        });
+                });
+                
+                // Local array'den de kaldır
+                actions = actions.filter(action => 
+                    action.title && action.responsible && action.title.trim() !== '' && action.responsible.trim() !== ''
+                );
+            }
         }
         
         function loadPersons() {
