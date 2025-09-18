@@ -941,6 +941,15 @@
         .detail-label { font-weight: 600; color: var(--gray-600); }
         .detail-value { font-weight: 500; color: var(--gray-800); }
         #detailDescription { background: var(--gray-50); padding: var(--space-4); border-radius: var(--radius-lg); line-height: 1.6; white-space: pre-wrap; }
+        .postpone-note { 
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
+            padding: var(--space-3); 
+            border-radius: var(--radius); 
+            border-left: 4px solid #f59e0b; 
+            font-style: italic; 
+            color: #92400e;
+            line-height: 1.5;
+        }
 
         /* Kişi Yönetimi Modal Stilleri */
         .person-item { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3); border-radius: var(--radius); transition: var(--transition); }
@@ -1207,6 +1216,7 @@
                 <div class="detail-label">Atanan Kişi</div><div class="detail-value" id="detailAssignedPerson"></div>
                 <div class="detail-label">Durum</div><div class="detail-value" id="detailStatus"></div>
                 <div class="detail-label">Hedef Tarih</div><div class="detail-value" id="detailDate"></div>
+                <div class="detail-label" id="detailPostponeLabel" style="display: none;">Erteleme Notu</div><div class="detail-value" id="detailPostponeNote" style="display: none;"></div>
             </div>
             <div class="detail-label" style="margin-bottom: var(--space-2);">Açıklama</div>
             <p id="detailDescription"></p>
@@ -1741,6 +1751,18 @@
             document.getElementById('detailStatus').innerHTML = `<span class="status-badge ${action.status}">${getStatusText(action.status)}</span>`;
             document.getElementById('detailDate').textContent = action.date ? formatDate(action.date) : 'Tarih Belirtilmemiş';
             document.getElementById('detailDescription').textContent = action.description;
+            
+            // Erteleme notu varsa göster
+            const postponeLabel = document.getElementById('detailPostponeLabel');
+            const postponeNote = document.getElementById('detailPostponeNote');
+            if (action.postponed && action.postponeReason) {
+                postponeLabel.style.display = 'block';
+                postponeNote.style.display = 'block';
+                postponeNote.innerHTML = `<div class="postpone-note">${action.postponeReason}</div>`;
+            } else {
+                postponeLabel.style.display = 'none';
+                postponeNote.style.display = 'none';
+            }
             
             const modal = document.getElementById('detailModal');
             modal.classList.add('active');
