@@ -1585,7 +1585,9 @@
         }
         
         function renderActions() {
+            console.log('renderActions called, currentView:', currentView);
             const filteredActions = getFilteredActions();
+            console.log('Filtered actions:', filteredActions.length);
             
             // Tüm görünümleri gizle
             document.querySelectorAll('.actions-view-container').forEach(c => {
@@ -1969,10 +1971,19 @@
                 database.ref('actions/' + id).update({ status: newStatus })
                     .then(() => {
                         console.log('Firebase update successful');
+                        
+                        // Action'ı local array'de güncelle
+                        const actionIndex = actions.findIndex(a => String(a.id) === String(id));
+                        if (actionIndex !== -1) {
+                            actions[actionIndex].status = newStatus;
+                            console.log('Local action updated:', actions[actionIndex]);
+                        }
+                        
                         // Başarılı güncelleme sonrası UI'yi yenile
                         showNotification(`✅ Aksiyon "${action.title}" ${getStatusText(newStatus)} durumuna taşındı`, 'success');
                         
                         // UI'yi yenile - tüm görünümleri güncelle
+                        console.log('Calling renderActions...');
                         renderActions();
                     })
                     .catch((error) => {
