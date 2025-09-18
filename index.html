@@ -1389,8 +1389,8 @@
                             newPriority ? 'success' : 'info'
                         );
                         
-                        // UI'yi güncelle - sadece ilgili butonu güncelle
-                        updatePriorityButton(id, newPriority);
+                        // Firebase listener otomatik olarak renderActions() çağıracak
+                        // Manuel UI güncellemesine gerek yok
                     })
                     .catch((error) => {
                         console.error('Error updating priority:', error);
@@ -1402,32 +1402,6 @@
             }
         }
         
-        function updatePriorityButton(id, priority) {
-            // Tüm görünümlerdeki priority butonlarını güncelle
-            const priorityButtons = document.querySelectorAll(`button[data-action="priority"][data-action-id="${id}"]`);
-            priorityButtons.forEach(button => {
-                if (priority) {
-                    button.classList.add('priority-active');
-                } else {
-                    button.classList.remove('priority-active');
-                }
-            });
-            
-            // Action title'da da yıldızı güncelle
-            const actionCards = document.querySelectorAll(`.action-card[data-action-id="${id}"]`);
-            actionCards.forEach(card => {
-                const titleElement = card.querySelector('.action-title');
-                if (titleElement) {
-                    if (priority) {
-                        if (!titleElement.textContent.startsWith('⭐ ')) {
-                            titleElement.textContent = '⭐ ' + titleElement.textContent;
-                        }
-                    } else {
-                        titleElement.textContent = titleElement.textContent.replace('⭐ ', '');
-                    }
-                }
-            });
-        }
 
         // Notification function
         function showNotification(message, type = 'info') {
