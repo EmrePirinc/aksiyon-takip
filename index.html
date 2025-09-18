@@ -84,9 +84,10 @@
         
         body {
             font-family: var(--font-sans);
-            background: var(--gray-50);
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 50%, var(--gray-50) 100%);
             color: var(--gray-900);
             line-height: 1.5;
+            min-height: 100vh;
         }
         
         /* Login Screen */
@@ -174,7 +175,7 @@
         /* Sidebar */
         .sidebar {
             width: var(--sidebar-width);
-            background: white;
+            background: linear-gradient(180deg, white 0%, var(--gray-50) 100%);
             border-right: 1px solid var(--gray-200);
             display: flex;
             flex-direction: column;
@@ -183,6 +184,7 @@
             left: 0;
             top: 0;
             z-index: 10;
+            box-shadow: var(--shadow-md);
         }
         
         .sidebar-header {
@@ -280,12 +282,24 @@
         /* Header */
         .header {
             height: var(--header-height);
-            background: white;
+            background: linear-gradient(135deg, white 0%, var(--gray-50) 100%);
             border-bottom: 1px solid var(--gray-200);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 2rem;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 50%, var(--primary) 100%);
         }
         
         /* Command Palette */
@@ -375,11 +389,46 @@
         }
         
         .stat-card {
-            background: white;
+            background: linear-gradient(135deg, white 0%, var(--gray-50) 100%);
             padding: 1.5rem;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--gray-200);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+        }
+        
+        .clickable-stat {
+            cursor: pointer;
+        }
+        
+        .clickable-stat:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+        }
+        
+        .clickable-stat[data-team="anadolu"]:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.1) 100%);
+        }
+        
+        .clickable-stat[data-team="aifteam"]:hover {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0.1) 100%);
+        }
+        
+        .clickable-stat[data-team="ortak"]:hover {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(249, 115, 22, 0.1) 100%);
         }
         
         .stat-card-header {
@@ -395,19 +444,23 @@
             color: var(--gray-600);
         }
         
-        .stat-icon {
-            width: 2rem;
-            height: 2rem;
+        .stat-logo {
+            width: 2.5rem;
+            height: 2.5rem;
             border-radius: var(--radius);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--gray-200);
+            padding: 0.25rem;
         }
         
-        .stat-icon.anadolu { background: rgba(59, 130, 246, 0.1); color: var(--team-anadolu); }
-        .stat-icon.aifteam { background: rgba(139, 92, 246, 0.1); color: var(--team-aifteam); }
-        .stat-icon.ortak { background: rgba(249, 115, 22, 0.1); color: var(--team-ortak); }
+        .stat-logo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
         
         .stat-value {
             font-size: 2rem;
@@ -604,17 +657,34 @@
         }
         
         .action-card {
-            background: white;
+            background: linear-gradient(135deg, white 0%, var(--gray-50) 100%);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--gray-200);
-            transition: var(--transition);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
+            position: relative;
+        }
+        
+        .action-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, transparent 50%);
+            opacity: 0;
+            transition: var(--transition);
         }
         
         .action-card:hover {
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px) scale(1.02);
+        }
+        
+        .action-card:hover::after {
+            opacity: 1;
         }
         
         .action-card:hover .contextual-actions {
@@ -680,15 +750,32 @@
         
         .team-badge {
             padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
+            border-radius: var(--radius);
             font-size: 0.75rem;
             font-weight: 500;
-            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--gray-200);
+            background: white;
+            color: var(--gray-700);
         }
         
-        .team-badge.anadolu { background: var(--team-anadolu); }
-        .team-badge.aifteam { background: var(--team-aifteam); }
-        .team-badge.ortak { background: var(--team-ortak); }
+        .team-badge.anadolu { 
+            border-color: rgba(59, 130, 246, 0.3);
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--team-anadolu);
+        }
+        .team-badge.aifteam { 
+            border-color: rgba(139, 92, 246, 0.3);
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--team-aifteam);
+        }
+        .team-badge.ortak { 
+            border-color: rgba(249, 115, 22, 0.3);
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--team-ortak);
+        }
         
         .status-badge {
             padding: 0.25rem 0.75rem;
@@ -1120,32 +1207,42 @@
             <!-- Content -->
             <main class="content">
                 <!-- Stats Grid -->
-                    <div class="stats-grid">
-                    <div class="stat-card">
+                <div class="stats-grid">
+                    <div class="stat-card clickable-stat" onclick="filterTeam('Anadolu Bakır')" data-team="anadolu">
                         <div class="stat-card-header">
                             <div class="stat-title">Anadolu Bakır</div>
-                            <div class="stat-icon anadolu">🏢</div>
-                    </div>
+                            <div class="stat-logo">
+                                <img src="https://www.anadolubakir.com/dsm_include/img/logo/logo.png" alt="Anadolu Bakır" style="height: 32px;">
+                            </div>
+                        </div>
                         <div class="stat-value" id="anadoluTotal">0</div>
-                        <div class="stat-change">Toplam aksiyon</div>
-                </div>
+                        <div class="stat-change">Toplam aksiyon • Filtrelemek için tıklayın</div>
+                    </div>
                     
-                    <div class="stat-card">
+                    <div class="stat-card clickable-stat" onclick="filterTeam('AIFTEAM')" data-team="aifteam">
                         <div class="stat-card-header">
                             <div class="stat-title">AIFTEAM</div>
-                            <div class="stat-icon aifteam">💻</div>
-            </div>
+                            <div class="stat-logo">
+                                <img src="https://www.aifteam.com.tr/wp-content/uploads/2023/05/aifteam-yatay.svg" alt="AIFTEAM" style="height: 32px;">
+                            </div>
+                        </div>
                         <div class="stat-value" id="aifteamTotal">0</div>
-                        <div class="stat-change">Toplam aksiyon</div>
+                        <div class="stat-change">Toplam aksiyon • Filtrelemek için tıklayın</div>
                     </div>
                     
-                    <div class="stat-card">
+                    <div class="stat-card clickable-stat" onclick="filterTeam('Ortak')" data-team="ortak">
                         <div class="stat-card-header">
                             <div class="stat-title">Ortak Projeler</div>
-                            <div class="stat-icon ortak">🤝</div>
-                </div>
+                            <div class="stat-logo">
+                                <div style="display: flex; align-items: center; gap: 0.25rem;">
+                                    <img src="https://www.aifteam.com.tr/wp-content/uploads/2023/05/aifteam-yatay.svg" alt="AIF" style="height: 20px;">
+                                    <span style="font-size: 0.75rem; color: var(--gray-400);">×</span>
+                                    <img src="https://www.anadolubakir.com/dsm_include/img/logo/logo.png" alt="AB" style="height: 20px;">
+                                </div>
+                            </div>
+                        </div>
                         <div class="stat-value" id="ortakTotal">0</div>
-                        <div class="stat-change">Toplam aksiyon</div>
+                        <div class="stat-change">Toplam aksiyon • Filtrelemek için tıklayın</div>
                     </div>
                 </div>
 
