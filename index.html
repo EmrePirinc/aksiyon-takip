@@ -555,8 +555,10 @@
         }
         
         .toolbar-buttons {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(6, minmax(90px, auto));
             gap: var(--space-2);
+            align-items: center;
         }
         
         .toolbar-btn {
@@ -778,26 +780,37 @@
             font-size: 0.9rem;
         }
         
-        /* --- POSTPONED ACTION INDICATOR --- */
+        /* --- POSTPONED ACTION INDICATOR (Subtle) --- */
         .action-card.postponed::before {
-            content: '⏰ ERTELENDİ';
+            content: '';
             position: absolute;
-            top: -8px;
-            right: 15px;
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            z-index: 10;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(139,92,246,.6), rgba(139,92,246,.2));
+            border-radius: var(--radius-lg) 0 0 var(--radius-lg);
         }
-        
+
         .action-card.postponed {
-            border: 2px solid var(--ortak) !important;
-            background: var(--ortak-subtle) !important;
+            background: linear-gradient(0deg, rgba(139, 92, 246, 0.04), rgba(139, 92, 246, 0.02));
+            border: 1px dashed rgba(139, 92, 246, 0.35);
+        }
+
+        .action-card.postponed .date {
+            background: rgba(139, 92, 246, 0.08);
+            color: #6d28d9;
+            border-radius: var(--radius);
+        }
+
+        .postpone-reason {
+            font-size: 0.8rem;
+            color: #6d28d9;
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            padding: 6px 8px;
+            border-radius: var(--radius);
+            display: inline-block;
         }
         
         /* --- USER MENU --- */
@@ -1086,12 +1099,69 @@
         }
         
         .action-footer {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 1fr auto;
             align-items: center;
+            gap: var(--space-4);
             padding-top: var(--space-4);
             border-top: 1px solid var(--gray-200);
             margin-top: var(--space-4);
+        }
+
+        /* --- LIST VIEW LAYOUT --- */
+        .split-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr 420px;
+            gap: 16px;
+        }
+        .filters-panel {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            height: fit-content;
+        }
+        .list-panel {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        .list-header, .list-row {
+            display: grid;
+            grid-template-columns: 28px 1fr 140px 140px 180px;
+            gap: 12px;
+            align-items: center;
+            padding: 10px 14px;
+        }
+        .list-header {
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
+            font-size: .85rem;
+            color: var(--gray-600);
+            font-weight: 600;
+        }
+        .list-rows { max-height: 70vh; overflow: auto; }
+        .list-row { border-bottom: 1px solid var(--gray-100); cursor: pointer; }
+        .list-row:hover { background: var(--gray-50); }
+        .row-title { display:flex; gap:8px; align-items:center; font-weight:600; color: var(--gray-800); }
+        .row-actions { display:flex; gap:6px; justify-content:flex-end; }
+        .row-actions .action-btn { min-width: auto; padding:6px 8px; font-size:.8rem; }
+
+        .detail-drawer {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            position: sticky;
+            top: 0;
+            height: fit-content;
+        }
+
+        /* Aktif satır vurgusu */
+        .list-row.active {
+            background: var(--gray-50);
+            border-left: 3px solid var(--primary);
         }
         
         .date {
@@ -1109,9 +1179,10 @@
         /* --- REDESIGNED ACTION BUTTONS --- */
         .action-buttons {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4, minmax(72px, auto));
             gap: var(--space-2);
-            width: 200px;
+            justify-content: end;
+            align-items: center;
         }
         
         .action-btn {
@@ -1129,6 +1200,7 @@
             color: var(--gray-700);
             text-decoration: none;
             min-height: 36px;
+            min-width: 72px;
         }
         
         .action-btn:hover {
@@ -1543,29 +1615,17 @@
             <div class="controls">
                 <!-- Hızlı Erişim Toolbar -->
                 <div class="quick-toolbar">
-                    <div class="toolbar-section">
-                        <span class="toolbar-label">🚀 Hızlı İşlemler</span>
-                        <div class="toolbar-buttons">
-                            <button class="toolbar-btn" onclick="openModal()" title="Ctrl+N">
-                                ➕ Yeni
-                            </button>
-                            <button class="toolbar-btn" onclick="showAllCompleted()" title="Tamamlanan aksiyonları göster">
-                                ✅ Tamamlanan
-                            </button>
-                            <button class="toolbar-btn" onclick="showPriorityActions()" title="Öncelikli aksiyonları göster">
-                                ⭐ Öncelikli
-                            </button>
-                            <button class="toolbar-btn" onclick="showUrgentActions()" title="Acil aksiyonları göster">
-                                🔥 Acil
-                            </button>
-                            <button class="toolbar-btn" onclick="openPersonManagement()" title="Kişi yönetimi">
-                                👥 Kişiler
-                            </button>
-                            <button class="toolbar-btn" onclick="bulkStatusUpdate()" title="Toplu durum güncelleme">
-                                📝 Toplu
-                            </button>
-                        </div>
-                    </div>
+            <div class="toolbar-section">
+                <span class="toolbar-label">🚀 Hızlı İşlemler</span>
+                <div class="toolbar-buttons">
+                    <button class="toolbar-btn" onclick="openModal()" title="Ctrl+N">➕ Yeni</button>
+                    <button class="toolbar-btn" onclick="showAllCompleted()" title="Tamamlananları göster">✅ Tamamlanan</button>
+                    <button class="toolbar-btn" onclick="togglePriorityFilter()" title="Öncelikli filtreyi aç/kapat">⭐ Öncelikli</button>
+                    <button class="toolbar-btn" onclick="toggleUrgentFilter()" title="Acil filtreyi aç/kapat">🔥 Acil</button>
+                    <button class="toolbar-btn" onclick="openPersonManagement()" title="Kişi yönetimi">👥 Kişiler</button>
+                    <button class="toolbar-btn" onclick="bulkStatusUpdate()" title="Toplu durum güncelleme">📝 Toplu</button>
+                </div>
+            </div>
                     <div class="toolbar-stats">
                         <div class="stat-item">
                             <span class="stat-value" id="totalActions">
@@ -1629,10 +1689,12 @@
                     <div class="view-toggle">
                         <button class="view-btn" data-view="grid">Izgara</button>
                         <button class="view-btn active" data-view="grouped">Gruplu</button>
+                        <button class="view-btn" data-view="list">Liste</button>
                     </div>
                 </div>
             </div>
             <div class="actions-container" id="actionsContainer"></div>
+            <div id="listViewContainer" style="display:none"></div>
         </div>
         <button class="settings-toggle" onclick="toggleBackupSettings()" title="Yedekleme Ayarları">⚙️</button>
         <div class="backup-status warning" id="backupStatus">
@@ -2013,6 +2075,7 @@ function loadActions() {
     document.getElementById("ortakWaiting").textContent=a.filter(e=>"waiting"===e.status).length;
 }function renderActions(){
     const e=document.getElementById("actionsContainer");
+    const listContainer = document.getElementById('listViewContainer');
     const t=document.getElementById("searchInput").value.toLowerCase();
     let a=actions;
     
@@ -2027,6 +2090,16 @@ function loadActions() {
     if("all"!==currentStatusFilter){
         a=a.filter(e=>e.status===currentStatusFilter);
     }
+
+    // Öncelik filtresi
+    if (typeof priorityFilterActive !== 'undefined' && priorityFilterActive) {
+        a = a.filter(e => !!e.priority);
+    }
+    // Acil filtresi (geçmiş tarih veya öncelikli)
+    if (typeof urgentFilterActive !== 'undefined' && urgentFilterActive) {
+        const today = new Date().toISOString().split('T')[0];
+        a = a.filter(e => (e.date && e.date < today && e.status !== 'completed') || !!e.priority);
+    }
     
     // Arama filtreleme - tüm alanların varlığını kontrol et
     if(t){
@@ -2038,6 +2111,45 @@ function loadActions() {
         });
     }
     
+    if("list"===currentView){
+        // LIST VIEW RENDER
+        e.style.display = 'none';
+        listContainer.style.display = 'block';
+        listContainer.className = 'split-layout';
+        const rows = a.map((row, idx) => `
+            <div class="list-row" data-row-idx="${idx}" data-id="${row.id}" onclick="openDetail('${row.id}')">
+                <input type="checkbox" onclick="event.stopPropagation();" />
+                <div class="row-title">${row.priority ? '⭐' : '☆'} ${row.title}</div>
+                <div>${getStatusText(row.status)}</div>
+                <div>${row.responsible}</div>
+                <div class="row-actions">
+                    <button class="action-btn edit" onclick="event.stopPropagation(); editAction('${row.id}')">✏️</button>
+                    <button class="action-btn priority" onclick="event.stopPropagation(); togglePriority('${row.id}')">${row.priority ? '⭐' : '☆'}</button>
+                    <button class="action-btn postpone" onclick="event.stopPropagation(); postponeAction('${row.id}')">⏰</button>
+                </div>
+            </div>
+        `).join('');
+        listContainer.innerHTML = `
+            <div class="filters-panel">
+                <div style="font-weight:600; margin-bottom:8px;">Filtreler</div>
+                <div style="color:#6b7280; font-size:.9rem;">Üstteki mevcut filtreleri kullanın.</div>
+            </div>
+            <div class="list-panel">
+                <div class="list-header">
+                    <div></div>
+                    <div>Başlık</div>
+                    <div>Durum</div>
+                    <div>Sorumlu</div>
+                    <div>İşlemler</div>
+                </div>
+                <div class="list-rows">${rows || '<div style="padding:16px; color:#6b7280;">Kayıt yok</div>'}</div>
+            </div>
+            <div class="detail-drawer" id="detailDrawer"><div style="color:#6b7280">Bir aksiyon seçin</div></div>
+        `;
+        // Klavye gezinme için ilk satırı aktif yap
+        setTimeout(()=>{ const first=document.querySelector('.list-row'); if(first){ first.classList.add('active'); } },0);
+        return;
+    }
     if("grouped"===currentView){
         const t={
             anadolu:a.filter(e=>e.responsible==="Anadolu Bakır"),
@@ -2103,7 +2215,7 @@ function loadActions() {
                                 <span class="responsible-badge ${t}">`+("anadolu"===t?"AB":"aifteam"===t?"AIF":"ORT")+`</span>
                             </div>
                             ${assignedPerson ? `<div class="assigned-person">👤 ${assignedPerson}</div>` : ''}
-                            ${postponed && e.postponeReason ? `<div class="postpone-reason">⏰ ${e.postponeReason}</div>` : ''}
+                            ${postponed ? `<div class="postpone-reason">⏰ ${e.postponeReason ? e.postponeReason : 'Ertelendi'}</div>` : ''}
                         </div>
                         <span class="status-badge ${status}" onclick="quickStatusChange('${e.id}', '${status}')" title="Durumu değiştirmek için tıklayın">${getStatusText(status)}</span>
                     </div>
@@ -2128,7 +2240,19 @@ function loadActions() {
                         </div>
                     </div>
                 </div>
-            `}function getStatusText(e){return{completed:"Tamamlandı","in-progress":"Devam Ediyor",waiting:"Bekliyor"}[e]||e}function formatDate(e){if(!e)return"";const t=new Date(e);return`${t.getDate()} ${["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"][t.getMonth()]} ${t.getFullYear()}`}function openModal(){document.getElementById("actionModal").classList.add("active");document.getElementById("modalTitle").textContent="Yeni Aksiyon Ekle";document.getElementById("actionForm").reset();editingId=null}function closeModal(){document.getElementById("actionModal").classList.remove("active");editingId=null}function editAction(e){const t=actions.find(t=>t.id===e);if(!t)return;editingId=e;document.getElementById("modalTitle").textContent="Aksiyonu Düzenle";document.getElementById("actionTitle").value=t.title;document.getElementById("actionResponsible").value=t.responsible;document.getElementById("actionDescription").value=t.description;document.getElementById("actionStatus").value=t.status;document.getElementById("actionDate").value=t.date||"";document.getElementById("actionModal").classList.add("active")}function deleteAction(id) {
+            `}function getStatusText(e){return{completed:"Tamamlandı","in-progress":"Devam Ediyor",waiting:"Bekliyor"}[e]||e}function formatDate(e){if(!e)return"";const t=new Date(e);return`${t.getDate()} ${["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"][t.getMonth()]} ${t.getFullYear()}`}function openModal(){document.getElementById("actionModal").classList.add("active");document.getElementById("modalTitle").textContent="Yeni Aksiyon Ekle";document.getElementById("actionForm").reset();editingId=null}function closeModal(){document.getElementById("actionModal").classList.remove("active");editingId=null}function focusRowByOffset(offset){const rows=[...document.querySelectorAll('.list-row')];if(rows.length===0)return;let idx=rows.findIndex(r=>r.classList.contains('active'));if(idx===-1)idx=0;rows[idx].classList.remove('active');idx=Math.max(0,Math.min(rows.length-1,idx+offset));rows[idx].classList.add('active');rows[idx].scrollIntoView({block:'nearest'});}function triggerOnActive(action){const row=document.querySelector('.list-row.active');if(!row)return;const id=row.getAttribute('data-id');if(!id)return;if(action==='open'){openDetail(id);}if(action==='edit'){editAction(id);}if(action==='priority'){togglePriority(id);}}function openDetail(id){const a=actions.find(e=>e.id===id);const d=document.getElementById('detailDrawer');if(!a||!d)return;d.innerHTML=`
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <h3 style="margin:0;font-size:1.1rem;color:#111827">${a.title}</h3>
+                    <span class="status-badge ${a.status}">${getStatusText(a.status)}</span>
+                </div>
+                <div style="color:#6b7280;margin-bottom:10px;">${a.responsible}</div>
+                <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px;margin-bottom:12px;">${a.description||''}</div>
+                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                    <button class="action-btn edit" onclick="editAction('${a.id}')">✏️ Düzenle</button>
+                    <button class="action-btn priority" onclick="togglePriority('${a.id}')">${a.priority?'⭐':'☆'}</button>
+                    <button class="action-btn postpone" onclick="postponeAction('${a.id}')">⏰ Ertele</button>
+                </div>
+            `}document.addEventListener('keydown',function(ev){if(currentView!=='list')return;const k=ev.key.toLowerCase();if(k==='j'||ev.key==='ArrowDown'){ev.preventDefault();focusRowByOffset(1);}else if(k==='k'||ev.key==='ArrowUp'){ev.preventDefault();focusRowByOffset(-1);}else if(ev.key==='Enter'){ev.preventDefault();triggerOnActive('open');}else if(k==='e'){ev.preventDefault();triggerOnActive('edit');}else if(k==='p'){ev.preventDefault();triggerOnActive('priority');}});function editAction(e){const t=actions.find(t=>t.id===e);if(!t)return;editingId=e;document.getElementById("modalTitle").textContent="Aksiyonu Düzenle";document.getElementById("actionTitle").value=t.title;document.getElementById("actionResponsible").value=t.responsible;document.getElementById("actionDescription").value=t.description;document.getElementById("actionStatus").value=t.status;document.getElementById("actionDate").value=t.date||"";document.getElementById("actionModal").classList.add("active")}function deleteAction(id) {
     if (confirm("Bu aksiyonu silmek istediğinizden emin misiniz?")) {
         // Firebase veritabanından ilgili ID'ye sahip aksiyonu kaldır/sil.
         database.ref('actions/' + id).remove();
@@ -2352,22 +2476,12 @@ function loadActions() {
         showNotification('✅ Tamamlanan aksiyonlar gösteriliyor', 'success');
     }
 
-    // Acil aksiyonları göster (öncelikli + bugün vadesi geçen)
-    function showUrgentActions() {
-        const today = new Date().toISOString().split('T')[0];
-        const urgentActions = actions.filter(action => {
-            const isOverdue = action.date && action.date < today && action.status !== 'completed';
-            const isPriority = action.priority;
-            return isOverdue || isPriority;
-        });
-        
-        if (urgentActions.length === 0) {
-            showNotification('🎉 Hiç acil aksiyon yok!', 'success');
-            return;
-        }
-        
-        showNotification(`🔥 ${urgentActions.length} acil aksiyon bulundu`, 'warning');
-        // Burada filtrelemeyi de yapabiliriz
+    // Acil filtresi toggle (bugün geciken + öncelik verilmiş)
+    let urgentFilterActive = false;
+    function toggleUrgentFilter() {
+        urgentFilterActive = !urgentFilterActive;
+        renderActions();
+        showNotification(urgentFilterActive ? '🔥 Acil aksiyonlar filtrelendi' : '🔥 Acil filtresi kapatıldı', 'info');
     }
 
     // Toplu durum güncelleme
@@ -2601,19 +2715,12 @@ function loadActions() {
         currentPostponeId = null;
     }
 
-    // Öncelikli aksiyonları göster
-    function showPriorityActions() {
-        const priorityActions = actions.filter(action => action.priority);
-        
-        if (priorityActions.length === 0) {
-            showNotification('⭐ Öncelikli aksiyon bulunamadı', 'info');
-            return;
-        }
-        
-        // Priority filter'ı aktif hale getir (özel filter)
-        currentStatusFilter = 'priority';
+    // Öncelik filtresi toggle
+    let priorityFilterActive = false;
+    function togglePriorityFilter() {
+        priorityFilterActive = !priorityFilterActive;
         renderActions();
-        showNotification(`⭐ ${priorityActions.length} öncelikli aksiyon gösteriliyor`, 'success');
+        showNotification(priorityFilterActive ? '⭐ Öncelikli aksiyonlar filtrelendi' : '⭐ Öncelik filtresi kapatıldı', 'info');
     }
 
     // Form event listener'ları
