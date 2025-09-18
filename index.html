@@ -1334,12 +1334,15 @@
         function loadActions() {
             const actionsRef = database.ref('actions');
             actionsRef.on('value', (snapshot) => {
+                console.log('Firebase listener triggered');
                 const data = snapshot.val();
                 actions = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+                console.log('Actions loaded:', actions.length);
                 
                 // Boş action'ları temizle
                 cleanEmptyActions();
                 
+                console.log('Calling renderActions...');
                 renderActions();
                 updateStats();
             });
@@ -1416,11 +1419,17 @@
         }
         
         function togglePriority(id) {
+            console.log('togglePriority called for id:', id);
             const action = actions.find(a => String(a.id) === String(id));
+            console.log('Found action:', action);
+            
             if(action) {
                 const newPriority = !action.priority;
+                console.log('Updating priority from', action.priority, 'to', newPriority);
+                
                 database.ref('actions/' + id).update({ priority: newPriority })
                     .then(() => {
+                        console.log('Firebase priority update successful');
                         // Show notification
                         showNotification(
                             newPriority ? '⭐ Öncelikli olarak işaretlendi!' : '☆ Öncelik kaldırıldı',
