@@ -1447,10 +1447,18 @@ function loadActions() {
         
         if (data) {
             // Firebase veriyi obje olarak verir, biz bunu bir diziye (array) çeviriyoruz.
-            actions = Object.keys(data).map(key => ({
-                id: key, // Firebase'in oluşturduğu benzersiz ID'yi kullanıyoruz.
-                ...data[key]
-            }));
+            actions = Object.keys(data).map(key => {
+                const actionData = data[key] || {};
+                return {
+                    id: key, // Firebase'in oluşturduğu benzersiz ID'yi kullanıyoruz.
+                    title: actionData.title || 'Başlık belirtilmemiş',
+                    responsible: actionData.responsible || 'Sorumlu belirtilmemiş',
+                    description: actionData.description || 'Açıklama yok',
+                    status: actionData.status || 'waiting',
+                    date: actionData.date || '',
+                    priority: actionData.priority || false
+                };
+            }).filter(action => action.id); // Geçersiz ID'leri filtrele
         } else {
             // Eğer veritabanı boşsa, actions dizisini de boşalt.
             // Ekranda "Aksiyon bulunamadı" yazısı görünecektir.
@@ -1460,7 +1468,62 @@ function loadActions() {
         renderActions();
         updateStats();
     });
-}function getTeamType(e){if(e.includes("Ortak"))return"ortak";if("AIFTEAM"===e)return"aifteam";if("Anadolu Bakır"===e)return"anadolu";return"other"}function updateStats(){const e=actions.filter(e=>"Anadolu Bakır"===e.responsible);document.getElementById("anadoluTotal").textContent=e.length;document.getElementById("anadoluProgress").textContent=e.filter(e=>"in-progress"===e.status).length;document.getElementById("anadoluWaiting").textContent=e.filter(e=>"waiting"===e.status).length;const t=actions.filter(e=>"AIFTEAM"===e.responsible);document.getElementById("aifteamTotal").textContent=t.length;document.getElementById("aifteamProgress").textContent=t.filter(e=>"in-progress"===e.status).length;document.getElementById("aifteamWaiting").textContent=t.filter(e=>"waiting"===e.status).length;const a=actions.filter(e=>e.responsible.includes("Ortak"));document.getElementById("ortakTotal").textContent=a.length;document.getElementById("ortakProgress").textContent=a.filter(e=>"in-progress"===e.status).length;document.getElementById("ortakWaiting").textContent=a.filter(e=>"waiting"===e.status).length}function renderActions(){const e=document.getElementById("actionsContainer");const t=document.getElementById("searchInput").value.toLowerCase();let a=actions;if("all"!==currentTeamFilter){a="Ortak"===currentTeamFilter?a.filter(e=>e.responsible.includes("Ortak")):a.filter(e=>e.responsible===currentTeamFilter)}if("all"!==currentStatusFilter){a=a.filter(e=>e.status===currentStatusFilter)}if(t){a=a.filter(e=>e.title.toLowerCase().includes(t)||e.description.toLowerCase().includes(t)||e.responsible.toLowerCase().includes(t))}if("grouped"===currentView){const t={anadolu:a.filter(e=>"Anadolu Bakır"===e.responsible),aifteam:a.filter(e=>"AIFTEAM"===e.responsible),ortak:a.filter(e=>e.responsible.includes("Ortak"))};e.className="actions-container grouped";e.innerHTML="";if(t.anadolu.length>0){e.innerHTML+=`
+}function getTeamType(e){
+    if(!e || typeof e !== 'string') return "other";
+    if(e.includes("Ortak"))return"ortak";
+    if("AIFTEAM"===e)return"aifteam";
+    if("Anadolu Bakır"===e)return"anadolu";
+    return"other";
+}function updateStats(){
+    const e=actions.filter(e=>e.responsible==="Anadolu Bakır");
+    document.getElementById("anadoluTotal").textContent=e.length;
+    document.getElementById("anadoluProgress").textContent=e.filter(e=>"in-progress"===e.status).length;
+    document.getElementById("anadoluWaiting").textContent=e.filter(e=>"waiting"===e.status).length;
+    
+    const t=actions.filter(e=>e.responsible==="AIFTEAM");
+    document.getElementById("aifteamTotal").textContent=t.length;
+    document.getElementById("aifteamProgress").textContent=t.filter(e=>"in-progress"===e.status).length;
+    document.getElementById("aifteamWaiting").textContent=t.filter(e=>"waiting"===e.status).length;
+    
+    const a=actions.filter(e=>e.responsible && e.responsible.includes("Ortak"));
+    document.getElementById("ortakTotal").textContent=a.length;
+    document.getElementById("ortakProgress").textContent=a.filter(e=>"in-progress"===e.status).length;
+    document.getElementById("ortakWaiting").textContent=a.filter(e=>"waiting"===e.status).length;
+}function renderActions(){
+    const e=document.getElementById("actionsContainer");
+    const t=document.getElementById("searchInput").value.toLowerCase();
+    let a=actions;
+    
+    // Takım filtreleme - responsible alanının varlığını kontrol et
+    if("all"!==currentTeamFilter){
+        a="Ortak"===currentTeamFilter?
+            a.filter(e=>e.responsible && e.responsible.includes("Ortak")):
+            a.filter(e=>e.responsible===currentTeamFilter);
+    }
+    
+    // Durum filtreleme
+    if("all"!==currentStatusFilter){
+        a=a.filter(e=>e.status===currentStatusFilter);
+    }
+    
+    // Arama filtreleme - tüm alanların varlığını kontrol et
+    if(t){
+        a=a.filter(e=>{
+            const title = e.title ? e.title.toLowerCase() : '';
+            const description = e.description ? e.description.toLowerCase() : '';
+            const responsible = e.responsible ? e.responsible.toLowerCase() : '';
+            return title.includes(t) || description.includes(t) || responsible.includes(t);
+        });
+    }
+    
+    if("grouped"===currentView){
+        const t={
+            anadolu:a.filter(e=>e.responsible==="Anadolu Bakır"),
+            aifteam:a.filter(e=>e.responsible==="AIFTEAM"),
+            ortak:a.filter(e=>e.responsible && e.responsible.includes("Ortak"))
+        };
+        e.className="actions-container grouped";
+        e.innerHTML="";if(t.anadolu.length>0){e.innerHTML+=`
                         <div class="team-section">
                             <div class="team-header anadolu">
                                 <h2>🏢 Anadolu Bakır</h2>
@@ -1494,31 +1557,43 @@ function loadActions() {
                     <div style="grid-column: 1/-1; text-align: center; padding: 40px; background: white; border-radius: 12px;">
                         <p style="color: #6b7280; font-size: 1.1rem;">Aksiyon bulunamadı</p>
                     </div>
-                `}}function createActionCard(e){const t=getTeamType(e.responsible);const a="anadolu"===t?"🏢":"aifteam"===t?"💻":"🤝";return`
-                <div class="action-card ${t}" data-action-id="${e.id}">
+                `}}function createActionCard(e){
+    // Güvenlik kontrolleri
+    if (!e) return '';
+    
+    const title = e.title || 'Başlık belirtilmemiş';
+    const responsible = e.responsible || 'Sorumlu belirtilmemiş';
+    const description = e.description || 'Açıklama yok';
+    const status = e.status || 'waiting';
+    const priority = e.priority || false;
+    
+    const t=getTeamType(responsible);
+    const a="anadolu"===t?"🏢":"aifteam"===t?"💻":"🤝";
+    return`
+                <div class="action-card ${t}" data-action-id="${e.id || ''}">
                     <div class="action-header">
                         <div>
-                            <div class="action-title">${e.title}</div>
+                            <div class="action-title">${title}</div>
                             <div class="responsible">
-                                ${a} ${e.responsible}
+                                ${a} ${responsible}
                                 <span class="responsible-badge ${t}">`+("anadolu"===t?"AB":"aifteam"===t?"AIF":"ORT")+`</span>
                             </div>
                         </div>
-                        <span class="status-badge ${e.status}" onclick="quickStatusChange('${e.id}', '${e.status}')" title="Durumu değiştirmek için tıklayın">${getStatusText(e.status)}</span>
+                        <span class="status-badge ${status}" onclick="quickStatusChange('${e.id}', '${status}')" title="Durumu değiştirmek için tıklayın">${getStatusText(status)}</span>
                     </div>
-                    <div class="action-description">${e.description}</div>
+                    <div class="action-description">${description}</div>
                     <div class="action-footer">
                         <div class="date">
                             📅 `+(e.date?formatDate(e.date):"Tarih belirtilmemiş")+`
                         </div>
                         <div class="action-buttons">
-                            <button class="action-btn edit" onclick="editAction('${e.id}')" title="Bu aksiyonu düzenle">
+                            <button class="action-btn edit" onclick="editAction('${e.id || ''}')" title="Bu aksiyonu düzenle">
                                 ✏️ Düzenle
                             </button>
-                            <button class="action-btn priority" onclick="togglePriority('${e.id}')" title="Öncelik durumunu değiştir">
-                                ${e.priority ? '⭐' : '☆'} 
+                            <button class="action-btn priority" onclick="togglePriority('${e.id || ''}')" title="Öncelik durumunu değiştir">
+                                ${priority ? '⭐' : '☆'} 
                             </button>
-                            <button class="action-btn delete" onclick="deleteAction('${e.id}')" title="Bu aksiyonu sil">
+                            <button class="action-btn delete" onclick="deleteAction('${e.id || ''}')" title="Bu aksiyonu sil">
                                 🗑️ Sil
                             </button>
                         </div>
@@ -1560,8 +1635,13 @@ function loadActions() {
 
     // Öncelik sistemi
     function togglePriority(id) {
+        if (!id) return;
+        
         const action = actions.find(a => a.id === id);
-        if (!action) return;
+        if (!action) {
+            showNotification('⚠️ Aksiyon bulunamadı!', 'warning');
+            return;
+        }
         
         const newPriority = !action.priority;
         database.ref('actions/' + id).update({ priority: newPriority });
@@ -1574,8 +1654,10 @@ function loadActions() {
 
     // Hızlı durum değiştirme (status badge'e tıklayınca)
     function quickStatusChange(id, currentStatus) {
+        if (!id) return;
+        
         const statuses = ['waiting', 'in-progress', 'completed'];
-        const currentIndex = statuses.indexOf(currentStatus);
+        const currentIndex = statuses.indexOf(currentStatus || 'waiting');
         const nextStatus = statuses[(currentIndex + 1) % statuses.length];
         
         database.ref('actions/' + id).update({ status: nextStatus });
