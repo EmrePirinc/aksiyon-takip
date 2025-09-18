@@ -756,12 +756,15 @@
             grid-template-columns: repeat(3, 1fr);
             gap: var(--space-6);
             align-items: start;
+            min-height: 70vh;
         }
         .kanban-col {
             background-color: var(--gray-100);
             padding: var(--space-4);
             border-radius: var(--radius-lg);
             min-height: 60vh;
+            display: flex;
+            flex-direction: column;
         }
         .kanban-col-header {
             font-size: 1.1rem;
@@ -769,10 +772,12 @@
             padding: 0 var(--space-2) var(--space-4);
             border-bottom: 2px solid var(--gray-200);
             margin-bottom: var(--space-4);
+            flex-shrink: 0;
         }
         .kanban-col .action-card {
             margin-bottom: var(--space-4);
             cursor: grab;
+            flex-shrink: 0;
         }
         .kanban-col .action-card:active { cursor: grabbing; }
         .kanban-col.drag-over { background-color: var(--primary-bg); border: 2px dashed var(--primary-light); }
@@ -929,7 +934,16 @@
         /* --- RESPONSIVE DESIGN --- */
         @media (max-width: 1200px) {
             .container { max-width: 100%; padding-left: 15px; padding-right: 15px; }
-            #actionsContainerKanban { grid-template-columns: 1fr; }
+            #actionsContainerKanban { 
+                grid-template-columns: repeat(3, 1fr);
+                gap: var(--space-4);
+            }
+        }
+        @media (max-width: 768px) {
+            #actionsContainerKanban { 
+                grid-template-columns: 1fr;
+                gap: var(--space-3);
+            }
         }
         @media (max-width: 768px) {
             #app-container { padding: 15px; }
@@ -1317,11 +1331,9 @@
         }
         
         function togglePriority(id) {
-            console.log('Toggle priority called with id:', id);
-            const action = actions.find(a => a.id === id);
+            const action = actions.find(a => String(a.id) === String(id));
             if(action) {
                 const newPriority = !action.priority;
-                console.log('Updating priority to:', newPriority);
                 database.ref('actions/' + id).update({ priority: newPriority });
             } else {
                 console.error('Action not found with id:', id);
@@ -1393,7 +1405,7 @@
                 );
             }
             
-            console.log('Filtered actions:', filteredActions.length, 'Priority filter active:', priorityFilterActive);
+            // console.log('Filtered actions:', filteredActions.length, 'Priority filter active:', priorityFilterActive);
             return filteredActions;
         }
         
@@ -1491,7 +1503,7 @@
 
                     <div class="action-footer">
                         <div class="date ${isOverdue ? 'overdue' : ''}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                             <span>${date ? formatDate(date) : "Tarih Yok"}</span>
                         </div>
                         <div class="action-buttons">
@@ -1556,8 +1568,7 @@
         }
         
         function editAction(id) {
-            console.log('Edit action called with id:', id);
-            const action = actions.find(a => a.id === id);
+            const action = actions.find(a => String(a.id) === String(id));
             if (!action) {
                 console.error('Action not found with id:', id);
                 alert('Aksiyon bulunamadı!');
@@ -1597,7 +1608,7 @@
         
         // --- DETAIL VIEW MODAL ---
         function openDetailView(id) {
-            const action = actions.find(a => a.id === id);
+            const action = actions.find(a => String(a.id) === String(id));
             if (!action) {
                 console.error('Action not found for detail view:', id);
                 return;
@@ -1764,19 +1775,16 @@
 
         // --- KİŞİ YÖNETİMİ ---
         function openPersonManagement() {
-            console.log('Opening person management modal');
             const modal = document.getElementById('personModal');
             if (modal) {
                 modal.classList.add('active');
                 modal.style.display = 'flex';
-                console.log('Person management modal opened');
             } else {
                 console.error('Person modal not found');
             }
         }
 
         function closePersonManagement() {
-            console.log('Closing person management modal');
             const modal = document.getElementById('personModal');
             if (modal) {
                 modal.classList.remove('active');
