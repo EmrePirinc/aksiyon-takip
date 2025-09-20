@@ -1388,12 +1388,16 @@
             console.log('togglePriority called for id:', id);
             const action = actions.find(a => String(a.id) === String(id));
             console.log('Found action:', action);
-            
+
             if(action) {
                 const newPriority = !(action.priority || false);
                 console.log('Updating priority from', action.priority, 'to', newPriority);
-                
-                database.ref('actions/' + id).update({ priority: newPriority })
+
+                // Önce local array'i güncelle
+                action.priority = newPriority;
+
+                // Sonra Firebase'e kaydet
+                database.ref('actions/' + action.id).update({ priority: newPriority })
                     .then(() => {
                         console.log('Firebase priority update successful');
                         // Show notification
@@ -1401,12 +1405,14 @@
                             newPriority ? '⭐ Öncelikli olarak işaretlendi!' : '☆ Öncelik kaldırıldı',
                             newPriority ? 'success' : 'info'
                         );
-                        
-                        // Firebase listener otomatik olarak renderActions() çağıracak
-                        // Manuel UI güncellemesine gerek yok
+
+                        // Manuel olarak UI'yi güncelle
+                        renderActions();
                     })
                     .catch((error) => {
                         console.error('Error updating priority:', error);
+                        // Hata durumunda local değişikliği geri al
+                        action.priority = !newPriority;
                         showNotification('❌ Öncelik güncellenirken hata oluştu!', 'warning');
                     });
             } else {
