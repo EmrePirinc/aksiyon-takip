@@ -1390,7 +1390,7 @@
             console.log('Found action:', action);
             
             if(action) {
-                const newPriority = !action.priority;
+                const newPriority = !(action.priority || false);
                 console.log('Updating priority from', action.priority, 'to', newPriority);
                 
                 database.ref('actions/' + id).update({ priority: newPriority })
