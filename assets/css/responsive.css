@@ -1,0 +1,464 @@
+/* =================================================================
+   Aksiyon Takip - Responsive CSS Dosyası
+   Mobil ve tablet uyumluluğu için medya sorguları
+   ================================================================= */
+
+/* --- TABLET STYLES (768px - 1024px) --- */
+@media (max-width: 1024px) {
+    .header {
+        padding: var(--space-4) var(--space-6);
+    }
+
+    .header-controls {
+        flex-direction: column;
+        gap: var(--space-4);
+        align-items: stretch;
+    }
+
+    .search-container {
+        order: -1;
+    }
+
+    .filter-section {
+        justify-content: center;
+        gap: var(--space-3);
+    }
+
+    #actionsContainerGrouped .team-actions {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: var(--space-4);
+    }
+
+    #actionsContainerKanban {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+    }
+
+    .kanban-col {
+        min-height: 300px;
+    }
+
+    .modal-content {
+        max-width: 90%;
+        padding: var(--space-6);
+    }
+}
+
+/* --- MOBILE STYLES (up to 768px) --- */
+@media (max-width: 768px) {
+    :root {
+        --space-6: 16px;
+        --space-8: 24px;
+        --space-10: 32px;
+    }
+
+    body {
+        font-size: 14px;
+    }
+
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+
+    /* Header Adjustments */
+    .header {
+        padding: var(--space-3) var(--space-4);
+        position: relative;
+    }
+
+    .header-top {
+        flex-direction: column;
+        gap: var(--space-3);
+        align-items: stretch;
+    }
+
+    .header-title h1 {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .header-controls {
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+
+    .search-container {
+        order: -1;
+    }
+
+    .search-container input {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+
+    /* Filter Section Mobile */
+    .filter-section {
+        flex-direction: column;
+        gap: var(--space-3);
+        align-items: stretch;
+    }
+
+    .filter-group {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        font-size: 0.8rem;
+        padding: var(--space-2) var(--space-3);
+    }
+
+    .view-toggle {
+        margin-left: 0;
+        justify-content: center;
+    }
+
+    /* User Menu Mobile */
+    .user-menu {
+        position: relative;
+    }
+
+    .user-profile {
+        padding: var(--space-2) var(--space-3);
+    }
+
+    .user-name {
+        display: none; /* Hide username on mobile */
+    }
+
+    .user-dropdown {
+        right: 0;
+        left: auto;
+        min-width: 180px;
+    }
+
+    /* Action Cards Mobile */
+    .main-content {
+        padding: var(--space-4);
+    }
+
+    #actionsContainerGrouped .team-actions {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+    }
+
+    .action-card {
+        padding: var(--space-4);
+    }
+
+    .action-header {
+        flex-direction: column;
+        gap: var(--space-3);
+        align-items: stretch;
+    }
+
+    .action-title {
+        font-size: 1rem;
+    }
+
+    .action-footer {
+        flex-direction: column;
+        gap: var(--space-3);
+        align-items: stretch;
+    }
+
+    .action-buttons {
+        justify-content: center;
+        margin-left: 0;
+    }
+
+    .date {
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+
+    /* List View Mobile */
+    #actionsContainerList {
+        padding: 0;
+    }
+
+    #actionsContainerList .list-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+        padding: var(--space-4);
+    }
+
+    #actionsContainerList .title {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    #actionsContainerList .actions {
+        align-self: stretch;
+        justify-content: center;
+    }
+
+    /* Kanban View Mobile */
+    #actionsContainerKanban {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+        padding: var(--space-3);
+    }
+
+    .kanban-col {
+        min-height: 250px;
+    }
+
+    .kanban-col-header {
+        font-size: 0.9rem;
+        padding: var(--space-3);
+    }
+
+    /* Calendar View Mobile */
+    #actionsContainerCalendar {
+        padding: var(--space-4);
+    }
+
+    .calendar-header {
+        flex-direction: column;
+        gap: var(--space-3);
+        text-align: center;
+    }
+
+    .calendar-header h2 {
+        font-size: 1.25rem;
+    }
+
+    .calendar-grid {
+        font-size: 0.8rem;
+    }
+
+    .calendar-day {
+        min-height: 80px;
+        padding: var(--space-1);
+    }
+
+    .day-number {
+        font-size: 0.8rem;
+    }
+
+    .day-action-item {
+        font-size: 0.7rem;
+        padding: 2px 4px;
+    }
+
+    /* Modal Mobile */
+    .modal-content {
+        width: 95%;
+        max-width: none;
+        padding: var(--space-4);
+        margin: var(--space-4);
+        max-height: calc(100vh - 32px);
+    }
+
+    .modal h2 {
+        font-size: 1.25rem;
+        margin-bottom: var(--space-4);
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+        gap: var(--space-3);
+        margin-top: var(--space-5);
+    }
+
+    .modal-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Form Groups Mobile */
+    .form-group {
+        margin-bottom: var(--space-4);
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: var(--space-3);
+    }
+
+    /* Detail Modal Mobile */
+    #detailModal .detail-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-2);
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: var(--gray-600);
+        margin-bottom: var(--space-1);
+    }
+
+    .detail-value {
+        margin-bottom: var(--space-3);
+        padding-bottom: var(--space-3);
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .detail-value:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    /* Toast Mobile */
+    .toast {
+        top: var(--space-4);
+        right: var(--space-4);
+        left: var(--space-4);
+        max-width: none;
+    }
+
+    /* Login Form Mobile */
+    .login-container {
+        padding: var(--space-4);
+    }
+
+    .login-box {
+        padding: var(--space-6);
+        margin: 0;
+        width: 100%;
+        max-width: none;
+    }
+
+    .login-title h1 {
+        font-size: 1.5rem;
+    }
+
+    .login-subtitle {
+        font-size: 0.9rem;
+    }
+}
+
+/* --- SMALL MOBILE STYLES (up to 480px) --- */
+@media (max-width: 480px) {
+    :root {
+        --space-4: 12px;
+        --space-5: 16px;
+        --space-6: 20px;
+    }
+
+    .header {
+        padding: var(--space-3);
+    }
+
+    .main-content {
+        padding: var(--space-3);
+    }
+
+    .action-card {
+        padding: var(--space-3);
+    }
+
+    .action-title {
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+
+    .action-description {
+        font-size: 0.85rem;
+    }
+
+    .action-buttons {
+        gap: var(--space-1);
+    }
+
+    .action-btn {
+        min-width: 28px;
+        min-height: 28px;
+        padding: var(--space-1);
+    }
+
+    .action-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .filter-btn {
+        font-size: 0.75rem;
+        padding: var(--space-1) var(--space-2);
+    }
+
+    .status-badge {
+        font-size: 0.7rem;
+        padding: 2px var(--space-2);
+    }
+
+    .modal-content {
+        padding: var(--space-3);
+        margin: var(--space-3);
+        max-height: calc(100vh - 24px);
+    }
+
+    .calendar-day {
+        min-height: 60px;
+        padding: 2px;
+    }
+
+    .day-action-item {
+        font-size: 0.65rem;
+        padding: 1px 3px;
+    }
+}
+
+/* --- LANDSCAPE MOBILE --- */
+@media (max-width: 768px) and (orientation: landscape) {
+    .modal-content {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .calendar-day {
+        min-height: 70px;
+    }
+
+    .header {
+        padding: var(--space-2) var(--space-4);
+    }
+
+    .main-content {
+        padding: var(--space-3) var(--space-4);
+    }
+}
+
+/* --- PRINT STYLES --- */
+@media print {
+    body {
+        background: white;
+        color: black;
+        font-size: 12pt;
+    }
+
+    .header,
+    .user-menu,
+    .action-buttons,
+    .modal,
+    .toast {
+        display: none !important;
+    }
+
+    .main-content {
+        padding: 0;
+        margin: 0;
+    }
+
+    .action-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        margin-bottom: 1cm;
+        border: 1px solid #ccc;
+        box-shadow: none;
+    }
+
+    .action-title {
+        font-size: 14pt;
+        font-weight: bold;
+    }
+
+    .action-description {
+        font-size: 11pt;
+        line-height: 1.4;
+    }
+}

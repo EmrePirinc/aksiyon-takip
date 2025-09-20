@@ -9,1004 +9,16 @@
     <!-- Word'e Aktarma Kütüphaneleri -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://unpkg.com/html-docx-js@0.4.1/dist/html-docx.js"></script>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    
-    <style>
-        /* --- MODERN GİRİŞ EKRANI --- */
-        #login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
-            position: relative;
-            overflow: hidden;
-        }
 
-        #login-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image:
-                radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.05), transparent 40%),
-                radial-gradient(circle at 75% 75%, rgba(52, 152, 219, 0.05), transparent 40%);
-            animation: float 20s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(1deg); }
-        }
-
-        .login-box {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 50px 40px;
-            border-radius: 24px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.1);
-            width: 90%;
-            max-width: 420px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        
-        @keyframes slideUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-
-        .login-box::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #6366f1, #3498db, #9b59b6, #e74c3c);
-            background-size: 200% 200%;
-            border-radius: 24px 24px 0 0;
-            animation: shimmer 4s ease-in-out infinite;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .login-header {
-            margin-bottom: 35px;
-        }
-
-        .login-box h1 {
-            margin-bottom: 10px;
-            color: #1f2937;
-            font-size: 2.2rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #6366f1 0%, #3498db 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .login-subtitle {
-            color: #6b7280;
-            font-size: 1rem;
-            margin-bottom: 30px;
-            font-weight: 500;
-        }
-
-        .form-group {
-            position: relative;
-            margin-bottom: 25px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #374151;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .login-box input {
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid var(--gray-200);
-            border-radius: 12px;
-            box-sizing: border-box;
-            font-size: 1rem;
-            font-weight: 500;
-            background: var(--gray-50);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .login-box input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
-            transform: translateY(-2px);
-            background: var(--white);
-        }
-
-        .login-box input::placeholder {
-            color: #9ca3af;
-            font-weight: 400;
-        }
-        
-        .login-box button {
-            width: 100%;
-            padding: 16px 24px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: var(--radius-lg);
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-box button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        #login-error {
-            color: #ef4444;
-            margin-top: 20px;
-            min-height: 24px;
-            font-weight: 600;
-            padding: 12px;
-            background: rgba(239, 68, 68, 0.1);
-            border-radius: 8px;
-            border-left: 4px solid #ef4444;
-            animation: shake 0.5s ease-in-out;
-            display: none; /* Initially hidden */
-        }
-        
-        #login-error:not(:empty) {
-            display: block;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .remember-me {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #6b7280;
-        }
-
-        .remember-me input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
-        }
-
-        /* --- GLOBAL DESIGN SYSTEM --- */
-        :root {
-            /* Primary Colors */
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --primary-light: #a5b4fc;
-            --primary-bg: #eef2ff;
-
-            /* Semantic Colors */
-            --success: #10b981;
-            --success-light: #6ee7b7;
-            --success-bg: #ecfdf5;
-
-            --warning: #f59e0b;
-            --warning-light: #fbbf24;
-            --warning-bg: #fffbeb;
-
-            --danger: #ef4444;
-            --danger-light: #f87171;
-            --danger-bg: #fef2f2;
-
-            /* Neutral Palette */
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #111827;
-
-            /* Team Colors */
-            --anadolu: #dc2626;
-            --anadolu-light: #ef4444;
-            --anadolu-bg: #fef2f2;
-
-            --aifteam: #2563eb;
-            --aifteam-light: #3b82f6;
-            --aifteam-bg: #dbeafe;
-
-            --ortak: #9333ea;
-            --ortak-light: #a855f7;
-            --ortak-bg: #f5f3ff;
-            
-            --postponed: #7c3aed;
-            --postponed-light: #c4b5fd;
-            --postponed-bg: #f5f3ff;
-
-
-            /* Layout & Effects */
-            --white: #ffffff;
-            --glass-bg: rgba(255, 255, 255, 0.8);
-            --glass-border: rgba(209, 213, 219, 0.5);
-            --backdrop-blur: blur(12px);
-
-            /* Shadows */
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-
-            /* Border Radius */
-            --radius-sm: 4px;
-            --radius: 8px;
-            --radius-lg: 12px;
-            --radius-xl: 16px;
-
-            /* Spacing */
-            --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
-            --space-5: 20px; --space-6: 24px; --space-8: 32px;
-
-            /* Transitions */
-            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: var(--gray-50);
-            min-height: 100vh;
-            color: var(--gray-800);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        
-        #app-container {
-             padding: 20px;
-        }
-
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding-top: 80px; /* User menu space */
-        }
-        
-        /* --- GENERAL UI COMPONENTS --- */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--space-2);
-            padding: var(--space-2) var(--space-4);
-            border: 1px solid var(--gray-300);
-            border-radius: var(--radius);
-            background: var(--white);
-            color: var(--gray-700);
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-        }
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow);
-            border-color: var(--gray-400);
-        }
-        .btn.btn-primary {
-            background: var(--primary);
-            color: var(--white);
-            border-color: var(--primary);
-        }
-        .btn.btn-primary:hover {
-             background: var(--primary-dark);
-             border-color: var(--primary-dark);
-        }
-        .btn.btn-danger-outline {
-            color: var(--danger);
-            border-color: var(--danger-light);
-        }
-        .btn.btn-danger-outline:hover {
-            background: var(--danger);
-            color: var(--white);
-            border-color: var(--danger);
-        }
-        .btn.btn-icon {
-            padding: var(--space-2);
-            min-width: 36px;
-            min-height: 36px;
-        }
-        .btn svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        /* --- HEADER --- */
-        .header {
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius-xl);
-            padding: var(--space-6) var(--space-8);
-            margin-bottom: var(--space-6);
-            box-shadow: var(--shadow-md);
-            position: relative;
-        }
-        .header-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: var(--space-8);
-            margin-bottom: var(--space-2);
-        }
-        .header h1 {
-            color: var(--gray-900);
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-        .team-badges {
-            display: flex;
-            gap: var(--space-3);
-        }
-        .team-badge {
-            padding: var(--space-2) var(--space-3);
-            border-radius: var(--radius);
-            font-weight: 600;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            color: white;
-            border: none;
-        }
-        .team-badge.anadolu { background: var(--anadolu); }
-        .team-badge.aifteam { background: var(--aifteam); }
-        .team-badge.ortak { background: var(--ortak); }
-        .header p { color: var(--gray-600); }
-
-        /* --- STATS ROW --- */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--space-6);
-            margin-bottom: var(--space-6);
-        }
-        .team-stats {
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius-lg);
-            padding: var(--space-6);
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            position: relative;
-            border-top: 4px solid;
-        }
-        .team-stats.anadolu-stats { border-color: var(--anadolu); }
-        .team-stats.aifteam-stats { border-color: var(--aifteam); }
-        .team-stats.ortak-stats { border-color: var(--ortak); }
-
-        .team-stats:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-        }
-        .team-stats h3 {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: var(--space-4);
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            color: var(--gray-900);
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--space-3);
-        }
-        .mini-stat {
-            text-align: center;
-            padding: var(--space-4) var(--space-2);
-            background: var(--gray-50);
-            border-radius: var(--radius);
-        }
-        .mini-stat .label {
-            font-size: 0.75rem;
-            color: var(--gray-500);
-            text-transform: uppercase;
-            margin-bottom: var(--space-1);
-            font-weight: 600;
-        }
-        .mini-stat .value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--gray-900);
-        }
-        
-        /* --- CONTROLS / TOOLBAR --- */
-        .controls {
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius-xl);
-            padding: var(--space-5);
-            margin-bottom: var(--space-6);
-            box-shadow: var(--shadow);
-        }
-        .controls-top {
-            display: flex;
-            gap: var(--space-4);
-            align-items: center;
-            margin-bottom: var(--space-4);
-            flex-wrap: wrap;
-        }
-        .search-box {
-            flex: 1;
-            min-width: 250px;
-            position: relative;
-        }
-        .search-box input {
-            width: 100%;
-            padding: var(--space-3) var(--space-4);
-            padding-left: 36px;
-            border: 1px solid var(--gray-300);
-            border-radius: var(--radius);
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-        .search-box input:focus {
-             outline: none;
-             border-color: var(--primary);
-             box-shadow: 0 0 0 3px var(--primary-bg);
-        }
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray-400);
-        }
-        .filter-section {
-            display: flex;
-            gap: var(--space-4);
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .filter-label { font-weight: 600; color: var(--gray-600); font-size: 0.9rem; }
-        
-        .filter-group {
-            display: flex;
-            background: var(--gray-100);
-            padding: var(--space-1);
-            border-radius: var(--radius);
-        }
-        .filter-btn {
-            padding: var(--space-2) var(--space-3);
-            border: 1px solid transparent;
-            background: transparent;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 500;
-            font-size: 0.85rem;
-        }
-        .filter-btn:hover {
-            background: var(--gray-200);
-        }
-        .filter-btn.active {
-            background: var(--white);
-            box-shadow: var(--shadow-sm);
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        /* --- ACTION CONTAINER & VIEWS --- */
-        .actions-view-container { 
-            display: none; 
-        }
-        .actions-view-container.active { 
-            display: block !important; 
-        }
-        
-        /* Kanban container özel ayarları */
-        #actionsContainerKanban.active {
-            display: grid !important;
-        }
-        
-        #actionsContainerGrouped .team-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-            gap: var(--space-6);
-        }
-        .team-section { margin-bottom: var(--space-8); }
-        .team-header {
-            padding: var(--space-3) var(--space-4);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--space-5);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: var(--white);
-        }
-        .team-header.anadolu { background: var(--anadolu); }
-        .team-header.aifteam { background: var(--aifteam); }
-        .team-header.ortak { background: var(--ortak); }
-        .team-header h2 { font-size: 1.25rem; display: flex; align-items: center; gap: var(--space-2); }
-
-        /* --- ACTION CARD REDESIGN --- */
-        .action-card {
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            padding: var(--space-5);
-            cursor: pointer;
-        }
-        .action-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--gray-300);
-        }
-        .action-card::before { /* Team color accent */
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 5px;
-            height: 100%;
-            border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-        }
-        .action-card.anadolu::before { background: var(--anadolu); }
-        .action-card.aifteam::before { background: var(--aifteam); }
-        .action-card.ortak::before { background: var(--ortak); }
-        .action-card.postponed { border-left: 5px solid var(--postponed); }
-
-        .action-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: var(--space-3);
-            gap: var(--space-3);
-        }
-        .action-title-block {
-            flex: 1;
-        }
-        .action-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--gray-900);
-            margin-bottom: var(--space-1);
-            line-height: 1.4;
-        }
-        .responsible {
-            font-size: 0.8rem;
-            color: var(--gray-600);
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            font-weight: 500;
-        }
-        .assigned-person {
-            font-size: 0.8rem;
-            color: var(--primary);
-            font-weight: 600;
-            margin-top: var(--space-2);
-            padding: 3px 8px;
-            background: var(--primary-bg);
-            border-radius: 99px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .status-badge {
-            padding: var(--space-1) var(--space-3);
-            border-radius: 99px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.025em;
-            cursor: pointer;
-            border: 1px solid transparent;
-        }
-        .status-badge.completed { background: var(--success-bg); color: var(--success); }
-        .status-badge.in-progress { background: var(--primary-bg); color: var(--primary); }
-        .status-badge.waiting { background: var(--warning-bg); color: var(--warning); }
-        
-        .action-body {
-            flex: 1; /* Makes body grow */
-            margin-bottom: var(--space-4);
-        }
-        .update-box {
-            background: var(--postponed-bg);
-            border: 1px solid var(--postponed-light);
-            color: var(--postponed);
-            border-radius: var(--radius);
-            padding: var(--space-3);
-            margin-bottom: var(--space-3);
-            font-size: 0.85rem;
-        }
-        .update-box strong { color: var(--postponed); }
-
-        .action-description {
-            color: var(--gray-700);
-            font-size: 0.9rem;
-            line-height: 1.6;
-            background: var(--gray-50);
-            padding: var(--space-3);
-            border-radius: var(--radius);
-        }
-
-        .action-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: var(--space-4);
-            padding-top: var(--space-3);
-            border-top: 1px solid var(--gray-200);
-            margin-top: auto; /* Pushes footer to bottom */
-        }
-        .date {
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            color: var(--gray-500);
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        .date.overdue {
-            color: var(--danger);
-            font-weight: 600;
-        }
-        .action-buttons {
-            display: flex;
-            gap: var(--space-2);
-        }
-        .action-btn { /* Re-style action buttons */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: var(--space-2);
-            border: 1px solid var(--gray-300);
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: var(--transition);
-            background: var(--white);
-            color: var(--gray-500);
-        }
-        .action-btn:hover {
-            color: var(--gray-800);
-            background-color: var(--gray-100);
-            transform: translateY(-1px);
-        }
-        .action-btn.priority-active {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
-            border-color: #f59e0b;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-            transform: scale(1.05);
-        }
-        
-        .action-btn.priority-active:hover {
-            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-            transform: scale(1.1);
-        }
-        
-        /* YENİ EKLENEN GÖRÜNÜM stilleri */
-        /* Liste Görünümü */
-        #actionsContainerList .list-item {
-            display: flex;
-            align-items: center;
-            padding: var(--space-4);
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--space-3);
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition);
-        }
-         #actionsContainerList .list-item:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-        .list-item > div { padding: 0 var(--space-3); }
-        .list-item .title { flex: 3; font-weight: 600; cursor: pointer; }
-        .list-item .responsible { flex: 1.5; }
-        .list-item .person { flex: 1.5; display: flex; align-items: center; gap: var(--space-2); }
-        .list-item .date { flex: 1; }
-        .list-item .status { flex: 1; }
-        .list-item .actions { flex: 1; display: flex; justify-content: flex-end; }
-        .list-header {
-            display: flex;
-            font-weight: 600;
-            color: var(--gray-600);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            padding: var(--space-3) var(--space-4);
-            margin-bottom: var(--space-2);
-        }
-
-        /* Kanban Görünümü - Dikey 3 Sütun */
-        #actionsContainerKanban {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--space-6);
-            align-items: start;
-            min-height: 70vh;
-            height: calc(100vh - 300px);
-            max-height: 80vh;
-        }
-        .kanban-col {
-            background-color: var(--gray-100);
-            padding: var(--space-4);
-            border-radius: var(--radius-lg);
-            min-height: 60vh;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            max-height: 100%;
-        }
-        .kanban-col-header {
-            font-size: 1.1rem;
-            font-weight: 600;
-            padding: 0 var(--space-2) var(--space-4);
-            border-bottom: 2px solid var(--gray-200);
-            margin-bottom: var(--space-4);
-            flex-shrink: 0;
-            position: sticky;
-            top: 0;
-            background: var(--gray-100);
-            z-index: 10;
-        }
-        .kanban-col .action-card {
-            margin-bottom: var(--space-4);
-            cursor: grab;
-            flex-shrink: 0;
-        }
-        .kanban-col .action-card:active { cursor: grabbing; }
-        .kanban-col.drag-over { 
-            background-color: var(--primary-bg); 
-            border: 2px dashed var(--primary-light); 
-            transform: scale(1.02);
-            transition: all 0.2s ease;
-        }
-        .action-card.dragging { 
-            opacity: 0.6; 
-            transform: rotate(3deg) scale(1.05); 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            z-index: 1000;
-            transition: all 0.2s ease;
-        }
-
-        /* Takvim Görünümü */
-        #actionsContainerCalendar { background: var(--white); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow); }
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-5); }
-        .calendar-header h2 { font-size: 1.5rem; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background-color: var(--gray-200); border: 1px solid var(--gray-200); }
-        .calendar-day-header { text-align: center; padding: var(--space-3); font-weight: 600; background: var(--gray-100); color: var(--gray-600); }
-        .calendar-day { background: var(--white); min-height: 120px; padding: var(--space-2); position: relative; }
-        .calendar-day.other-month { background: var(--gray-50); color: var(--gray-400); }
-        .day-number { font-weight: 600; }
-        .day-actions { margin-top: var(--space-2); display: flex; flex-direction: column; gap: var(--space-1); }
-        .day-action-item {
-            font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            padding: 3px 6px; border-radius: var(--radius-sm); cursor: pointer;
-        }
-        .day-action-item.anadolu { background: var(--anadolu-bg); color: var(--anadolu); }
-        .day-action-item.aifteam { background: var(--aifteam-bg); color: var(--aifteam); }
-        .day-action-item.ortak { background: var(--ortak-bg); color: var(--ortak); }
-        
-
-        /* --- USER MENU --- */
-        .user-menu { position: fixed; top: 20px; right: 20px; z-index: 1001; }
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: var(--glass-bg);
-            backdrop-filter: var(--backdrop-blur);
-            border: 1px solid var(--glass-border);
-            border-radius: 99px;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: var(--shadow-md);
-        }
-        .user-profile:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-        .user-avatar {
-            background: var(--primary);
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-        }
-        .user-name { font-weight: 600; padding-right: var(--space-2); }
-        .user-dropdown {
-            position: absolute;
-            top: calc(100% + 8px);
-            right: 0;
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-xl);
-            min-width: 200px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: var(--transition);
-        }
-        .user-dropdown.active { opacity: 1; visibility: visible; transform: translateY(0); }
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 500;
-        }
-        .dropdown-item:hover { background: var(--gray-100); }
-        .dropdown-item.logout:hover { background: var(--danger-bg); color: var(--danger); }
-        .dropdown-divider { height: 1px; background: var(--gray-200); margin: var(--space-2) 0; }
-        
-        /* --- MODALS --- */
-        .modal {
-            display: none;
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(17, 24, 39, 0.6);
-            backdrop-filter: blur(4px);
-            justify-content: center; align-items: center;
-            z-index: 1000;
-            overflow-y: auto;
-            padding: 20px;
-        }
-        .modal.active { 
-            display: flex !important; 
-            animation: fadeIn .3s ease; 
-        }
-        .modal-content {
-            background: var(--white);
-            border-radius: var(--radius-xl);
-            padding: var(--space-8);
-            width: 90%; max-width: 600px;
-            margin: auto;
-            animation: slideUp .4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .modal-content-scrollable {
-             max-height: 90vh;
-             overflow-y: auto;
-        }
-        .modal-header { margin-bottom: 25px; }
-        .modal-header h2 { color: var(--gray-900); font-size: 1.5rem; }
-        .modal-content .form-group label { color: var(--gray-700); font-weight: 600; }
-        .modal-content .form-group input, .modal-content .form-group select, .modal-content .form-group textarea {
-            width: 100%;
-            padding: var(--space-3);
-            border: 1px solid var(--gray-300);
-            border-radius: var(--radius);
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-        .modal-content .form-group input:focus, .modal-content .form-group select:focus, .modal-content .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-bg);
-        }
-        .modal-buttons {
-            display: flex; gap: var(--space-3); justify-content: flex-end; margin-top: 25px;
-        }
-        .modal-btn.cancel { background: var(--gray-200); color: var(--gray-800); border-color: var(--gray-200); }
-        .modal-btn.cancel:hover { background: var(--gray-300); border-color: var(--gray-300); }
-
-        /* Detay Modal Stilleri */
-        #detailModal .modal-content { max-width: 750px; }
-        #detailModal h2 { font-size: 1.8rem; margin-bottom: var(--space-2); }
-        #detailModal .detail-grid { display: grid; grid-template-columns: 150px 1fr; gap: var(--space-3) var(--space-6); align-items: center; margin-bottom: var(--space-6); }
-        .detail-label { font-weight: 600; color: var(--gray-600); }
-        .detail-value { font-weight: 500; color: var(--gray-800); }
-        #detailDescription { background: var(--gray-50); padding: var(--space-4); border-radius: var(--radius-lg); line-height: 1.6; white-space: pre-wrap; }
-        .postpone-note { 
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
-            padding: var(--space-3); 
-            border-radius: var(--radius); 
-            border-left: 4px solid #f59e0b; 
-            font-style: italic; 
-            color: #92400e;
-            line-height: 1.5;
-        }
-
-        /* Kişi Yönetimi Modal Stilleri */
-        .person-item { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3); border-radius: var(--radius); transition: var(--transition); }
-        .person-item:nth-child(odd) { background-color: var(--gray-50); }
-        .person-item:hover { background-color: var(--gray-100); }
-        .person-info span { font-weight: 600; }
-        .person-info small { color: var(--gray-500); margin-left: var(--space-2); }
-        .delete-person-btn { background: transparent; border: none; cursor: pointer; color: var(--danger-light); }
-        .delete-person-btn:hover { color: var(--danger); }
-        #personListContainer { max-height: 250px; overflow-y: auto; margin-bottom: var(--space-4); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: var(--space-2); }
-
-
-        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        
-        /* --- RESPONSIVE DESIGN --- */
-        @media (max-width: 1200px) {
-            .container { max-width: 100%; padding-left: 15px; padding-right: 15px; }
-            #actionsContainerKanban { 
-                grid-template-columns: repeat(3, 1fr);
-                gap: var(--space-4);
-            }
-        }
-        @media (max-width: 768px) {
-            #actionsContainerKanban { 
-                grid-template-columns: 1fr;
-                gap: var(--space-3);
-                height: auto;
-                min-height: 50vh;
-            }
-        }
-        @media (max-width: 768px) {
-            #app-container { padding: 15px; }
-            .header { padding: 20px; }
-            .header-content { flex-direction: column; gap: 15px; text-align: center; }
-            .header h1 { font-size: 1.5rem; }
-            .controls-top { flex-direction: column; align-items: stretch; }
-            .filter-section { flex-direction: column; align-items: stretch; gap: 15px; }
-            .filter-group { justify-content: center; }
-            .list-header { display: none; }
-            #actionsContainerList .list-item { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
-            #actionsContainerList .list-item > div { width: 100%; padding: 0; }
-        }
-
-    </style>
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
 </head>
 <body>
     <!-- Login Screen -->
@@ -1043,87 +55,99 @@
             <!-- Header -->
             <div class="header">
                 <div class="header-content">
-                    <h1>Aksiyon Takip Sistemi</h1>
-                    <div class="team-badges">
-                        <div class="team-badge anadolu"><span>🏢</span><span>Anadolu Bakır</span></div>
-                        <div class="team-badge aifteam"><span>💻</span><span>AIFTEAM</span></div>
-                        <div class="team-badge ortak"><span>🤝</span><span>Ortak</span></div>
+                    <div class="header-title">
+                        <h1>🚀 Aksiyon Takip Sistemi</h1>
+                    </div>
+                    <div class="header-controls">
+                        <div class="user-info">
+                            <span id="currentUser">Kullanıcı</span>
+                        </div>
+                        <button class="header-btn" onclick="openPersonModal()">👥 Kişi Yönetimi</button>
+                        <button class="header-btn danger" onclick="signOut()">🚪 Çıkış Yap</button>
                     </div>
                 </div>
-                <p>Proje sorumlulukları ve aksiyonları merkezi bir sistemden yönetin.</p>
             </div>
 
-            <!-- Stats Row -->
+            <!-- Team Statistics -->
             <div class="stats-row">
                 <div class="team-stats anadolu-stats">
                     <h3><span style="font-size: 1.5rem;">🏢</span> Anadolu Bakır</h3>
                     <div class="stats-grid">
                         <div class="mini-stat"><div class="label">Toplam</div><div class="value" id="anadoluTotal">0</div></div>
-                        <div class="mini-stat"><div class="label">Devam</div><div class="value" id="anadoluProgress">0</div></div>
                         <div class="mini-stat"><div class="label">Bekleyen</div><div class="value" id="anadoluWaiting">0</div></div>
+                        <div class="mini-stat"><div class="label">Devam Eden</div><div class="value" id="anadoluInProgress">0</div></div>
+                        <div class="mini-stat"><div class="label">Tamamlanan</div><div class="value" id="anadoluCompleted">0</div></div>
                     </div>
                 </div>
                 <div class="team-stats aifteam-stats">
                     <h3><span style="font-size: 1.5rem;">💻</span> AIFTEAM</h3>
                     <div class="stats-grid">
                         <div class="mini-stat"><div class="label">Toplam</div><div class="value" id="aifteamTotal">0</div></div>
-                        <div class="mini-stat"><div class="label">Devam</div><div class="value" id="aifteamProgress">0</div></div>
                         <div class="mini-stat"><div class="label">Bekleyen</div><div class="value" id="aifteamWaiting">0</div></div>
+                        <div class="mini-stat"><div class="label">Devam Eden</div><div class="value" id="aifteamInProgress">0</div></div>
+                        <div class="mini-stat"><div class="label">Tamamlanan</div><div class="value" id="aifteamCompleted">0</div></div>
                     </div>
                 </div>
                 <div class="team-stats ortak-stats">
                     <h3><span style="font-size: 1.5rem;">🤝</span> Ortak Aksiyonlar</h3>
                     <div class="stats-grid">
                         <div class="mini-stat"><div class="label">Toplam</div><div class="value" id="ortakTotal">0</div></div>
-                        <div class="mini-stat"><div class="label">Devam</div><div class="value" id="ortakProgress">0</div></div>
                         <div class="mini-stat"><div class="label">Bekleyen</div><div class="value" id="ortakWaiting">0</div></div>
+                        <div class="mini-stat"><div class="label">Devam Eden</div><div class="value" id="ortakInProgress">0</div></div>
+                        <div class="mini-stat"><div class="label">Tamamlanan</div><div class="value" id="ortakCompleted">0</div></div>
                     </div>
                 </div>
             </div>
 
             <!-- Controls -->
-            <div class="controls">
-                 <div class="controls-top">
-                    <div class="search-box">
-                         <span class="search-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        </span>
-                        <input type="text" id="searchInput" placeholder="Aksiyon ara... (Ctrl+F)">
-                    </div>
-                    <button class="btn btn-primary" onclick="openModal()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        Yeni Aksiyon
-                    </button>
-                </div>
-                <div class="filter-section">
-                    <span class="filter-label">Takım:</span>
-                    <div class="filter-group team-filters">
-                        <button class="filter-btn active" data-team="all">Tümü</button>
-                        <button class="filter-btn" data-team="Anadolu Bakır">Anadolu Bakır</button>
-                        <button class="filter-btn" data-team="AIFTEAM">AIFTEAM</button>
-                        <button class="filter-btn" data-team="Ortak">Ortak</button>
-                    </div>
-                    <span class="filter-label">Durum:</span>
-                     <div class="filter-group status-filters">
-                        <button class="filter-btn active" data-filter="all">Tümü</button>
-                        <button class="filter-btn" data-filter="completed">Tamamlandı</button>
-                        <button class="filter-btn" data-filter="in-progress">Devam Ediyor</button>
-                        <button class="filter-btn" data-filter="waiting">Bekliyor</button>
-                    </div>
-                     <div class="filter-group">
+            <div class="controls-section">
+                <div class="controls-top">
+                    <div class="filter-section">
+                        <div class="filter-group">
+                            <label for="teamFilter">Takım:</label>
+                            <select id="teamFilter" onchange="filterActions()">
+                                <option value="">Tümü</option>
+                                <option value="anadolu">Anadolu Bakır</option>
+                                <option value="aifteam">AIFTEAM</option>
+                                <option value="ortak">Ortak</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="statusFilter">Durum:</label>
+                            <select id="statusFilter" onchange="filterActions()">
+                                <option value="">Tümü</option>
+                                <option value="waiting">Bekleyen</option>
+                                <option value="inprogress">Devam Eden</option>
+                                <option value="completed">Tamamlanan</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="dateFilter">Tarihe göre sırala:</label>
+                            <select id="dateFilter" onchange="filterActions()">
+                                <option value="asc">En yakın tarih</option>
+                                <option value="desc">En uzak tarih</option>
+                            </select>
+                        </div>
                         <button class="filter-btn" id="priorityFilterBtn" onclick="togglePriorityFilter()">⭐ Öncelikli</button>
                     </div>
                      <div class="filter-group view-toggle" style="margin-left: auto;">
                         <button class="view-btn filter-btn active" data-view="grouped">Gruplu</button>
                         <button class="view-btn filter-btn" data-view="list">Liste</button>
-                        <button class="view-btn filter-btn" data-view="kanban">Kanban</button>
                         <button class="view-btn filter-btn" data-view="calendar">Takvim</button>
                     </div>
                 </div>
+
+                <div class="controls-bottom">
+                    <button class="primary-btn" onclick="openModal()">
+                        ➕ Yeni Aksiyon Ekle
+                    </button>
+                    <button class="primary-btn" onclick="exportToExcel()" style="background: #10b981;">📊 Excel İndir</button>
+                    <button class="primary-btn" onclick="exportToWord()" style="background: #3b82f6;">📄 Word İndir</button>
+                </div>
             </div>
-            
+
             <!-- Actions Container -->
-            <div id="actionsContainerWrapper">
+            <div class="actions-container">
                 <div id="actionsContainerGrouped" class="actions-view-container active"></div>
                 <div id="actionsContainerList" class="actions-view-container"></div>
                 <div id="actionsContainerKanban" class="actions-view-container"></div>
@@ -1131,57 +155,74 @@
                 <div id="noResults" class="actions-view-container" style="text-align: center; color: var(--gray-500); padding: var(--space-8);"></div>
             </div>
         </div>
+    </div>
 
-        <!-- User Menu -->
-        <div class="user-menu">
-            <button class="user-profile" onclick="toggleUserMenu()">
-                <span class="user-avatar" id="userAvatar">K</span>
-                <span class="user-name" id="currentUserName">Kullanıcı</span>
-            </button>
-            <div class="user-dropdown" id="userDropdown">
-                <div class="dropdown-item" onclick="openPersonManagement()">👥 Kişi Yönetimi</div>
-                <div class="dropdown-item" onclick="exportToExcel()">📊 Excel'e Aktar</div>
-                <div class="dropdown-item" onclick="exportToWord()">📄 Word'e Aktar</div>
-                <div class="dropdown-divider"></div>
-                <div class="dropdown-item logout" onclick="signOut()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                    Çıkış Yap
-                </div>
+    <!-- Action Modal -->
+    <div id="actionModal" class="modal" onclick="closeModalOnOutsideClick(event)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Yeni Aksiyon Ekle</h2>
+            </div>
+            <div class="modal-body">
+                <form id="actionForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="actionTitle">Başlık *</label>
+                            <input type="text" id="actionTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="actionResponsible">Sorumlu Takım *</label>
+                            <select id="actionResponsible" required>
+                                <option value="">Seçiniz</option>
+                                <option value="anadolu">Anadolu Bakır</option>
+                                <option value="aifteam">AIFTEAM</option>
+                                <option value="ortak">Ortak</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="actionPerson">Kişi</label>
+                            <select id="actionPerson">
+                                <option value="">Seçiniz</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="actionDate">Hedef Tarih *</label>
+                            <input type="date" id="actionDate" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="actionDescription">Açıklama</label>
+                        <textarea id="actionDescription" placeholder="Aksiyonun detaylarını yazınız..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="actionStatus">Durum</label>
+                            <select id="actionStatus">
+                                <option value="waiting">Bekleyen</option>
+                                <option value="inprogress">Devam Eden</option>
+                                <option value="completed">Tamamlanan</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="actionPriority">
+                                <input type="checkbox" id="actionPriority" style="margin-right: 8px;">
+                                Öncelikli Aksiyon
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn" onclick="closeModal()">İptal</button>
+                <button type="button" class="btn primary" onclick="saveAction()">Kaydet</button>
             </div>
         </div>
     </div>
-    
-    <!-- Modals -->
-    <div class="modal" id="actionModal">
-        <div class="modal-content modal-content-scrollable">
-            <div class="modal-header"><h2 id="modalTitle">Yeni Aksiyon Ekle</h2></div>
-            <form id="actionForm">
-                <div class="form-group"><label for="actionTitle">Başlık *</label><input type="text" id="actionTitle" required></div>
-                <div class="form-group">
-                    <label for="actionResponsible">Sorumlu *</label>
-                    <select id="actionResponsible" required>
-                        <option value="">Seçiniz...</option>
-                        <option value="Anadolu Bakır">Anadolu Bakır</option>
-                        <option value="AIFTEAM">AIFTEAM</option>
-                        <option value="Ortak - AIFTEAM/Anadolu Bakır">Ortak - AIFTEAM/Anadolu Bakır</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="assignedPerson">Atanan Kişi</label>
-                    <select id="assignedPerson"><option value="">Kişi seçiniz...</option></select>
-                </div>
-                <div class="form-group"><label for="actionDescription">Açıklama *</label><textarea id="actionDescription" rows="4" required></textarea></div>
-                <div class="form-group"><label for="actionStatus">Durum *</label><select id="actionStatus" required><option value="waiting">Bekliyor</option><option value="in-progress">Devam Ediyor</option><option value="completed">Tamamlandı</option></select></div>
-                <div class="form-group"><label for="actionDate">Hedef Tarih</label><input type="date" id="actionDate"></div>
-                <div class="modal-buttons">
-                    <button type="button" class="btn modal-btn cancel" onclick="closeModal()">İptal</button>
-                    <button type="submit" class="btn btn-primary modal-btn save">Kaydet</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <div class="modal" id="personModal">
+
+    <!-- Person Modal -->
+    <div id="personModal" class="modal" onclick="closeModalOnOutsideClick(event)">
         <div class="modal-content">
             <div class="modal-header"><h2>Kişi Yönetimi</h2></div>
             <div id="personListContainer"></div>
@@ -1193,109 +234,111 @@
                     <input type="text" id="personName" required>
                 </div>
                 <div class="form-group">
+                    <label for="personEmail">E-posta</label>
+                    <input type="email" id="personEmail">
+                </div>
+                <div class="form-group">
                     <label for="personTeam">Takım</label>
                     <select id="personTeam" required>
-                        <option value="Anadolu Bakır">Anadolu Bakır</option>
-                        <option value="AIFTEAM">AIFTEAM</option>
+                        <option value="">Seçiniz</option>
+                        <option value="anadolu">Anadolu Bakır</option>
+                        <option value="aifteam">AIFTEAM</option>
+                        <option value="ortak">Ortak</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary">Ekle</button>
+                <button type="button" class="btn primary" onclick="addPerson()">Kişi Ekle</button>
             </form>
-            <div class="modal-buttons">
-                <button type="button" class="btn modal-btn cancel" onclick="closePersonManagement()">Kapat</button>
+            <div style="text-align: center;">
+                <button type="button" class="btn" onclick="closePersonModal()">Kapat</button>
             </div>
         </div>
     </div>
 
-    <div class="modal" id="postponeModal">
+    <!-- Postpone Modal -->
+    <div id="postponeModal" class="modal" onclick="closeModalOnOutsideClick(event)">
         <div class="modal-content">
-            <div class="modal-header"><h2>Görevi Ertele</h2></div>
-            <form id="postponeForm">
-                <div class="form-group"><label for="postponeReason">Erteleme Sebebi *</label><textarea id="postponeReason" required></textarea></div>
-                <div class="form-group"><label for="postponeDate">Yeni Hedef Tarih *</label><input type="date" id="postponeDate" required></div>
-                <div class="modal-buttons">
-                    <button type="button" class="btn modal-btn cancel" onclick="closePostponeModal()">İptal</button>
-                    <button type="submit" class="btn btn-primary modal-btn save">Ertele</button>
+            <div class="modal-header"><h2>Aksiyonu Ertele</h2></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="postponeReason">Erteleme Nedeni</label>
+                    <textarea id="postponeReason" placeholder="Neden ertelendiğini açıklayınız..." required></textarea>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal" id="detailModal">
-        <div class="modal-content modal-content-scrollable">
-            <div class="modal-header"><h2 id="detailTitle">Aksiyon Detayı</h2></div>
-            <div class="detail-grid">
-                <div class="detail-label">Sorumlu Takım</div><div class="detail-value" id="detailResponsible"></div>
-                <div class="detail-label">Atanan Kişi</div><div class="detail-value" id="detailAssignedPerson"></div>
-                <div class="detail-label">Durum</div><div class="detail-value" id="detailStatus"></div>
-                <div class="detail-label">Hedef Tarih</div><div class="detail-value" id="detailDate"></div>
-                <div class="detail-label" id="detailPostponeLabel" style="display: none;">Erteleme Notu</div><div class="detail-value" id="detailPostponeNote" style="display: none;"></div>
             </div>
-            <div class="detail-label" style="margin-bottom: var(--space-2);">Açıklama</div>
-            <p id="detailDescription"></p>
             <div class="modal-buttons">
-                <button type="button" class="btn modal-btn cancel" onclick="closeDetailModal()">Kapat</button>
+                <button type="button" class="btn" onclick="closePostponeModal()">İptal</button>
+                <button type="button" class="btn primary" onclick="confirmPostpone()">Ertele</button>
             </div>
         </div>
     </div>
 
+    <!-- Detail View Modal -->
+    <div id="detailModal" class="modal" onclick="closeModalOnOutsideClick(event)">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Aksiyon Detayları</h2></div>
+            <div class="modal-body">
+                <div class="detail-grid">
+                    <div class="detail-label">Başlık</div><div class="detail-value" id="detailTitle"></div>
+                    <div class="detail-label">Sorumlu</div><div class="detail-value" id="detailResponsible"></div>
+                    <div class="detail-label">Kişi</div><div class="detail-value" id="detailPerson"></div>
+                    <div class="detail-label">Durum</div><div class="detail-value" id="detailStatus"></div>
+                    <div class="detail-label">Hedef Tarih</div><div class="detail-value" id="detailDate"></div>
+                    <div class="detail-label" id="detailPostponeLabel" style="display: none;">Erteleme Notu</div><div class="detail-value" id="detailPostponeNote" style="display: none;"></div>
+                </div>
+                <div class="detail-label" style="margin-bottom: var(--space-2);">Açıklama</div>
+                <p id="detailDescription"></p>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn" onclick="closeDetailModal()">Kapat</button>
+                <button type="button" class="btn primary" onclick="editFromDetail()">Düzenle</button>
+            </div>
+        </div>
+    </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-    <script>
-        // --- YOUR FIREBASE CONFIG ---
         const firebaseConfig = {
-          apiKey: "AIzaSyAFc4_sZ-gVimMsBUjQ-RGwJ90yQyxA0zI",
-          authDomain: "aksiyon-takip.firebaseapp.com",
-          projectId: "aksiyon-takip",
-          storageBucket: "aksiyon-takip.firebasestorage.app",
-          messagingSenderId: "692213499754",
-          appId: "1:692213499754:web:2fea07badfd8eb7c978713",
-          databaseURL: "https://aksiyon-takip-default-rtdb.europe-west1.firebasedatabase.app"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
-
-        // --- GLOBAL STATE ---
-        let actions = [];
-        let persons = [];
-        let editingId = null;
-        let postponingId = null;
-        let currentStatusFilter = 'all';
-        let currentTeamFilter = 'all';
-        let priorityFilterActive = false;
-        let currentView = 'grouped';
-        let calendarDate = new Date();
-        
-        // --- ICONS ---
-        const ICONS = {
-            edit: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`,
-            priority: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
-            postpone: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
-            delete: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`,
-            user: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`
+            apiKey: "AIzaSyC8rLJhqF_kP3a2C5OT7r5S0Dn6cNRgHvw",
+            authDomain: "aksiyon-takip-2024.firebaseapp.com",
+            projectId: "aksiyon-takip-2024",
+            storageBucket: "aksiyon-takip-2024.firebasestorage.app",
+            messagingSenderId: "1016969499265",
+            appId: "1:1016969499265:web:9d3a3f8b3a9a4e2f3b8e9c"
         };
 
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // --- AUTHENTICATION ---
+        window.auth = auth;
+        window.db = db;
+        window.addDoc = addDoc;
+        window.getDocs = getDocs;
+        window.collection = collection;
+        window.doc = doc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.query = query;
+        window.orderBy = orderBy;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.signOut = signOut;
+
         const loginContainer = document.getElementById('login-container');
         const appContainer = document.getElementById('app-container');
-        const loginError = document.getElementById('login-error');
 
         auth.onAuthStateChanged((user) => {
             if (user) {
                 loginContainer.style.display = 'none';
                 document.body.style.background = 'var(--gray-50)';
                 appContainer.style.display = 'block';
-                
+
                 const email = user.email || 'Kullanıcı';
-                const userName = email.split('@')[0];
-                const capitalizedUsername = userName.charAt(0).toUpperCase() + userName.slice(1);
-                document.getElementById('currentUserName').textContent = capitalizedUsername;
-                document.getElementById('userAvatar').textContent = capitalizedUsername.charAt(0);
+                const cleanEmail = email.split('@')[0];
+                const formattedEmail = cleanEmail.charAt(0).toUpperCase() + cleanEmail.slice(1);
+                document.getElementById('currentUser').textContent = `👋 ${formattedEmail}`;
 
                 loadActions();
                 loadPersons();
@@ -1305,125 +348,40 @@
                 document.body.style.background = 'linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%)';
             }
         });
+    </script>
 
-        function signIn() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            loginError.textContent = "";
+    <script>
+        // Global Variables
+        let actions = [];
+        let persons = [];
+        let editingId = null;
+        let postponingId = null;
+        let currentView = 'grouped';
+        let activeFilters = {
+            team: '',
+            status: '',
+            priority: false,
+            dateSort: 'asc'
+        };
 
-            if (!email || !password) {
-                loginError.textContent = "E-posta ve şifre alanları boş bırakılamaz.";
-                return;
-            }
-            
-            const persistence = document.getElementById('rememberMe').checked 
-                ? firebase.auth.Auth.Persistence.LOCAL 
-                : firebase.auth.Auth.Persistence.SESSION;
+        // Icons
+        const ICONS = {
+            edit: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`,
+            delete: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"></polyline><path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`,
+            postpone: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12,6 12,12 16,14"></polyline></svg>`
+        };
 
-            auth.setPersistence(persistence)
-              .then(() => auth.signInWithEmailAndPassword(email, password))
-              .catch((error) => {
-                  console.error("Giriş hatası:", error);
-                  loginError.textContent = "Hatalı e-posta veya şifre.";
-              });
-        }
+        // Toast Function
+        function showToast(message, type = 'success') {
+            // Remove existing toasts
+            const existingToasts = document.querySelectorAll('.toast-notification');
+            existingToasts.forEach(toast => toast.remove());
 
-        function signOut() {
-            auth.signOut();
-        }
+            // Create toast
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            toast.textContent = message;
 
-        // --- DATA HANDLING (FIREBASE) ---
-        function loadActions() {
-            const actionsRef = database.ref('actions');
-            actionsRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                actions = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-                renderActions();
-                updateStats();
-            });
-        }
-        
-        
-        function loadPersons() {
-            const personsRef = database.ref('persons');
-            personsRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                persons = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-                updatePersonDropdown();
-                renderPersonList();
-            });
-        }
-
-        document.getElementById("actionForm").addEventListener("submit", e => {
-            e.preventDefault();
-            const actionData = {
-                title: document.getElementById("actionTitle").value,
-                responsible: document.getElementById("actionResponsible").value,
-                description: document.getElementById("actionDescription").value,
-                status: document.getElementById("actionStatus").value,
-                date: document.getElementById("actionDate").value,
-                assignedPerson: document.getElementById('assignedPerson').value,
-                priority: editingId ? (actions.find(a => a.id === editingId)?.priority || false) : false,
-            };
-
-            if (editingId) {
-                database.ref('actions/' + editingId).update(actionData);
-            } else {
-                database.ref('actions').push(actionData);
-            }
-            closeModal();
-        });
-        
-        function deleteAction(id) {
-            if (confirm("Bu aksiyonu silmek istediğinizden emin misiniz?")) {
-                database.ref('actions/' + id).remove();
-            }
-        }
-        
-        function togglePriority(id) {
-            const action = actions.find(a => String(a.id) === String(id));
-
-            if(action) {
-                const newPriority = !(action.priority || false);
-
-                // Önce local array'i güncelle
-                action.priority = newPriority;
-
-                // Sonra Firebase'e kaydet
-                database.ref('actions/' + action.id).update({ priority: newPriority })
-                    .then(() => {
-                        // Show notification
-                        showNotification(
-                            newPriority ? '⭐ Öncelikli olarak işaretlendi!' : '☆ Öncelik kaldırıldı',
-                            newPriority ? 'success' : 'info'
-                        );
-
-                        // Manuel olarak UI'yi güncelle
-                        renderActions();
-                    })
-                    .catch((error) => {
-                        console.error('Error updating priority:', error);
-                        // Hata durumunda local değişikliği geri al
-                        action.priority = !newPriority;
-                        showNotification('❌ Öncelik güncellenirken hata oluştu!', 'warning');
-                    });
-            } else {
-                showNotification('⚠️ Aksiyon bulunamadı!', 'warning');
-            }
-        }
-        
-
-        // Notification function
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `toast-notification ${type}`;
-            notification.innerHTML = `
-                <div class="toast-content">
-                    <span class="toast-message">${message}</span>
-                    <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
-                </div>
-            `;
-            
             // Toast notification CSS'i ekle
             if (!document.querySelector('#toast-styles')) {
                 const toastStyles = document.createElement('style');
@@ -1433,80 +391,75 @@
                         position: fixed;
                         top: 20px;
                         right: 20px;
-                        padding: 15px 20px;
-                        border-radius: 12px;
-                        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-                        z-index: 3000;
-                        animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s;
-                        max-width: 350px;
-                        backdrop-filter: blur(10px);
+                        padding: 16px 24px;
+                        border-radius: 8px;
+                        color: white;
+                        font-weight: 500;
+                        z-index: 10000;
+                        animation: slideIn 0.3s ease;
+                        max-width: 400px;
+                        word-wrap: break-word;
                     }
                     .toast-notification.success {
-                        background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%);
-                        color: white;
-                        border: 1px solid rgba(16, 185, 129, 0.3);
+                        background: #10b981;
+                    }
+                    .toast-notification.error {
+                        background: #ef4444;
                     }
                     .toast-notification.info {
-                        background: linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%);
-                        color: white;
-                        border: 1px solid rgba(59, 130, 246, 0.3);
+                        background: #3b82f6;
                     }
-                    .toast-notification.warning {
-                        background: linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(217, 119, 6, 0.95) 100%);
-                        color: white;
-                        border: 1px solid rgba(245, 158, 11, 0.3);
-                    }
-                    .toast-content {
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        gap: 15px;
-                    }
-                    .toast-message {
-                        font-weight: 600;
-                        font-size: 0.9rem;
-                    }
-                    .toast-close {
-                        background: none;
-                        border: none;
-                        color: currentColor;
-                        cursor: pointer;
-                        font-size: 1.2rem;
-                        opacity: 0.8;
-                        transition: opacity 0.2s;
-                    }
-                    .toast-close:hover {
-                        opacity: 1;
-                    }
-                    @keyframes slideInRight {
-                        from { transform: translateX(100%); opacity: 0; }
-                        to { transform: translateX(0); opacity: 1; }
-                    }
-                    @keyframes fadeOut {
-                        to { opacity: 0; transform: translateX(100%); }
+                    @keyframes slideIn {
+                        from {
+                            transform: translateX(100%);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
                     }
                 `;
                 document.head.appendChild(toastStyles);
             }
-            
-            document.body.appendChild(notification);
-            
-            // 3 saniye sonra otomatik kaldır
+
+            document.body.appendChild(toast);
+
+            // Auto remove after 3 seconds
             setTimeout(() => {
-                if (notification.parentElement) {
-                    notification.remove();
-                }
+                toast.remove();
             }, 3000);
         }
 
-        // --- POSTPONE ACTION LOGIC ---
-        function postponeAction(id) {
-            postponingId = id;
-            document.getElementById('postponeForm').reset();
-            const action = actions.find(a => a.id === id);
-            if (action && action.date) {
-                document.getElementById('postponeDate').value = action.date;
+        // Auth Functions
+        async function signIn() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('login-error');
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showToast('Başarıyla giriş yapıldı!', 'success');
+            } catch (error) {
+                console.error('Login error:', error);
+                errorDiv.textContent = 'Giriş başarısız. E-posta ve şifrenizi kontrol edin.';
+                showToast('Giriş başarısız!', 'error');
             }
+        }
+
+        async function signOut() {
+            try {
+                await auth.signOut();
+                showToast('Başarıyla çıkış yapıldı!', 'info');
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        // Modal Functions
+        function openPostponeModal(actionId) {
+            postponingId = actionId;
+            document.getElementById('postponeReason').value = '';
             const modal = document.getElementById('postponeModal');
             modal.classList.add('active');
             modal.style.display = 'flex';
@@ -1519,64 +472,34 @@
             postponingId = null;
         }
 
-        document.getElementById("postponeForm").addEventListener("submit", e => {
-            e.preventDefault();
-            if (!postponingId) return;
-
-            const reason = document.getElementById('postponeReason').value;
-            const newDate = document.getElementById('postponeDate').value;
-
-            database.ref('actions/' + postponingId).update({
-                date: newDate,
-                postponed: true,
-                postponeReason: reason
-            });
-
+        function confirmPostpone() {
+            const reason = document.getElementById('postponeReason').value.trim();
+            if (!reason) {
+                showToast('Lütfen erteleme nedenini giriniz.', 'error');
+                return;
+            }
+            postponeAction(postponingId, reason);
             closePostponeModal();
-        });
-        
-        // --- UI RENDERING ---
-        function getFilteredActions() {
-            const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-            let filteredActions = [...actions]; // Create a copy to avoid modifying original
-
-            // Öncelik filtresi
-            if (priorityFilterActive) {
-                 filteredActions = filteredActions.filter(a => a.priority === true);
-            }
-            
-            // Takım filtresi
-            if (currentTeamFilter !== 'all') {
-                filteredActions = filteredActions.filter(a => a.responsible && a.responsible.includes(currentTeamFilter));
-            }
-            
-            // Durum filtresi
-            if (currentStatusFilter !== 'all') {
-                filteredActions = filteredActions.filter(a => a.status === currentStatusFilter);
-            }
-            
-            // Arama filtresi
-            if (searchTerm) {
-                filteredActions = filteredActions.filter(a => 
-                    (a.title && a.title.toLowerCase().includes(searchTerm)) ||
-                    (a.description && a.description.toLowerCase().includes(searchTerm)) ||
-                    (a.responsible && a.responsible.toLowerCase().includes(searchTerm))
-                );
-            }
-            
-            // console.log('Filtered actions:', filteredActions.length, 'Priority filter active:', priorityFilterActive);
-            return filteredActions;
         }
-        
-        function renderActions() {
-            const filteredActions = getFilteredActions();
-            
-            // Tüm görünümleri gizle
+
+        // View Functions
+        function switchView(view) {
+            currentView = view;
+
+            // Update active button
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-view="${view}"]`).classList.add('active');
+
+            // Hide all containers
             document.querySelectorAll('.actions-view-container').forEach(c => {
                 c.classList.remove('active');
                 c.style.display = 'none';
             });
 
+            // Check if there are filtered actions
+            const filteredActions = getFilteredActions();
             if (filteredActions.length === 0) {
                  const noResultsEl = document.getElementById('noResults');
                  noResultsEl.innerHTML = `<p>Bu filtreler ile eşleşen aksiyon bulunamadı.</p>`;
@@ -1585,86 +508,54 @@
                  return;
             }
 
-            const viewContainerId = `actionsContainer${currentView.charAt(0).toUpperCase() + currentView.slice(1)}`;
-            const containerElement = document.getElementById(viewContainerId);
-            
+            // Show appropriate container
+            const containerElement = document.getElementById(`actionsContainer${view.charAt(0).toUpperCase() + view.slice(1)}`);
             if (containerElement) {
                 containerElement.classList.add('active');
                 containerElement.style.display = 'block';
-                
+
                 switch(currentView) {
-                    case 'grouped': 
-                        renderGroupedView(filteredActions); 
+                    case 'grouped':
+                        renderGroupedActions(filteredActions);
                         break;
-                    case 'list': 
-                        renderListView(filteredActions); 
+                    case 'list':
+                        renderListActions(filteredActions);
                         break;
-                    case 'kanban': 
-                        renderKanbanView(filteredActions); 
+                    case 'kanban':
+                        renderKanbanActions(filteredActions);
                         break;
-                    case 'calendar': 
-                        renderCalendarView(filteredActions); 
+                    case 'calendar':
+                        renderCalendarActions(filteredActions);
                         break;
                 }
             }
         }
 
-        function renderGroupedView(data) {
-            const container = document.getElementById("actionsContainerGrouped");
-            const grouped = {
-                anadolu: data.filter(a => a.responsible === "Anadolu Bakır"),
-                aifteam: data.filter(a => a.responsible === "AIFTEAM"),
-                ortak: data.filter(a => a.responsible && a.responsible.includes("Ortak"))
-            };
+        // Add event listeners for view buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    switchView(btn.dataset.view);
+                });
+            });
+        });
 
-            const createSection = (title, team, sectionData) => {
-                if (sectionData.length === 0) return '';
-                return `
-                    <div class="team-section">
-                        <div class="team-header ${team}">
-                            <h2>${title}</h2>
-                            <span>${sectionData.length} aksiyon</span>
-                        </div>
-                        <div class="team-actions">${sectionData.map(createActionCard).join("")}</div>
-                    </div>`;
-            };
-            container.innerHTML = createSection('🏢 Anadolu Bakır', 'anadolu', grouped.anadolu) +
-                                createSection('💻 AIFTEAM', 'aifteam', grouped.aifteam) +
-                                createSection('🤝 Ortak Aksiyonlar', 'ortak', grouped.ortak);
-        }
-
+        // Action Card Functions
         function createActionCard(action) {
-            // Action objesi geçerli mi kontrol et
-            if (!action || !action.id) {
-                console.error('Invalid action object:', action);
-                return '';
-            }
-            
-            const { id, title, responsible, description, status, date, priority, postponed, postponeReason, assignedPerson } = action;
-            const teamType = getTeamType(responsible);
-            
-            const personName = assignedPerson ? (persons.find(p => p.id === assignedPerson)?.name || '') : '';
-            
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            const actionDate = date ? new Date(date + 'T00:00:00') : null; // Ensure local timezone
-            const isOverdue = actionDate && actionDate < today && status !== 'completed';
+            const { id, title, responsible, person, status, date, description, priority, postponed, postponeReason } = action;
 
-            // Boş action'ları filtrele
-            if (!title || !responsible) {
-                console.warn('Skipping empty action:', action);
-                return '';
-            }
+            const teamType = getTeamType(responsible);
+            const isOverdue = date && new Date(date) < new Date() && status !== 'completed';
+            const personName = getPersonName(person);
 
             return `
                 <div class="action-card ${teamType} ${postponed ? 'postponed' : ''}" draggable="true" data-action-id="${id}" ondragstart="drag(event, '${id}')">
                     <div class="action-header" onclick="openDetailView('${id}')" style="cursor: pointer;">
                         <div class="action-title-block">
                             <div class="action-title">${priority ? '⭐ ' : ''}${title || 'Başlıksız Aksiyon'}</div>
-                            <div class="responsible">${responsible || 'Atanmamış'}</div>
-                             ${personName ? `<div class="assigned-person">${ICONS.user} ${personName}</div>` : ''}
+                            <div class="action-responsible">${getTeamDisplayName(responsible)}</div>
                         </div>
-                        <span class="status-badge ${status}" onclick="event.stopPropagation(); quickStatusChange('${id}', '${status}')">${getStatusText(status)}</span>
+                        ${personName ? `<div class="action-person">${personName}</div>` : ''}
                     </div>
 
                     <div class="action-body" onclick="openDetailView('${id}')" style="cursor: pointer;">
@@ -1678,54 +569,83 @@
                             <span>${date ? formatDate(date) : "Tarih Yok"}</span>
                         </div>
                         <div class="action-buttons">
-                            <button class="action-btn" data-action="edit" data-action-id="${id}" title="Düzenle">${ICONS.edit}</button>
-                            <button class="action-btn ${priority ? 'priority-active' : ''}" data-action="priority" data-action-id="${id}" title="Öncelik">${ICONS.priority}</button>
-                            <button class="action-btn" data-action="postpone" data-action-id="${id}" title="Ertele">${ICONS.postpone}</button>
-                            <button class="action-btn" data-action="delete" data-action-id="${id}" title="Sil">${ICONS.delete}</button>
+                           <button class="action-btn" data-action="edit" data-action-id="${id}" title="Düzenle">${ICONS.edit}</button>
+                           <button class="action-btn" data-action="postpone" data-action-id="${id}" title="Ertele">${ICONS.postpone}</button>
+                           <button class="action-btn" data-action="delete" data-action-id="${id}" title="Sil">${ICONS.delete}</button>
                         </div>
                     </div>
-                </div>`;
-        }
-        
-        function updateStats() {
-            document.getElementById("anadoluTotal").textContent = actions.filter(a => a.responsible === "Anadolu Bakır").length;
-            document.getElementById("anadoluProgress").textContent = actions.filter(a => a.responsible === "Anadolu Bakır" && a.status === 'in-progress').length;
-            document.getElementById("anadoluWaiting").textContent = actions.filter(a => a.responsible === "Anadolu Bakır" && a.status === 'waiting').length;
-
-            document.getElementById("aifteamTotal").textContent = actions.filter(a => a.responsible === "AIFTEAM").length;
-            document.getElementById("aifteamProgress").textContent = actions.filter(a => a.responsible === "AIFTEAM" && a.status === 'in-progress').length;
-            document.getElementById("aifteamWaiting").textContent = actions.filter(a => a.responsible === "AIFTEAM" && a.status === 'waiting').length;
-
-            const ortak = actions.filter(a => a.responsible && a.responsible.includes("Ortak"));
-            document.getElementById("ortakTotal").textContent = ortak.length;
-            document.getElementById("ortakProgress").textContent = ortak.filter(a => a.status === 'in-progress').length;
-            document.getElementById("ortakWaiting").textContent = ortak.filter(a => a.status === 'waiting').length;
+                </div>
+            `;
         }
 
-        // --- UI HELPERS & EVENT LISTENERS ---
+        // Event Delegation for Action Buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.action-btn')) {
+                e.stopPropagation();
+                const btn = e.target.closest('.action-btn');
+                const action = btn.dataset.action;
+                const actionId = btn.dataset.actionId;
+
+                switch(action) {
+                    case 'edit':
+                        editAction(actionId);
+                        break;
+                    case 'delete':
+                        if (confirm('Bu aksiyonu silmek istediğinizden emin misiniz?')) {
+                            deleteAction(actionId);
+                        }
+                        break;
+                    case 'postpone':
+                        openPostponeModal(actionId);
+                        break;
+                }
+            }
+        });
+
+        // Utility Functions
         function getTeamType(responsible) {
-            if (!responsible) return '';
-            if (responsible.includes("Ortak")) return "ortak";
-            if (responsible === "AIFTEAM") return "aifteam";
-            if (responsible === "Anadolu Bakır") return "anadolu";
-            return '';
+            const teamMap = {
+                'anadolu': 'anadolu',
+                'aifteam': 'aifteam',
+                'ortak': 'ortak'
+            };
+            return teamMap[responsible] || 'ortak';
+        }
+
+        function getTeamDisplayName(responsible) {
+            const teamMap = {
+                'anadolu': 'Anadolu Bakır',
+                'aifteam': 'AIFTEAM',
+                'ortak': 'Ortak'
+            };
+            return teamMap[responsible] || 'Bilinmeyen';
+        }
+
+        function getPersonName(personId) {
+            if (!personId) return '';
+            const person = persons.find(p => p.id === personId);
+            return person ? person.name : '';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('tr-TR');
         }
 
         function getStatusText(status) {
-            return { completed: "Tamamlandı", "in-progress": "Devam Ediyor", waiting: "Bekliyor" }[status] || status;
+            const statusMap = {
+                'waiting': 'Bekleyen',
+                'inprogress': 'Devam Eden',
+                'completed': 'Tamamlanan'
+            };
+            return statusMap[status] || 'Bilinmeyen';
         }
-        
-        function formatDate(dateStr) {
-            if (!dateStr) return "";
-            const [year, month, day] = dateStr.split('-');
-            const date = new Date(year, month - 1, day);
-            return date.toLocaleDateString("tr-TR", { day: 'numeric', month: 'short', year: 'numeric' });
-        }
-        
+
+        // Modal Functions
         function openModal() {
+            clearForm();
+            document.getElementById('modalTitle').textContent = 'Yeni Aksiyon Ekle';
             editingId = null;
-            document.getElementById("actionForm").reset();
-            document.getElementById("modalTitle").textContent = "Yeni Aksiyon Ekle";
             const modal = document.getElementById("actionModal");
             modal.classList.add("active");
             modal.style.display = "flex";
@@ -1737,64 +657,47 @@
             modal.style.display = "none";
             editingId = null;
         }
-        
-        function editAction(id) {
-            const action = actions.find(a => String(a.id) === String(id));
-            if (!action) {
-                console.error('Action not found with id:', id);
-                alert('Aksiyon bulunamadı!');
-                return;
-            }
-            
-            editingId = id;
-            document.getElementById("modalTitle").textContent = "Aksiyonu Düzenle";
-            document.getElementById("actionTitle").value = action.title || "";
-            document.getElementById("actionResponsible").value = action.responsible || "";
-            document.getElementById("actionDescription").value = action.description || "";
-            document.getElementById("actionStatus").value = action.status || "waiting";
-            document.getElementById("actionDate").value = action.date || "";
-            document.getElementById('assignedPerson').value = action.assignedPerson || "";
-            
-            // Modal'ı göster
+
+        function clearForm() {
+            document.getElementById("actionForm").reset();
+            document.getElementById("actionPriority").checked = false;
+        }
+
+        function editAction(actionId) {
+            const action = actions.find(a => a.id === actionId);
+            if (!action) return;
+
+            editingId = actionId;
+            document.getElementById('modalTitle').textContent = 'Aksiyonu Düzenle';
+
+            document.getElementById('actionTitle').value = action.title || '';
+            document.getElementById('actionResponsible').value = action.responsible || '';
+            document.getElementById('actionPerson').value = action.person || '';
+            document.getElementById('actionDate').value = action.date || '';
+            document.getElementById('actionDescription').value = action.description || '';
+            document.getElementById('actionStatus').value = action.status || 'waiting';
+            document.getElementById('actionPriority').checked = action.priority || false;
+
+            updatePersonOptions();
+
             const modal = document.getElementById("actionModal");
             modal.classList.add("active");
             modal.style.display = "flex";
-            
+
             console.log('Edit modal opened for action:', action.title);
         }
-        
-        function quickStatusChange(id, currentStatus) {
-            const statuses = ['waiting', 'in-progress', 'completed'];
-            const nextStatus = statuses[(statuses.indexOf(currentStatus) + 1) % statuses.length];
-            database.ref('actions/' + id).update({ status: nextStatus });
-        }
-        
-        function updatePersonDropdown() {
-            const dropdown = document.getElementById('assignedPerson');
-            dropdown.innerHTML = '<option value="">Kişi seçilmedi</option>';
-            persons.forEach(p => {
-                dropdown.innerHTML += `<option value="${p.id}">${p.name} (${p.team})</option>`;
-            });
-        }
-        
-        // --- DETAIL VIEW MODAL ---
-        function openDetailView(id) {
-            const action = actions.find(a => String(a.id) === String(id));
-            if (!action) {
-                console.error('Action not found for detail view:', id);
-                return;
-            }
-            
-            const personName = action.assignedPerson ? (persons.find(p => p.id === action.assignedPerson)?.name || 'Atanmamış') : 'Atanmamış';
-            
-            document.getElementById('detailTitle').textContent = action.title;
-            document.getElementById('detailResponsible').textContent = action.responsible;
-            document.getElementById('detailAssignedPerson').textContent = personName;
+
+        function openDetailView(actionId) {
+            const action = actions.find(a => a.id === actionId);
+            if (!action) return;
+
+            document.getElementById('detailTitle').textContent = action.title || 'Başlıksız';
+            document.getElementById('detailResponsible').textContent = getTeamDisplayName(action.responsible);
+            document.getElementById('detailPerson').textContent = getPersonName(action.person) || 'Belirtilmemiş';
             document.getElementById('detailStatus').innerHTML = `<span class="status-badge ${action.status}">${getStatusText(action.status)}</span>`;
-            document.getElementById('detailDate').textContent = action.date ? formatDate(action.date) : 'Tarih Belirtilmemiş';
-            document.getElementById('detailDescription').textContent = action.description;
-            
-            // Erteleme notu varsa göster
+            document.getElementById('detailDate').textContent = action.date ? formatDate(action.date) : 'Belirtilmemiş';
+            document.getElementById('detailDescription').textContent = action.description || 'Açıklama yok';
+
             const postponeLabel = document.getElementById('detailPostponeLabel');
             const postponeNote = document.getElementById('detailPostponeNote');
             if (action.postponed && action.postponeReason) {
@@ -1805,7 +708,7 @@
                 postponeLabel.style.display = 'none';
                 postponeNote.style.display = 'none';
             }
-            
+
             const modal = document.getElementById('detailModal');
             modal.classList.add('active');
             modal.style.display = 'flex';
@@ -1817,23 +720,38 @@
             modal.style.display = 'none';
         }
 
-        // --- RENDER FUNCTIONS FOR DIFFERENT VIEWS ---
-        function renderListView(data) {
+        function editFromDetail() {
+            const actionId = getCurrentDetailActionId();
+            closeDetailModal();
+            editAction(actionId);
+        }
+
+        function getCurrentDetailActionId() {
+            // This is a helper function to get the current action ID from the detail modal
+            // In a real implementation, you might store this when opening the modal
+            return null; // You'll need to implement this properly
+        }
+
+        // List View Functions
+        function renderListActions(actionsToRender) {
             const container = document.getElementById('actionsContainerList');
-            const header = `
-                <div class="list-header">
-                    <div class="title">Başlık</div>
-                    <div class="responsible">Sorumlu</div>
-                    <div class="person">Atanan Kişi</div>
-                    <div class="status">Durum</div>
-                    <div class="date">Hedef Tarih</div>
-                    <div class="actions">İşlemler</div>
-                </div>`;
-            
-            const items = data.map(action => {
-                const personName = action.assignedPerson ? (persons.find(p => p.id === action.assignedPerson)?.name || '-') : '-';
+
+            let html = `
+                <div class="list-container">
+                    <div class="list-header">
+                        <div>Başlık</div>
+                        <div>Sorumlu</div>
+                        <div>Kişi</div>
+                        <div>Durum</div>
+                        <div>Tarih</div>
+                        <div>İşlemler</div>
+                    </div>
+            `;
+
+            actionsToRender.forEach(action => {
+                const personName = getPersonName(action.person) || 'Belirtilmemiş';
                 const teamType = getTeamType(action.responsible);
-                return `
+                html += `
                     <div class="list-item" style="border-left: 5px solid var(--${teamType});">
                         <div class="title" onclick="openDetailView('${action.id}')" style="cursor: pointer;">${action.priority ? '⭐ ' : ''}${action.title}</div>
                         <div class="responsible" onclick="openDetailView('${action.id}')" style="cursor: pointer;">${action.responsible}</div>
@@ -1842,144 +760,106 @@
                         <div class="date" onclick="openDetailView('${action.id}')" style="cursor: pointer;">${action.date ? formatDate(action.date) : '-'}</div>
                         <div class="actions action-buttons">
                            <button class="action-btn" data-action="edit" data-action-id="${action.id}" title="Düzenle">${ICONS.edit}</button>
-                           <button class="action-btn ${action.priority ? 'priority-active' : ''}" data-action="priority" data-action-id="${action.id}" title="Öncelik">${ICONS.priority}</button>
+                           <button class="action-btn" data-action="postpone" data-action-id="${action.id}" title="Ertele">${ICONS.postpone}</button>
                            <button class="action-btn" data-action="delete" data-action-id="${action.id}" title="Sil">${ICONS.delete}</button>
                         </div>
-                    </div>`;
-            }).join('');
-            
-            container.innerHTML = header + items;
-        }
-
-        function renderKanbanView(data) {
-            const container = document.getElementById('actionsContainerKanban');
-            container.innerHTML = `
-                <div class="kanban-col" id="kanban-waiting" data-status="waiting" ondragover="allowDrop(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">
-                    <div class="kanban-col-header">Bekliyor</div>
-                </div>
-                <div class="kanban-col" id="kanban-in-progress" data-status="in-progress" ondragover="allowDrop(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">
-                    <div class="kanban-col-header">Devam Ediyor</div>
-                </div>
-                <div class="kanban-col" id="kanban-completed" data-status="completed" ondragover="allowDrop(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">
-                    <div class="kanban-col-header">Tamamlandı</div>
-                </div>
-            `;
-            data.forEach(action => {
-                const cardHtml = createActionCard(action);
-                const colId = `kanban-${action.status}`;
-                const col = container.querySelector(`#${colId}`);
-                if (col) {
-                    col.insertAdjacentHTML('beforeend', cardHtml);
-                }
-            });
-        }
-        
-        function renderCalendarView(data) {
-            const container = document.getElementById('actionsContainerCalendar');
-            const monthNames = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
-            const dayNames = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
-
-            const month = calendarDate.getMonth();
-            const year = calendarDate.getFullYear();
-
-            const firstDay = (new Date(year, month, 1).getDay() + 6) % 7; // Monday = 0
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            let html = `<div class="calendar-header">
-                <button class="btn" onclick="changeMonth(-1)">‹ Önceki</button>
-                <h2>${monthNames[month]} ${year}</h2>
-                <button class="btn" onclick="changeMonth(1)">Sonraki ›</button>
-            </div>`;
-            html += `<div class="calendar-grid">`;
-            dayNames.forEach(day => html += `<div class="calendar-day-header">${day}</div>`);
-
-            for (let i = 0; i < firstDay; i++) {
-                html += `<div class="calendar-day other-month"></div>`;
-            }
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const currentDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const actionsForDay = data.filter(a => a.date === currentDateStr);
-
-                html += `<div class="calendar-day">
-                    <div class="day-number">${day}</div>
-                    <div class="day-actions">
-                        ${actionsForDay.map(action => `<div class="day-action-item ${getTeamType(action.responsible)}" onclick="event.stopPropagation(); event.preventDefault(); openDetailView('${action.id}')" title="${action.title}">${action.title}</div>`).join('')}
                     </div>
-                </div>`;
-            }
-            html += `</div></div>`;
+                `;
+            });
+
+            html += '</div>';
             container.innerHTML = html;
         }
-        
-        function changeMonth(direction) {
-            calendarDate.setMonth(calendarDate.getMonth() + direction);
-            renderActions();
+
+        function quickStatusChange(actionId, currentStatus) {
+            const statusOrder = ['waiting', 'inprogress', 'completed'];
+            const currentIndex = statusOrder.indexOf(currentStatus);
+            const nextIndex = (currentIndex + 1) % statusOrder.length;
+            const newStatus = statusOrder[nextIndex];
+
+            updateActionStatus(actionId, newStatus);
         }
 
-        // --- KANBAN DRAG & DROP ---
-        function allowDrop(ev) {
-            ev.preventDefault();
-            ev.currentTarget.classList.add('drag-over');
-        }
+        async function updateActionStatus(actionId, newStatus) {
+            try {
+                const actionRef = doc(db, 'actions', actionId);
+                await updateDoc(actionRef, {
+                    status: newStatus,
+                    updatedAt: new Date()
+                });
 
-        function dragLeave(ev) {
-            ev.currentTarget.classList.remove('drag-over');
-        }
-        
-        function drag(ev, id) {
-            ev.dataTransfer.setData("text/plain", id);
-            ev.dataTransfer.effectAllowed = "move";
-            
-            // Drag başladığında card'ı işaretle
-            const card = ev.target.closest('.action-card');
-            if (card) {
-                card.classList.add('dragging');
+                await loadActions();
+                showToast('Durum güncellendi!', 'success');
+            } catch (error) {
+                console.error('Error updating status:', error);
+                showToast('Durum güncellenirken hata oluştu!', 'error');
             }
         }
-        
-        function drop(ev) {
-            ev.preventDefault();
-            ev.currentTarget.classList.remove('drag-over');
-            const id = ev.dataTransfer.getData("text/plain");
-            const newStatus = ev.currentTarget.dataset.status;
-            
-            // Dragged element'i temizle
-            const draggedEl = document.querySelector('.action-card.dragging');
-            if (draggedEl) {
-                draggedEl.classList.remove('dragging');
-            }
 
-            // Action'ı bul ve güncelle
-            const action = actions.find(a => String(a.id) === String(id));
-            
-            if (action && action.status !== newStatus) {
-                // Firebase'de güncelle - listener otomatik UI'yi güncelleyecek
-                database.ref('actions/' + id).update({ status: newStatus })
-                    .then(() => {
-                        showNotification(`✅ Aksiyon "${action.title}" ${getStatusText(newStatus)} durumuna taşındı`, 'success');
-                    })
-                    .catch((error) => {
-                        console.error('Error updating action status:', error);
-                        showNotification('❌ Aksiyon durumu güncellenirken hata oluştu', 'warning');
-                    });
-            }
+        // Kanban, Calendar, and other view functions would go here...
+        function renderKanbanActions(actionsToRender) {
+            // Kanban implementation
         }
-        
-        document.addEventListener('dragend', (e) => {
-            // Tüm dragging class'larını temizle
-            document.querySelectorAll('.action-card.dragging').forEach(el => {
-                el.classList.remove('dragging');
-            });
-            
-            // Tüm drag-over class'larını temizle
-            document.querySelectorAll('.kanban-col.drag-over').forEach(el => {
-                el.classList.remove('drag-over');
-            });
-        });
 
-        // --- KİŞİ YÖNETİMİ ---
-        function openPersonManagement() {
+        function renderCalendarActions(actionsToRender) {
+            // Calendar implementation
+        }
+
+        function renderGroupedActions(actionsToRender) {
+            const container = document.getElementById('actionsContainerGrouped');
+
+            const anadoluActions = actionsToRender.filter(a => a.responsible === 'anadolu');
+            const aifteamActions = actionsToRender.filter(a => a.responsible === 'aifteam');
+            const ortakActions = actionsToRender.filter(a => a.responsible === 'ortak');
+
+            let html = '<div class="kanban-container">';
+
+            // Anadolu Bakır column
+            html += `
+                <div class="kanban-column" data-team="anadolu">
+                    <div class="kanban-header">
+                        <span class="kanban-title">🏢 Anadolu Bakır</span>
+                        <span class="kanban-count">${anadoluActions.length}</span>
+                    </div>
+                    <div class="kanban-cards">
+                        ${anadoluActions.map(action => createActionCard(action)).join('')}
+                    </div>
+                </div>
+            `;
+
+            // AIFTEAM column
+            html += `
+                <div class="kanban-column" data-team="aifteam">
+                    <div class="kanban-header">
+                        <span class="kanban-title">💻 AIFTEAM</span>
+                        <span class="kanban-count">${aifteamActions.length}</span>
+                    </div>
+                    <div class="kanban-cards">
+                        ${aifteamActions.map(action => createActionCard(action)).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Ortak column
+            html += `
+                <div class="kanban-column" data-team="ortak">
+                    <div class="kanban-header">
+                        <span class="kanban-title">🤝 Ortak</span>
+                        <span class="kanban-count">${ortakActions.length}</span>
+                    </div>
+                    <div class="kanban-cards">
+                        ${ortakActions.map(action => createActionCard(action)).join('')}
+                    </div>
+                </div>
+            `;
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Person Management Functions
+        function openPersonModal() {
+            loadPersonList();
             const modal = document.getElementById('personModal');
             if (modal) {
                 modal.classList.add('active');
@@ -1989,7 +869,7 @@
             }
         }
 
-        function closePersonManagement() {
+        function closePersonModal() {
             const modal = document.getElementById('personModal');
             if (modal) {
                 modal.classList.remove('active');
@@ -1997,431 +877,483 @@
             }
         }
 
-        function renderPersonList() {
+        function loadPersonList() {
             const container = document.getElementById('personListContainer');
-            if (!persons || persons.length === 0) {
-                container.innerHTML = '<p>Kayıtlı kişi bulunamadı.</p>';
+            if (!container) return;
+
+            let html = '<div class="person-list">';
+            persons.forEach(person => {
+                html += `
+                    <div class="person-item">
+                        <div>
+                            <div class="person-name">${person.name}</div>
+                            <div class="person-email">${person.email || 'E-posta yok'}</div>
+                            <div class="person-team">${getTeamDisplayName(person.team)}</div>
+                        </div>
+                        <div class="person-actions">
+                            <button class="btn danger" onclick="deletePerson('${person.id}')">Sil</button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        async function addPerson() {
+            const name = document.getElementById('personName').value.trim();
+            const email = document.getElementById('personEmail').value.trim();
+            const team = document.getElementById('personTeam').value;
+
+            if (!name || !team) {
+                showToast('İsim ve takım alanları gereklidir!', 'error');
                 return;
             }
-            container.innerHTML = persons.map(p => `
-                <div class="person-item">
-                    <div class="person-info">
-                        <span>${p.name}</span> <small>${p.team}</small>
-                    </div>
-                    <button class="delete-person-btn" onclick="deletePerson('${p.id}')" title="Sil">${ICONS.delete}</button>
-                </div>
-            `).join('');
+
+            try {
+                await addDoc(collection(db, 'persons'), {
+                    name,
+                    email,
+                    team,
+                    createdAt: new Date()
+                });
+
+                document.getElementById('addPersonForm').reset();
+                await loadPersons();
+                loadPersonList();
+                updatePersonOptions();
+                showToast('Kişi başarıyla eklendi!', 'success');
+            } catch (error) {
+                console.error('Error adding person:', error);
+                showToast('Kişi eklenirken hata oluştu!', 'error');
+            }
         }
-        
-        document.getElementById('addPersonForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('personName').value;
-            const team = document.getElementById('personTeam').value;
-            if (name && team) {
-                database.ref('persons').push({ name, team });
-                e.target.reset();
+
+        async function deletePerson(personId) {
+            if (!confirm('Bu kişiyi silmek istediğinizden emin misiniz?')) return;
+
+            try {
+                await deleteDoc(doc(db, 'persons', personId));
+                await loadPersons();
+                loadPersonList();
+                updatePersonOptions();
+                showToast('Kişi başarıyla silindi!', 'success');
+            } catch (error) {
+                console.error('Error deleting person:', error);
+                showToast('Kişi silinirken hata oluştu!', 'error');
+            }
+        }
+
+        function updatePersonOptions() {
+            const personSelect = document.getElementById('actionPerson');
+            const selectedTeam = document.getElementById('actionResponsible').value;
+
+            personSelect.innerHTML = '<option value="">Seçiniz</option>';
+
+            const teamPersons = persons.filter(p => p.team === selectedTeam);
+            teamPersons.forEach(person => {
+                const option = document.createElement('option');
+                option.value = person.id;
+                option.textContent = person.name;
+                personSelect.appendChild(option);
+            });
+        }
+
+        // Add event listener for team change
+        document.addEventListener('DOMContentLoaded', function() {
+            const responsibleSelect = document.getElementById('actionResponsible');
+            if (responsibleSelect) {
+                responsibleSelect.addEventListener('change', updatePersonOptions);
             }
         });
 
-        function deletePerson(id) {
-            if (confirm("Bu kişiyi silmek istediğinizden emin misiniz?")) {
-                database.ref('persons/' + id).remove();
-            }
-        }
-
-        // --- Event Listeners for filters ---
-        function togglePriorityFilter() {
-            priorityFilterActive = !priorityFilterActive;
-            document.getElementById('priorityFilterBtn').classList.toggle('active', priorityFilterActive);
-            renderActions();
-        }
-
-        document.querySelectorAll(".team-filters .filter-btn").forEach(btn => btn.addEventListener("click", e => {
-            document.querySelectorAll(".team-filters .filter-btn").forEach(b => b.classList.remove("active"));
-            e.currentTarget.classList.add("active");
-            currentTeamFilter = e.currentTarget.dataset.team;
-            renderActions();
-        }));
-
-        document.querySelectorAll(".status-filters .filter-btn").forEach(btn => btn.addEventListener("click", e => {
-            document.querySelectorAll(".status-filters .filter-btn").forEach(b => b.classList.remove("active"));
-            e.currentTarget.classList.add("active");
-            currentStatusFilter = e.currentTarget.dataset.filter;
-            renderActions();
-        }));
-        
-        document.querySelectorAll(".view-toggle .filter-btn").forEach(btn => btn.addEventListener("click", e => {
-            document.querySelectorAll(".view-toggle .filter-btn").forEach(b => b.classList.remove("active"));
-            e.currentTarget.classList.add("active");
-            currentView = e.currentTarget.dataset.view;
-            renderActions();
-        }));
-
-        document.getElementById("searchInput").addEventListener("input", renderActions);
-        
-        function toggleUserMenu() {
-            document.getElementById('userDropdown').classList.toggle('active');
-        }
-        
-        // Event delegation for action buttons
-        document.addEventListener('click', function(e) {
-            const button = e.target.closest('.action-btn');
-            if (button && button.dataset.action && button.dataset.actionId) {
-                e.stopPropagation();
-                e.preventDefault();
-                e.stopImmediatePropagation();
-
-                const action = button.dataset.action;
-                const id = button.dataset.actionId;
-
-                switch(action) {
-                    case 'edit':
-                        editAction(id);
-                        break;
-                    case 'priority':
-                        togglePriority(id);
-                        break;
-                    case 'delete':
-                        deleteAction(id);
-                        break;
-                    case 'postpone':
-                        postponeAction(id);
-                        break;
-                }
-                return false; // Prevent any further event handling
-            }
-        });
-
-        // ESC key handler for closing modals
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                const activeModal = document.querySelector('.modal.active');
-                if (activeModal) {
+        // Modal Outside Click Functions
+        function closeModalOnOutsideClick(event) {
+            const activeModal = event.target;
+            if (activeModal.classList.contains('modal') && activeModal.classList.contains('active')) {
+                if (event.target === activeModal) {
                     // Close the active modal
                     activeModal.classList.remove('active');
                     activeModal.style.display = 'none';
-                    
+
                     // Reset any form data if needed
                     if (activeModal.id === 'actionModal') {
-                        document.getElementById('actionForm').reset();
                         editingId = null;
-                    } else if (activeModal.id === 'personModal') {
-                        document.getElementById('personForm').reset();
-                        delete document.getElementById('personForm').dataset.editId;
                     } else if (activeModal.id === 'postponeModal') {
-                        document.getElementById('postponeForm').reset();
-                        currentPostponeId = null;
-                    }
-                    
-                    // Close user dropdown if open
-                    const userDropdown = document.getElementById('userDropdown');
-                    if (userDropdown && userDropdown.classList.contains('active')) {
-                        userDropdown.classList.remove('active');
-                        document.querySelector('.user-profile').classList.remove('active');
-                    }
-                    
-                    // Close backup settings if open
-                    const backupSettings = document.getElementById('backupSettings');
-                    if (backupSettings && backupSettings.classList.contains('active')) {
-                        backupSettings.classList.remove('active');
-                    }
-                    
-                    // Close backup notification if open
-                    const backupNotification = document.getElementById('backupNotification');
-                    if (backupNotification && backupNotification.classList.contains('active')) {
-                        backupNotification.classList.remove('active');
+                        postponingId = null;
                     }
                 }
             }
-        });
+        }
 
-        // Close dropdown on outside click
+        // Global click handler for closing modals
         document.addEventListener('click', function(e) {
-            const userMenu = e.target.closest('.user-menu');
             const activeModal = document.querySelector('.modal.active');
-            if (!userMenu) {
-                document.getElementById('userDropdown').classList.remove('active');
-            }
             if (activeModal && e.target === activeModal) {
                  activeModal.classList.remove('active');
                  activeModal.style.display = 'none';
             }
         });
 
-        // --- DATA EXPORT FUNCTIONS ---
-        function exportToExcel() {
-            if (actions.length === 0) {
-                alert("Dışa aktarılacak aksiyon bulunamadı.");
-                return;
+        // Data Loading Functions
+        async function loadActions() {
+            try {
+                const q = query(collection(db, 'actions'), orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+                actions = [];
+                querySnapshot.forEach((doc) => {
+                    actions.push({ id: doc.id, ...doc.data() });
+                });
+                updateStatistics();
+                filterActions();
+            } catch (error) {
+                console.error('Error loading actions:', error);
+                showToast('Aksiyonlar yüklenirken hata oluştu!', 'error');
             }
-            const dataToExport = actions.map(action => {
-                const person = persons.find(p => p.id === action.assignedPerson);
-                return {
-                    'Başlık': action.title,
-                    'Sorumlu Takım': action.responsible,
-                    'Atanan Kişi': person ? person.name : 'Atanmamış',
-                    'Açıklama': action.description,
-                    'Durum': getStatusText(action.status),
-                    'Hedef Tarih': action.date ? formatDate(action.date) : 'Yok',
-                    'Öncelikli': action.priority ? 'Evet' : 'Hayır',
-                    'Ertelenme Sebebi': action.postponeReason || '-'
-                };
-            });
+        }
 
-            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Aksiyonlar");
-            XLSX.writeFile(workbook, "AksiyonListesi.xlsx");
+        async function loadPersons() {
+            try {
+                const querySnapshot = await getDocs(collection(db, 'persons'));
+                persons = [];
+                querySnapshot.forEach((doc) => {
+                    persons.push({ id: doc.id, ...doc.data() });
+                });
+                updatePersonOptions();
+            } catch (error) {
+                console.error('Error loading persons:', error);
+            }
+        }
+
+        // Export Functions
+        function exportToExcel() {
+            try {
+                const filteredActions = getFilteredActions();
+                const data = filteredActions.map(action => ({
+                    'Başlık': action.title,
+                    'Sorumlu Takım': getTeamDisplayName(action.responsible),
+                    'Kişi': getPersonName(action.person) || 'Belirtilmemiş',
+                    'Durum': getStatusText(action.status),
+                    'Hedef Tarih': action.date ? formatDate(action.date) : 'Belirtilmemiş',
+                    'Açıklama': action.description || 'Açıklama yok',
+                    'Öncelikli': action.priority ? 'Evet' : 'Hayır',
+                    'Ertelenmiş': action.postponed ? 'Evet' : 'Hayır',
+                    'Erteleme Notu': action.postponeReason || ''
+                }));
+
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(data);
+                XLSX.utils.book_append_sheet(wb, ws, "Aksiyonlar");
+                XLSX.writeFile(wb, `Aksiyon_Takip_${new Date().toISOString().split('T')[0]}.xlsx`);
+                showToast('Excel dosyası başarıyla indirildi!', 'success');
+            } catch (error) {
+                console.error('Excel export error:', error);
+                showToast('Excel dışa aktarma hatası!', 'error');
+            }
         }
 
         function exportToWord() {
-            if (actions.length === 0) {
-                alert("Dışa aktarılacak aksiyon bulunamadı.");
-                return;
-            }
+            try {
+                const filteredActions = getFilteredActions();
+                const anadoluActions = filteredActions.filter(a => a.responsible === 'anadolu');
+                const aifteamActions = filteredActions.filter(a => a.responsible === 'aifteam');
+                const ortakActions = filteredActions.filter(a => a.responsible === 'ortak');
 
-            const anadoluActions = actions.filter(a => a.responsible === "Anadolu Bakır");
-            const aifteamActions = actions.filter(a => a.responsible === "AIFTEAM");
-            const ortakActions = actions.filter(a => a.responsible && a.responsible.includes("Ortak"));
-            
-            const reportDate = new Date().toLocaleDateString('tr-TR');
-            
-            let htmlContent = `
-                <html xmlns:o='urn:schemas-microsoft-com:office:office' 
-                      xmlns:w='urn:schemas-microsoft-com:office:word'
-                      xmlns='http://www.w3.org/TR/REC-html40'>
+                const htmlContent = `
+                <html>
                 <head>
                     <meta charset='utf-8'>
                     <title>Aksiyon Takip Raporu</title>
                     <style>
                         body {
                             font-family: Arial, sans-serif;
-                            line-height: 1.6;
-                            color: #333;
                             margin: 20px;
+                            line-height: 1.6;
                         }
                         h1 {
-                            color: #2c3e50;
-                            border-bottom: 3px solid #3498db;
+                            color: #2563eb;
+                            text-align: center;
+                            border-bottom: 3px solid #2563eb;
                             padding-bottom: 10px;
-                            margin-bottom: 20px;
                         }
                         h2 {
-                            color: #34495e;
-                            background-color: #ecf0f1;
-                            padding: 10px;
+                            color: #1f2937;
                             margin-top: 30px;
-                            margin-bottom: 15px;
                         }
-                        .stats-table {
+                        table {
                             width: 100%;
                             border-collapse: collapse;
-                            margin-bottom: 30px;
+                            margin: 20px 0;
                         }
-                        .stats-table th, .stats-table td {
+                        th, td {
                             border: 1px solid #ddd;
-                            padding: 10px;
+                            padding: 12px;
                             text-align: left;
                         }
-                        .stats-table th {
-                            background-color: #3498db;
-                            color: white;
-                        }
-                        .stats-table tr:nth-child(even) {
-                            background-color: #f9f9f9;
-                        }
-                        .action-item {
-                            margin-bottom: 20px;
-                            padding: 15px;
-                            border: 1px solid #ddd;
-                            background-color: #f9f9f9;
-                            page-break-inside: avoid;
-                        }
-                        .action-title {
-                            font-weight: bold;
-                            color: #2c3e50;
-                            font-size: 16px;
-                            margin-bottom: 8px;
-                        }
-                        .action-field {
-                            margin: 5px 0;
-                        }
-                        .field-label {
-                            font-weight: bold;
-                            color: #666;
-                            display: inline-block;
-                            width: 100px;
-                        }
-                        .status {
-                            display: inline-block;
-                            padding: 3px 8px;
-                            border-radius: 4px;
-                            font-size: 12px;
+                        th {
+                            background-color: #f3f4f6;
                             font-weight: bold;
                         }
-                        .status.completed {
-                            background-color: #27ae60;
-                            color: white;
+                        .stats-table {
+                            margin: 20px 0;
                         }
-                        .status.in-progress {
-                            background-color: #3498db;
-                            color: white;
-                        }
-                        .status.waiting {
-                            background-color: #f39c12;
-                            color: white;
-                        }
-                        .team-anadolu {
-                            border-left: 4px solid #e74c3c;
-                        }
-                        .team-aifteam {
-                            border-left: 4px solid #3498db;
-                        }
-                        .team-ortak {
-                            border-left: 4px solid #9b59b6;
-                        }
-                        @page {
+                        .header-info {
+                            text-align: center;
                             margin: 2cm;
                         }
                     </style>
                 </head>
                 <body>
-                    <h1>📋 Aksiyon Takip Raporu</h1>
-                    <p><strong>Rapor Tarihi:</strong> ${reportDate}</p>
-                    
+                    <div class="header-info">
+                        <h1>🚀 Aksiyon Takip Sistemi Raporu</h1>
+                        <p><strong>Rapor Tarihi:</strong> ${new Date().toLocaleDateString('tr-TR')}</p>
+                        <p><strong>Toplam Aksiyon Sayısı:</strong> ${actions.length}</p>
+                    </div>
+
                     <h2>📊 Özet İstatistikler</h2>
                     <table class="stats-table">
                         <thead>
                             <tr>
                                 <th>Takım</th>
                                 <th>Toplam</th>
-                                <th>Tamamlanan</th>
-                                <th>Devam Eden</th>
                                 <th>Bekleyen</th>
+                                <th>Devam Eden</th>
+                                <th>Tamamlanan</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Anadolu Bakır</td>
+                                <td>🏢 Anadolu Bakır</td>
                                 <td>${anadoluActions.length}</td>
-                                <td>${anadoluActions.filter(a => a.status === 'completed').length}</td>
-                                <td>${anadoluActions.filter(a => a.status === 'in-progress').length}</td>
                                 <td>${anadoluActions.filter(a => a.status === 'waiting').length}</td>
+                                <td>${anadoluActions.filter(a => a.status === 'inprogress').length}</td>
+                                <td>${anadoluActions.filter(a => a.status === 'completed').length}</td>
                             </tr>
                             <tr>
-                                <td>AIFTEAM</td>
+                                <td>💻 AIFTEAM</td>
                                 <td>${aifteamActions.length}</td>
-                                <td>${aifteamActions.filter(a => a.status === 'completed').length}</td>
-                                <td>${aifteamActions.filter(a => a.status === 'in-progress').length}</td>
                                 <td>${aifteamActions.filter(a => a.status === 'waiting').length}</td>
+                                <td>${aifteamActions.filter(a => a.status === 'inprogress').length}</td>
+                                <td>${aifteamActions.filter(a => a.status === 'completed').length}</td>
                             </tr>
                             <tr>
-                                <td>Ortak</td>
+                                <td>🤝 Ortak Aksiyonlar</td>
                                 <td>${ortakActions.length}</td>
-                                <td>${ortakActions.filter(a => a.status === 'completed').length}</td>
-                                <td>${ortakActions.filter(a => a.status === 'in-progress').length}</td>
                                 <td>${ortakActions.filter(a => a.status === 'waiting').length}</td>
+                                <td>${ortakActions.filter(a => a.status === 'inprogress').length}</td>
+                                <td>${ortakActions.filter(a => a.status === 'completed').length}</td>
                             </tr>
                             <tr style="font-weight: bold; background-color: #ecf0f1;">
                                 <td>TOPLAM</td>
                                 <td>${actions.length}</td>
-                                <td>${actions.filter(a => a.status === 'completed').length}</td>
-                                <td>${actions.filter(a => a.status === 'in-progress').length}</td>
                                 <td>${actions.filter(a => a.status === 'waiting').length}</td>
+                                <td>${actions.filter(a => a.status === 'inprogress').length}</td>
+                                <td>${actions.filter(a => a.status === 'completed').length}</td>
                             </tr>
                         </tbody>
                     </table>
-            `;
-            
-            if (anadoluActions.length > 0) {
-                htmlContent += `<h2>🏢 Anadolu Bakır Aksiyonları (${anadoluActions.length})</h2>`;
-                anadoluActions.forEach(action => {
-                    htmlContent += `
-                        <div class="action-item team-anadolu">
-                            <div class="action-title">${action.title}</div>
-                            <div class="action-field">
-                                <span class="field-label">Durum:</span>
-                                <span class="status ${action.status}">${getStatusText(action.status)}</span>
-                            </div>
-                            <div class="action-field">
-                                <span class="field-label">Tarih:</span>
-                                ${action.date ? formatDate(action.date) : "Belirtilmemiş"}
-                            </div>
-                            <div class="action-field">
-                                <span class="field-label">Açıklama:</span><br>
-                                ${action.description}
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            
-            if (aifteamActions.length > 0) {
-                htmlContent += `<h2>💻 AIFTEAM Aksiyonları (${aifteamActions.length})</h2>`;
-                aifteamActions.forEach(action => {
-                    htmlContent += `
-                        <div class="action-item team-aifteam">
-                            <div class="action-title">${action.title}</div>
-                            <div class="action-field">
-                                <span class="field-label">Durum:</span>
-                                <span class="status ${action.status}">${getStatusText(action.status)}</span>
-                            </div>
-                            <div class="action-field">
-                                <span class="field-label">Tarih:</span>
-                                ${action.date ? formatDate(action.date) : "Belirtilmemiş"}
-                            </div>
-                            <div class="action-field">
-                                <span class="field-label">Açıklama:</span><br>
-                                ${action.description}
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            
-            if (ortakActions.length > 0) {
-                htmlContent += `<h2>🤝 Ortak Aksiyonlar (${ortakActions.length})</h2>`;
-                ortakActions.forEach(action => {
-                    htmlContent += `
-                        <div class="action-item team-ortak">
-                            <div class="action-title">${action.title}</div>
-                            <div class="action-field">
-                                <span class="field-label">Durum:</span>
-                                <span class="status ${action.status}">${getStatusText(action.status)}</span>
-                            </div>
-                            <div class="action-field">
-                                <span class="field-label">Tarih:</span>
-                                ${action.date ? formatDate(action.date) : "Belirtilmemiş"}
-                            </div>
-                            <div class="action-field">
-                                <span class="field-label">Açıklama:</span><br>
-                                ${action.description}
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            
-            htmlContent += `
+
+                    <h2>📋 Detaylı Aksiyon Listesi</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Başlık</th>
+                                <th>Sorumlu Takım</th>
+                                <th>Kişi</th>
+                                <th>Durum</th>
+                                <th>Hedef Tarih</th>
+                                <th>Açıklama</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filteredActions.map(action => `
+                                <tr>
+                                    <td>${action.priority ? '⭐ ' : ''}${action.title}</td>
+                                    <td>${getTeamDisplayName(action.responsible)}</td>
+                                    <td>${getPersonName(action.person) || 'Belirtilmemiş'}</td>
+                                    <td>${getStatusText(action.status)}</td>
+                                    <td>${action.date ? formatDate(action.date) : 'Belirtilmemiş'}</td>
+                                    <td>${action.description || 'Açıklama yok'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
                 </body>
                 </html>
-            `;
-            
-            // Simple Word export using blob
-            const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            const fileName = `Aksiyon_Takip_Raporu_${new Date().toISOString().split('T')[0]}.doc`;
-            link.href = url;
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            
-            showNotification('📄 Word raporu başarıyla oluşturuldu!', 'success');
+                `;
+
+                const blob = htmlDocx.asBlob(htmlContent);
+                saveAs(blob, `Aksiyon_Takip_Raporu_${new Date().toISOString().split('T')[0]}.docx`);
+                showToast('Word dosyası başarıyla indirildi!', 'success');
+            } catch (error) {
+                console.error('Word export error:', error);
+                showToast('Word dışa aktarma hatası!', 'error');
+            }
         }
 
+        // Action CRUD Functions
+        async function saveAction() {
+            const title = document.getElementById('actionTitle').value.trim();
+            const responsible = document.getElementById('actionResponsible').value;
+            const person = document.getElementById('actionPerson').value;
+            const date = document.getElementById('actionDate').value;
+            const description = document.getElementById('actionDescription').value.trim();
+            const status = document.getElementById('actionStatus').value;
+            const priority = document.getElementById('actionPriority').checked;
+
+            if (!title || !responsible || !date) {
+                showToast('Lütfen zorunlu alanları doldurun!', 'error');
+                return;
+            }
+
+            const actionData = {
+                title,
+                responsible,
+                person,
+                date,
+                description,
+                status,
+                priority,
+                postponed: false,
+                postponeReason: '',
+                updatedAt: new Date()
+            };
+
+            try {
+                if (editingId) {
+                    const actionRef = doc(db, 'actions', editingId);
+                    await updateDoc(actionRef, actionData);
+                    showToast('Aksiyon başarıyla güncellendi!', 'success');
+                } else {
+                    actionData.createdAt = new Date();
+                    await addDoc(collection(db, 'actions'), actionData);
+                    showToast('Aksiyon başarıyla eklendi!', 'success');
+                }
+
+                closeModal();
+                await loadActions();
+            } catch (error) {
+                console.error('Error saving action:', error);
+                showToast('Aksiyon kaydedilirken hata oluştu!', 'error');
+            }
+        }
+
+        async function deleteAction(actionId) {
+            try {
+                await deleteDoc(doc(db, 'actions', actionId));
+                await loadActions();
+                showToast('Aksiyon başarıyla silindi!', 'success');
+            } catch (error) {
+                console.error('Error deleting action:', error);
+                showToast('Aksiyon silinirken hata oluştu!', 'error');
+            }
+        }
+
+        async function postponeAction(actionId, reason) {
+            try {
+                const actionRef = doc(db, 'actions', actionId);
+                await updateDoc(actionRef, {
+                    postponed: true,
+                    postponeReason: reason,
+                    updatedAt: new Date()
+                });
+
+                await loadActions();
+                showToast('Aksiyon ertelendi!', 'info');
+            } catch (error) {
+                console.error('Error postponing action:', error);
+                showToast('Aksiyon ertelenirken hata oluştu!', 'error');
+            }
+        }
+
+        // Filter Functions
+        function getFilteredActions() {
+            let filtered = [...actions];
+
+            if (activeFilters.team) {
+                filtered = filtered.filter(action => action.responsible === activeFilters.team);
+            }
+
+            if (activeFilters.status) {
+                filtered = filtered.filter(action => action.status === activeFilters.status);
+            }
+
+            if (activeFilters.priority) {
+                filtered = filtered.filter(action => action.priority === true);
+            }
+
+            // Sort by date
+            filtered.sort((a, b) => {
+                if (!a.date && !b.date) return 0;
+                if (!a.date) return 1;
+                if (!b.date) return -1;
+
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+
+                return activeFilters.dateSort === 'asc' ? dateA - dateB : dateB - dateA;
+            });
+
+            return filtered;
+        }
+
+        function filterActions() {
+            const teamFilter = document.getElementById('teamFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dateSort = document.getElementById('dateFilter').value;
+
+            activeFilters.team = teamFilter;
+            activeFilters.status = statusFilter;
+            activeFilters.dateSort = dateSort;
+
+            switchView(currentView);
+        }
+
+        function togglePriorityFilter() {
+            const btn = document.getElementById('priorityFilterBtn');
+            activeFilters.priority = !activeFilters.priority;
+
+            if (activeFilters.priority) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+
+            switchView(currentView);
+        }
+
+        // Statistics Functions
+        function updateStatistics() {
+            const anadoluActions = actions.filter(a => a.responsible === 'anadolu');
+            const aifteamActions = actions.filter(a => a.responsible === 'aifteam');
+            const ortakActions = actions.filter(a => a.responsible === 'ortak');
+
+            // Anadolu Bakır stats
+            document.getElementById('anadoluTotal').textContent = anadoluActions.length;
+            document.getElementById('anadoluWaiting').textContent = anadoluActions.filter(a => a.status === 'waiting').length;
+            document.getElementById('anadoluInProgress').textContent = anadoluActions.filter(a => a.status === 'inprogress').length;
+            document.getElementById('anadoluCompleted').textContent = anadoluActions.filter(a => a.status === 'completed').length;
+
+            // AIFTEAM stats
+            document.getElementById('aifteamTotal').textContent = aifteamActions.length;
+            document.getElementById('aifteamWaiting').textContent = aifteamActions.filter(a => a.status === 'waiting').length;
+            document.getElementById('aifteamInProgress').textContent = aifteamActions.filter(a => a.status === 'inprogress').length;
+            document.getElementById('aifteamCompleted').textContent = aifteamActions.filter(a => a.status === 'completed').length;
+
+            // Ortak stats
+            document.getElementById('ortakTotal').textContent = ortakActions.length;
+            document.getElementById('ortakWaiting').textContent = ortakActions.filter(a => a.status === 'waiting').length;
+            document.getElementById('ortakInProgress').textContent = ortakActions.filter(a => a.status === 'inprogress').length;
+            document.getElementById('ortakCompleted').textContent = ortakActions.filter(a => a.status === 'completed').length;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date as default for new actions
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('actionDate').value = today;
+        });
     </script>
 </body>
 </html>

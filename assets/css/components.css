@@ -1,0 +1,500 @@
+/* =================================================================
+   Aksiyon Takip - Component CSS Dosyası
+   Butonlar, kartlar, modaller ve diğer UI komponentleri
+   ================================================================= */
+
+/* --- BUTTON COMPONENTS --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius);
+    background: var(--white);
+    color: var(--gray-700);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.btn:hover {
+    background: var(--gray-100);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+}
+
+.btn.btn-primary {
+    background: var(--primary);
+    color: var(--white);
+    border-color: var(--primary);
+}
+
+.btn.btn-primary:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn.btn-danger-outline {
+    color: var(--danger);
+    border-color: var(--danger-light);
+}
+
+.btn.btn-danger-outline:hover {
+    background: var(--danger);
+    color: var(--white);
+    border-color: var(--danger);
+}
+
+.btn.btn-icon {
+    padding: var(--space-2);
+    min-width: 36px;
+    min-height: 36px;
+}
+
+.btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* --- ACTION BUTTONS --- */
+.action-btn {
+    padding: var(--space-2);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    background: var(--white);
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+}
+
+.action-btn:hover {
+    background-color: var(--gray-100);
+    transform: translateY(-1px);
+}
+
+.action-btn.priority-active {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border-color: #f59e0b;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+    transform: scale(1.05);
+}
+
+.action-btn.priority-active:hover {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+    transform: scale(1.1);
+}
+
+.action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* --- FILTER BUTTONS --- */
+.filter-btn {
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    background: var(--white);
+    color: var(--gray-700);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.filter-btn:hover {
+    background: var(--gray-100);
+    transform: translateY(-1px);
+}
+
+.filter-btn.active {
+    background: var(--primary);
+    color: var(--white);
+    border-color: var(--primary);
+    font-weight: 600;
+}
+
+.filter-group {
+    display: flex;
+    background: var(--gray-100);
+    padding: var(--space-1);
+    border-radius: var(--radius-lg);
+    gap: var(--space-1);
+}
+
+.filter-group .filter-btn {
+    border: none;
+    background: transparent;
+    border-radius: var(--radius);
+}
+
+.filter-group .filter-btn.active {
+    background: var(--white);
+    color: var(--primary);
+    font-weight: 600;
+    box-shadow: var(--shadow);
+}
+
+/* --- VIEW TOGGLE BUTTONS --- */
+.view-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    background: var(--white);
+    color: var(--gray-600);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.view-btn:hover {
+    background: var(--gray-100);
+}
+
+.view-btn.active {
+    background: var(--primary);
+    color: var(--white);
+    border-color: var(--primary);
+}
+
+.view-toggle {
+    margin-left: auto;
+    display: flex;
+    gap: var(--space-1);
+}
+
+/* --- STATUS BADGES --- */
+.status-badge {
+    padding: var(--space-1) var(--space-3);
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: var(--transition);
+}
+
+.status-badge.completed {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.status-badge.in-progress {
+    background: var(--primary-bg);
+    color: var(--primary);
+}
+
+.status-badge.waiting {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+.status-badge:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow);
+}
+
+/* --- ACTION CARDS --- */
+.action-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--gray-300);
+    transition: var(--transition);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.action-card.anadolu-bakir { border-left-color: var(--anadolu-bakir); }
+.action-card.ege-bakir { border-left-color: var(--ege-bakir); }
+.action-card.bms { border-left-color: var(--bms); }
+.action-card.aifteam { border-left-color: var(--aifteam); }
+.action-card.diger { border-left-color: var(--diger); }
+
+.action-card.postponed {
+    background: linear-gradient(135deg, var(--postponed-bg) 0%, #f8fafc 100%);
+    border-left-color: var(--postponed);
+}
+
+.action-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-4);
+}
+
+.action-title-block {
+    flex: 1;
+    min-width: 0;
+}
+
+.action-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: var(--space-1);
+    line-height: 1.3;
+}
+
+.responsible {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    font-weight: 500;
+}
+
+.assigned-person {
+    color: var(--primary);
+    font-weight: 600;
+    margin-top: var(--space-2);
+    padding: 3px 8px;
+    background: var(--primary-bg);
+    border-radius: 99px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+}
+
+.action-body {
+    flex: 1;
+    margin-bottom: var(--space-4);
+}
+
+.action-description {
+    color: var(--gray-700);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.action-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.action-buttons {
+    display: flex;
+    gap: var(--space-2);
+    margin-left: auto;
+}
+
+.date {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--gray-600);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.date.overdue {
+    color: var(--danger);
+    font-weight: 600;
+}
+
+.date svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+}
+
+/* --- UPDATE BOX --- */
+.update-box {
+    background: var(--postponed-bg);
+    border: 1px solid var(--postponed-light);
+    color: var(--postponed);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+    font-size: 0.85rem;
+}
+
+.update-box strong {
+    color: var(--postponed);
+}
+
+/* --- MODAL COMPONENTS --- */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.95) translateY(20px);
+    transition: var(--transition);
+    box-shadow: var(--shadow-xl);
+}
+
+.modal.active .modal-content {
+    transform: scale(1) translateY(0);
+}
+
+.modal h2 {
+    margin-bottom: var(--space-6);
+    color: var(--gray-900);
+    font-size: 1.5rem;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: var(--space-3);
+    justify-content: flex-end;
+    margin-top: var(--space-6);
+}
+
+.modal-btn.cancel {
+    background: var(--gray-200);
+    color: var(--gray-800);
+    border-color: var(--gray-200);
+}
+
+.modal-btn.cancel:hover {
+    background: var(--gray-300);
+    border-color: var(--gray-300);
+}
+
+/* --- FORM GROUPS --- */
+.form-group {
+    margin-bottom: var(--space-5);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-weight: 600;
+    color: var(--gray-700);
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    transition: var(--transition);
+    background: var(--white);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-bg);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* --- TOAST NOTIFICATIONS --- */
+.toast {
+    position: fixed;
+    top: var(--space-6);
+    right: var(--space-6);
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4) var(--space-5);
+    box-shadow: var(--shadow-xl);
+    z-index: 1100;
+    max-width: 400px;
+    animation: slideIn 0.3s ease;
+}
+
+.toast.success {
+    border-left: 4px solid var(--success);
+    background: var(--success-bg);
+}
+
+.toast.warning {
+    border-left: 4px solid var(--warning);
+    background: var(--warning-bg);
+}
+
+.toast.error {
+    border-left: 4px solid var(--danger);
+    background: var(--danger-bg);
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.toast-message {
+    font-weight: 500;
+    color: var(--gray-800);
+    font-size: 0.9rem;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--gray-500);
+    cursor: pointer;
+    padding: 0;
+    min-width: auto;
+    min-height: auto;
+    font-weight: 600;
+}
+
+.toast-close:hover {
+    color: var(--gray-700);
+}
