@@ -56,99 +56,87 @@
             <!-- Header -->
             <div class="header">
                 <div class="header-content">
-                    <div class="header-title">
-                        <h1>🚀 Aksiyon Takip Sistemi</h1>
-                    </div>
-                    <div class="header-controls">
-                        <div class="user-info">
-                            <span id="currentUser">Kullanıcı</span>
-                        </div>
-                        <button class="header-btn" onclick="openPersonModal()">👥 Kişi Yönetimi</button>
-                        <button class="header-btn danger" onclick="signOut()">🚪 Çıkış Yap</button>
+                    <h1>Aksiyon Takip Sistemi</h1>
+                    <div class="team-badges">
+                        <div class="team-badge anadolu-bakir"><span>🏢</span><span>Anadolu Bakır</span></div>
+                        <div class="team-badge ege-bakir"><span>💻</span><span>AIFTEAM</span></div>
+                        <div class="team-badge ortak"><span>🤝</span><span>Ortak</span></div>
                     </div>
                 </div>
+                <p>Proje sorumlulukları ve aksiyonları merkezi bir sistemden yönetin.</p>
             </div>
 
-            <!-- Team Statistics -->
+            <!-- Stats Row -->
             <div class="stats-row">
                 <div class="team-stats anadolu-stats">
                     <h3><span style="font-size: 1.5rem;">🏢</span> Anadolu Bakır</h3>
                     <div class="stats-grid">
                         <div class="mini-stat"><div class="label">Toplam</div><div class="value" id="anadoluTotal">0</div></div>
+                        <div class="mini-stat"><div class="label">Devam</div><div class="value" id="anadoluProgress">0</div></div>
                         <div class="mini-stat"><div class="label">Bekleyen</div><div class="value" id="anadoluWaiting">0</div></div>
-                        <div class="mini-stat"><div class="label">Devam Eden</div><div class="value" id="anadoluInProgress">0</div></div>
-                        <div class="mini-stat"><div class="label">Tamamlanan</div><div class="value" id="anadoluCompleted">0</div></div>
                     </div>
                 </div>
                 <div class="team-stats aifteam-stats">
                     <h3><span style="font-size: 1.5rem;">💻</span> AIFTEAM</h3>
                     <div class="stats-grid">
                         <div class="mini-stat"><div class="label">Toplam</div><div class="value" id="aifteamTotal">0</div></div>
+                        <div class="mini-stat"><div class="label">Devam</div><div class="value" id="aifteamProgress">0</div></div>
                         <div class="mini-stat"><div class="label">Bekleyen</div><div class="value" id="aifteamWaiting">0</div></div>
-                        <div class="mini-stat"><div class="label">Devam Eden</div><div class="value" id="aifteamInProgress">0</div></div>
-                        <div class="mini-stat"><div class="label">Tamamlanan</div><div class="value" id="aifteamCompleted">0</div></div>
                     </div>
                 </div>
                 <div class="team-stats ortak-stats">
                     <h3><span style="font-size: 1.5rem;">🤝</span> Ortak Aksiyonlar</h3>
                     <div class="stats-grid">
                         <div class="mini-stat"><div class="label">Toplam</div><div class="value" id="ortakTotal">0</div></div>
+                        <div class="mini-stat"><div class="label">Devam</div><div class="value" id="ortakProgress">0</div></div>
                         <div class="mini-stat"><div class="label">Bekleyen</div><div class="value" id="ortakWaiting">0</div></div>
-                        <div class="mini-stat"><div class="label">Devam Eden</div><div class="value" id="ortakInProgress">0</div></div>
-                        <div class="mini-stat"><div class="label">Tamamlanan</div><div class="value" id="ortakCompleted">0</div></div>
                     </div>
                 </div>
             </div>
 
             <!-- Controls -->
-            <div class="controls-section">
+            <div class="controls">
                 <div class="controls-top">
-                    <div class="filter-section">
-                        <div class="filter-group">
-                            <label for="teamFilter">Takım:</label>
-                            <select id="teamFilter" onchange="filterActions()">
-                                <option value="">Tümü</option>
-                                <option value="anadolu">Anadolu Bakır</option>
-                                <option value="aifteam">AIFTEAM</option>
-                                <option value="ortak">Ortak</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="statusFilter">Durum:</label>
-                            <select id="statusFilter" onchange="filterActions()">
-                                <option value="">Tümü</option>
-                                <option value="waiting">Bekleyen</option>
-                                <option value="inprogress">Devam Eden</option>
-                                <option value="completed">Tamamlanan</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="dateFilter">Tarihe göre sırala:</label>
-                            <select id="dateFilter" onchange="filterActions()">
-                                <option value="asc">En yakın tarih</option>
-                                <option value="desc">En uzak tarih</option>
-                            </select>
-                        </div>
+                    <div class="search-box">
+                         <span class="search-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </span>
+                        <input type="text" id="searchInput" placeholder="Aksiyon ara... (Ctrl+F)">
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Yeni Aksiyon
+                    </button>
+                </div>
+                <div class="filter-section">
+                    <span class="filter-label">Takım:</span>
+                    <div class="filter-group team-filters">
+                        <button class="filter-btn active" data-team="all">Tümü</button>
+                        <button class="filter-btn" data-team="Anadolu Bakır">Anadolu Bakır</button>
+                        <button class="filter-btn" data-team="AIFTEAM">AIFTEAM</button>
+                        <button class="filter-btn" data-team="Ortak">Ortak</button>
+                    </div>
+                    <span class="filter-label">Durum:</span>
+                     <div class="filter-group status-filters">
+                        <button class="filter-btn active" data-filter="all">Tümü</button>
+                        <button class="filter-btn" data-filter="completed">Tamamlandı</button>
+                        <button class="filter-btn" data-filter="in-progress">Devam Ediyor</button>
+                        <button class="filter-btn" data-filter="waiting">Bekliyor</button>
+                    </div>
+                     <div class="filter-group">
                         <button class="filter-btn" id="priorityFilterBtn" onclick="togglePriorityFilter()">⭐ Öncelikli</button>
                     </div>
                      <div class="filter-group view-toggle" style="margin-left: auto;">
                         <button class="view-btn filter-btn active" data-view="grouped">Gruplu</button>
                         <button class="view-btn filter-btn" data-view="list">Liste</button>
+                        <button class="view-btn filter-btn" data-view="kanban">Kanban</button>
                         <button class="view-btn filter-btn" data-view="calendar">Takvim</button>
                     </div>
-                </div>
-
-                <div class="controls-bottom">
-                    <button class="primary-btn" onclick="openModal()">
-                        ➕ Yeni Aksiyon Ekle
-                    </button>
-                    <button class="primary-btn" onclick="exportToExcel()" style="background: #10b981;">📊 Excel İndir</button>
-                    <button class="primary-btn" onclick="exportToWord()" style="background: #3b82f6;">📄 Word İndir</button>
                 </div>
             </div>
 
             <!-- Actions Container -->
-            <div class="actions-container">
+            <div id="actionsContainerWrapper">
                 <div id="actionsContainerGrouped" class="actions-view-container active"></div>
                 <div id="actionsContainerList" class="actions-view-container"></div>
                 <div id="actionsContainerKanban" class="actions-view-container"></div>
@@ -156,74 +144,57 @@
                 <div id="noResults" class="actions-view-container" style="text-align: center; color: var(--gray-500); padding: var(--space-8);"></div>
             </div>
         </div>
-    </div>
 
-    <!-- Action Modal -->
-    <div id="actionModal" class="modal" onclick="closeModalOnOutsideClick(event)">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Yeni Aksiyon Ekle</h2>
-            </div>
-            <div class="modal-body">
-                <form id="actionForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="actionTitle">Başlık *</label>
-                            <input type="text" id="actionTitle" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="actionResponsible">Sorumlu Takım *</label>
-                            <select id="actionResponsible" required>
-                                <option value="">Seçiniz</option>
-                                <option value="anadolu">Anadolu Bakır</option>
-                                <option value="aifteam">AIFTEAM</option>
-                                <option value="ortak">Ortak</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="actionPerson">Kişi</label>
-                            <select id="actionPerson">
-                                <option value="">Seçiniz</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="actionDate">Hedef Tarih *</label>
-                            <input type="date" id="actionDate" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="actionDescription">Açıklama</label>
-                        <textarea id="actionDescription" placeholder="Aksiyonun detaylarını yazınız..."></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="actionStatus">Durum</label>
-                            <select id="actionStatus">
-                                <option value="waiting">Bekleyen</option>
-                                <option value="inprogress">Devam Eden</option>
-                                <option value="completed">Tamamlanan</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="actionPriority">
-                                <input type="checkbox" id="actionPriority" style="margin-right: 8px;">
-                                Öncelikli Aksiyon
-                            </label>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-buttons">
-                <button type="button" class="btn" onclick="closeModal()">İptal</button>
-                <button type="button" class="btn primary" onclick="saveAction()">Kaydet</button>
+        <!-- User Menu -->
+        <div class="user-menu">
+            <button class="user-profile" onclick="toggleUserMenu()">
+                <span class="user-avatar" id="userAvatar">K</span>
+                <span class="user-name" id="currentUserName">Kullanıcı</span>
+            </button>
+            <div class="user-dropdown" id="userDropdown">
+                <div class="dropdown-item" onclick="openPersonManagement()">👥 Kişi Yönetimi</div>
+                <div class="dropdown-item" onclick="exportToExcel()">📊 Excel'e Aktar</div>
+                <div class="dropdown-item" onclick="exportToWord()">📄 Word'e Aktar</div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item logout" onclick="signOut()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Çıkış Yap
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Person Modal -->
-    <div id="personModal" class="modal" onclick="closeModalOnOutsideClick(event)">
+    <!-- Modals -->
+    <div class="modal" id="actionModal">
+        <div class="modal-content modal-content-scrollable">
+            <div class="modal-header"><h2 id="modalTitle">Yeni Aksiyon Ekle</h2></div>
+            <form id="actionForm">
+                <div class="form-group"><label for="actionTitle">Başlık *</label><input type="text" id="actionTitle" required></div>
+                <div class="form-group">
+                    <label for="actionResponsible">Sorumlu *</label>
+                    <select id="actionResponsible" required>
+                        <option value="">Seçiniz...</option>
+                        <option value="Anadolu Bakır">Anadolu Bakır</option>
+                        <option value="AIFTEAM">AIFTEAM</option>
+                        <option value="Ortak - AIFTEAM/Anadolu Bakır">Ortak - AIFTEAM/Anadolu Bakır</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="assignedPerson">Atanan Kişi</label>
+                    <select id="assignedPerson"><option value="">Kişi seçiniz...</option></select>
+                </div>
+                <div class="form-group"><label for="actionDescription">Açıklama *</label><textarea id="actionDescription" rows="4" required></textarea></div>
+                <div class="form-group"><label for="actionStatus">Durum *</label><select id="actionStatus" required><option value="waiting">Bekliyor</option><option value="in-progress">Devam Ediyor</option><option value="completed">Tamamlandı</option></select></div>
+                <div class="form-group"><label for="actionDate">Hedef Tarih</label><input type="date" id="actionDate"></div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn modal-btn cancel" onclick="closeModal()">İptal</button>
+                    <button type="submit" class="btn btn-primary modal-btn save">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="personModal">
         <div class="modal-content">
             <div class="modal-header"><h2>Kişi Yönetimi</h2></div>
             <div id="personListContainer"></div>
@@ -235,62 +206,48 @@
                     <input type="text" id="personName" required>
                 </div>
                 <div class="form-group">
-                    <label for="personEmail">E-posta</label>
-                    <input type="email" id="personEmail">
-                </div>
-                <div class="form-group">
                     <label for="personTeam">Takım</label>
                     <select id="personTeam" required>
-                        <option value="">Seçiniz</option>
-                        <option value="anadolu">Anadolu Bakır</option>
-                        <option value="aifteam">AIFTEAM</option>
-                        <option value="ortak">Ortak</option>
+                        <option value="Anadolu Bakır">Anadolu Bakır</option>
+                        <option value="AIFTEAM">AIFTEAM</option>
                     </select>
                 </div>
-                <button type="button" class="btn primary" onclick="addPerson()">Kişi Ekle</button>
+                <button type="submit" class="btn btn-primary">Ekle</button>
             </form>
-            <div style="text-align: center;">
-                <button type="button" class="btn" onclick="closePersonModal()">Kapat</button>
+            <div class="modal-buttons">
+                <button type="button" class="btn modal-btn cancel" onclick="closePersonManagement()">Kapat</button>
             </div>
         </div>
     </div>
 
-    <!-- Postpone Modal -->
-    <div id="postponeModal" class="modal" onclick="closeModalOnOutsideClick(event)">
+    <div class="modal" id="postponeModal">
         <div class="modal-content">
-            <div class="modal-header"><h2>Aksiyonu Ertele</h2></div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="postponeReason">Erteleme Nedeni</label>
-                    <textarea id="postponeReason" placeholder="Neden ertelendiğini açıklayınız..." required></textarea>
+            <div class="modal-header"><h2>Görevi Ertele</h2></div>
+            <form id="postponeForm">
+                <div class="form-group"><label for="postponeReason">Erteleme Sebebi *</label><textarea id="postponeReason" required></textarea></div>
+                <div class="form-group"><label for="postponeDate">Yeni Hedef Tarih *</label><input type="date" id="postponeDate" required></div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn modal-btn cancel" onclick="closePostponeModal()">İptal</button>
+                    <button type="submit" class="btn btn-primary modal-btn save">Ertele</button>
                 </div>
-            </div>
-            <div class="modal-buttons">
-                <button type="button" class="btn" onclick="closePostponeModal()">İptal</button>
-                <button type="button" class="btn primary" onclick="confirmPostpone()">Ertele</button>
-            </div>
+            </form>
         </div>
     </div>
 
-    <!-- Detail View Modal -->
-    <div id="detailModal" class="modal" onclick="closeModalOnOutsideClick(event)">
-        <div class="modal-content">
-            <div class="modal-header"><h2>Aksiyon Detayları</h2></div>
-            <div class="modal-body">
-                <div class="detail-grid">
-                    <div class="detail-label">Başlık</div><div class="detail-value" id="detailTitle"></div>
-                    <div class="detail-label">Sorumlu</div><div class="detail-value" id="detailResponsible"></div>
-                    <div class="detail-label">Kişi</div><div class="detail-value" id="detailPerson"></div>
-                    <div class="detail-label">Durum</div><div class="detail-value" id="detailStatus"></div>
-                    <div class="detail-label">Hedef Tarih</div><div class="detail-value" id="detailDate"></div>
-                    <div class="detail-label" id="detailPostponeLabel" style="display: none;">Erteleme Notu</div><div class="detail-value" id="detailPostponeNote" style="display: none;"></div>
-                </div>
-                <div class="detail-label" style="margin-bottom: var(--space-2);">Açıklama</div>
-                <p id="detailDescription"></p>
+    <div class="modal" id="detailModal">
+        <div class="modal-content modal-content-scrollable">
+            <div class="modal-header"><h2 id="detailTitle">Aksiyon Detayı</h2></div>
+            <div class="detail-grid">
+                <div class="detail-label">Sorumlu Takım</div><div class="detail-value" id="detailResponsible"></div>
+                <div class="detail-label">Atanan Kişi</div><div class="detail-value" id="detailAssignedPerson"></div>
+                <div class="detail-label">Durum</div><div class="detail-value" id="detailStatus"></div>
+                <div class="detail-label">Hedef Tarih</div><div class="detail-value" id="detailDate"></div>
+                <div class="detail-label" id="detailPostponeLabel" style="display: none;">Erteleme Notu</div><div class="detail-value" id="detailPostponeNote" style="display: none;"></div>
             </div>
+            <div class="detail-label" style="margin-bottom: var(--space-2);">Açıklama</div>
+            <p id="detailDescription"></p>
             <div class="modal-buttons">
-                <button type="button" class="btn" onclick="closeDetailModal()">Kapat</button>
-                <button type="button" class="btn primary" onclick="editFromDetail()">Düzenle</button>
+                <button type="button" class="btn modal-btn cancel" onclick="closeDetailModal()">Kapat</button>
             </div>
         </div>
     </div>
@@ -329,7 +286,8 @@
                 const email = user.email || 'Kullanıcı';
                 const cleanEmail = email.split('@')[0];
                 const formattedEmail = cleanEmail.charAt(0).toUpperCase() + cleanEmail.slice(1);
-                document.getElementById('currentUser').textContent = `👋 ${formattedEmail}`;
+                document.getElementById('currentUserName').textContent = formattedEmail;
+                document.getElementById('userAvatar').textContent = formattedEmail.charAt(0);
 
                 loadActions();
                 loadPersons();
@@ -437,7 +395,8 @@
 
                 const cleanEmail = email.split('@')[0];
                 const formattedEmail = cleanEmail.charAt(0).toUpperCase() + cleanEmail.slice(1);
-                document.getElementById('currentUser').textContent = `👋 ${formattedEmail}`;
+                document.getElementById('currentUserName').textContent = formattedEmail;
+                document.getElementById('userAvatar').textContent = formattedEmail.charAt(0);
 
                 showToast('Test modu: Başarıyla giriş yapıldı!', 'success');
                 return;
