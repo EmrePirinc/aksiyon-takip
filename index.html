@@ -1336,12 +1336,8 @@
         function loadActions() {
             const actionsRef = database.ref('actions');
             actionsRef.on('value', (snapshot) => {
-                console.log('Firebase listener triggered');
                 const data = snapshot.val();
                 actions = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-                console.log('Actions loaded:', actions.length);
-                
-                console.log('Calling renderActions...');
                 renderActions();
                 updateStats();
             });
@@ -1385,13 +1381,10 @@
         }
         
         function togglePriority(id) {
-            console.log('togglePriority called for id:', id);
             const action = actions.find(a => String(a.id) === String(id));
-            console.log('Found action:', action);
 
             if(action) {
                 const newPriority = !(action.priority || false);
-                console.log('Updating priority from', action.priority, 'to', newPriority);
 
                 // Önce local array'i güncelle
                 action.priority = newPriority;
@@ -1399,7 +1392,6 @@
                 // Sonra Firebase'e kaydet
                 database.ref('actions/' + action.id).update({ priority: newPriority })
                     .then(() => {
-                        console.log('Firebase priority update successful');
                         // Show notification
                         showNotification(
                             newPriority ? '⭐ Öncelikli olarak işaretlendi!' : '☆ Öncelik kaldırıldı',
@@ -1416,7 +1408,6 @@
                         showNotification('❌ Öncelik güncellenirken hata oluştu!', 'warning');
                     });
             } else {
-                console.error('Action not found with id:', id);
                 showNotification('⚠️ Aksiyon bulunamadı!', 'warning');
             }
         }
@@ -2075,9 +2066,7 @@
         // Event delegation for action buttons
         document.addEventListener('click', function(e) {
             const button = e.target.closest('.action-btn');
-            console.log('Button clicked:', button, e.target);
             if (button && button.dataset.action && button.dataset.actionId) {
-                console.log('Action button found:', button.dataset.action, button.dataset.actionId);
                 e.stopPropagation();
                 e.preventDefault();
                 e.stopImmediatePropagation();
@@ -2090,7 +2079,6 @@
                         editAction(id);
                         break;
                     case 'priority':
-                        console.log('Priority button clicked for id:', id);
                         togglePriority(id);
                         break;
                     case 'delete':
