@@ -363,28 +363,376 @@
             height: 16px;
         }
 
-        /* --- HEADER --- */
-        .header {
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius-xl);
-            padding: var(--space-6) var(--space-8);
-            margin-bottom: var(--space-6);
-            box-shadow: var(--shadow-md);
+        /* --- MODERN SIDEBAR NAVIGATION 2024 --- */
+        .app-layout {
+            display: flex;
+            height: 100vh;
+            background: var(--gray-50);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        /* Sidebar Header */
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
             position: relative;
         }
-        .header-content {
+
+        .sidebar-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--white);
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-title {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background: var(--white);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+            z-index: 10;
+        }
+
+        .sidebar-toggle:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* Navigation */
+        .sidebar-nav {
+            flex: 1;
+            padding: 24px 0;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 32px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 12px;
+            padding: 0 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-section-title {
+            opacity: 0;
+        }
+
+        .nav-item {
+            position: relative;
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            position: relative;
+            border-radius: 0;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--white);
+            padding-left: 24px;
+        }
+
+        .nav-link.active {
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, transparent 100%);
+            color: var(--white);
+            border-right: 3px solid #6366f1;
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .nav-text {
+            font-weight: 500;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-text {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .nav-badge {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: var(--white);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-badge {
+            opacity: 0;
+        }
+
+        /* Sidebar Footer */
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .user-profile:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+        }
+
+        .user-info {
+            flex: 1;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .user-info {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--white);
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.2;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Header */
+        .top-header {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 16px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: var(--space-8);
-            margin-bottom: var(--space-2);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            z-index: 10;
         }
-        .header h1 {
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray-600);
+            font-size: 14px;
+        }
+
+        .breadcrumb-item {
+            color: var(--gray-400);
+        }
+
+        .breadcrumb-item.active {
             color: var(--gray-900);
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-weight: 600;
         }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .search-container {
+            position: relative;
+            width: 320px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 44px;
+            border: 1px solid var(--gray-300);
+            border-radius: 10px;
+            font-size: 14px;
+            background: var(--gray-50);
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            font-size: 16px;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 10px;
+            background: var(--gray-100);
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .action-btn:hover {
+            background: var(--gray-200);
+            transform: translateY(-1px);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: var(--white);
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--white);
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background: var(--gray-50);
+        }
+
         .team-badges {
             display: flex;
             gap: var(--space-3);
@@ -993,17 +1341,219 @@
                 min-height: 50vh;
             }
         }
+        /* Mobile Overlay for Sidebar */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Glassmorphism Effects */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .top-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        /* Enhanced Hover Effects */
+        .action-btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+
+        .action-btn:hover::before {
+            width: 100px;
+            height: 100px;
+        }
+
+        /* Floating Animation for Cards */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-2px); }
+        }
+
+        .action-card:hover {
+            animation: float 2s ease-in-out infinite;
+        }
+
+        /* Pulse Effect for Notifications */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .notification-badge {
+            animation: pulse 2s infinite;
+        }
+
         @media (max-width: 768px) {
-            #app-container { padding: 15px; }
-            .header { padding: 20px; }
-            .header-content { flex-direction: column; gap: 15px; text-align: center; }
-            .header h1 { font-size: 1.5rem; }
-            .controls-top { flex-direction: column; align-items: stretch; }
-            .filter-section { flex-direction: column; align-items: stretch; gap: 15px; }
-            .filter-group { justify-content: center; }
-            .list-header { display: none; }
-            #actionsContainerList .list-item { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
-            #actionsContainerList .list-item > div { width: 100%; padding: 0; }
+            .app-layout {
+                height: 100vh;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -280px;
+                width: 280px;
+                height: 100vh;
+                z-index: 1000;
+                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .sidebar.mobile-open {
+                left: 0;
+            }
+
+            .sidebar.collapsed {
+                width: 280px;
+                left: -280px;
+            }
+
+            .sidebar.collapsed.mobile-open {
+                left: 0;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .top-header {
+                padding: 12px 16px;
+            }
+
+            .top-header::before {
+                content: '';
+                position: absolute;
+                left: 16px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 24px;
+                height: 24px;
+                background: none;
+                border: none;
+                cursor: pointer;
+                z-index: 10;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 6h16M4 12h16M4 18h16' /%3E%3C/svg%3E");
+                background-size: contain;
+                background-repeat: no-repeat;
+            }
+
+            .breadcrumb {
+                margin-left: 40px;
+            }
+
+            .search-container {
+                width: 200px;
+            }
+
+            .header-actions {
+                gap: 8px;
+            }
+
+            .action-btn {
+                width: 36px;
+                height: 36px;
+            }
+
+            .content-area {
+                padding: 16px;
+            }
+
+            .header {
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+
+            .team-badges {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .team-badge {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .controls-top {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .filter-group {
+                justify-content: center;
+            }
+
+            .list-header {
+                display: none;
+            }
+
+            #actionsContainerList .list-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 16px;
+            }
+
+            #actionsContainerList .list-item > div {
+                width: 100%;
+                padding: 0;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .kanban-container {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .kanban-col {
+                width: 100%;
+                min-height: 200px;
+            }
         }
 
     </style>
@@ -1039,21 +1589,156 @@
 
     <!-- Main Application -->
     <div id="app-container" style="display: none;">
-        <div class="container">
-            <!-- Header -->
-            <div class="header">
-                <div class="header-content">
-                    <h1>Aksiyon Takip Sistemi</h1>
-                    <div class="team-badges">
-                        <div class="team-badge anadolu"><span>🏢</span><span>Anadolu Bakır</span></div>
-                        <div class="team-badge aifteam"><span>💻</span><span>AIFTEAM</span></div>
-                        <div class="team-badge ortak"><span>🤝</span><span>Ortak</span></div>
+        <div class="app-layout">
+            <!-- Mobile Overlay -->
+            <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileSidebar()"></div>
+
+            <!-- Modern Sidebar -->
+            <div class="sidebar" id="sidebar">
+                <!-- Sidebar Header -->
+                <div class="sidebar-header">
+                    <div class="sidebar-logo">🚀</div>
+                    <h1 class="sidebar-title">Aksiyon Takip</h1>
+                    <button class="sidebar-toggle" onclick="toggleSidebar()">
+                        <span>◀</span>
+                    </button>
+                </div>
+
+                <!-- Sidebar Navigation -->
+                <nav class="sidebar-nav">
+                    <div class="nav-section">
+                        <div class="nav-section-title">Ana Menü</div>
+                        <div class="nav-item">
+                            <a href="#" class="nav-link active" data-view="card">
+                                <span class="nav-icon">📊</span>
+                                <span class="nav-text">Dashboard</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="nav-link" data-view="list">
+                                <span class="nav-icon">📝</span>
+                                <span class="nav-text">Liste Görünümü</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="nav-link" data-view="kanban">
+                                <span class="nav-icon">📋</span>
+                                <span class="nav-text">Kanban Board</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="nav-link" data-view="calendar">
+                                <span class="nav-icon">📅</span>
+                                <span class="nav-text">Takvim</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">Yönetim</div>
+                        <div class="nav-item">
+                            <a href="#" class="nav-link" onclick="openActionModal()">
+                                <span class="nav-icon">➕</span>
+                                <span class="nav-text">Yeni Aksiyon</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="nav-link" onclick="openPersonModal()">
+                                <span class="nav-icon">👥</span>
+                                <span class="nav-text">Kişi Yönetimi</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="nav-link">
+                                <span class="nav-icon">🔔</span>
+                                <span class="nav-text">Bildirimler</span>
+                                <span class="nav-badge">3</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">Takımlar</div>
+                        <div class="nav-item">
+                            <a href="#" class="nav-link" data-team="anadolu">
+                                <span class="nav-icon">🏢</span>
+                                <span class="nav-text">Anadolu Bakır</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="nav-link" data-team="aifteam">
+                                <span class="nav-icon">💻</span>
+                                <span class="nav-text">AIFTEAM</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="#" class="nav-link" data-team="ortak">
+                                <span class="nav-icon">🤝</span>
+                                <span class="nav-text">Ortak Projeler</span>
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- Sidebar Footer -->
+                <div class="sidebar-footer">
+                    <div class="user-profile" onclick="toggleUserMenu()">
+                        <div class="user-avatar">AD</div>
+                        <div class="user-info">
+                            <div class="user-name">Admin User</div>
+                            <div class="user-role">Sistem Yöneticisi</div>
+                        </div>
                     </div>
                 </div>
-                <p>Proje sorumlulukları ve aksiyonları merkezi bir sistemden yönetin.</p>
             </div>
 
-            <!-- Stats Row -->
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <!-- Top Header -->
+                <header class="top-header">
+                    <button class="mobile-menu-btn" onclick="openMobileSidebar()" style="display: none; background: none; border: none; cursor: pointer; margin-right: 16px;">
+                        <span style="font-size: 20px;">☰</span>
+                    </button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item">Ana Sayfa</span>
+                        <span>/</span>
+                        <span class="breadcrumb-item active" id="currentPageTitle">Dashboard</span>
+                    </div>
+
+                    <div class="header-actions">
+                        <div class="search-container">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" placeholder="Aksiyon, kişi veya takım ara..." id="globalSearch">
+                        </div>
+
+                        <button class="action-btn" onclick="openActionModal()" title="Yeni Aksiyon">
+                            <span>➕</span>
+                        </button>
+
+                        <button class="action-btn" title="Bildirimler">
+                            <span>🔔</span>
+                            <span class="notification-badge">3</span>
+                        </button>
+
+                        <button class="action-btn" onclick="toggleUserMenu()" title="Profil Menüsü">
+                            <span>👤</span>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Content Area -->
+                <main class="content-area">
+                    <!-- Team Stats Header -->
+                    <div class="header">
+                        <div class="team-badges">
+                            <div class="team-badge anadolu"><span>🏢</span><span>Anadolu Bakır</span></div>
+                            <div class="team-badge aifteam"><span>💻</span><span>AIFTEAM</span></div>
+                            <div class="team-badge ortak"><span>🤝</span><span>Ortak</span></div>
+                        </div>
+                        <p>Proje sorumlulukları ve aksiyonları merkezi bir sistemden yönetin.</p>
+                    </div>
+
+                    <!-- Stats Row -->
             <div class="stats-row">
                 <div class="team-stats anadolu-stats">
                     <h3><span style="font-size: 1.5rem;">🏢</span> Anadolu Bakır</h3>
@@ -1330,6 +2015,86 @@
 
         function signOut() {
             auth.signOut();
+        }
+
+        // --- NAVBAR FUNCTIONS ---
+        function toggleMobileMenu() {
+            const mobileNav = document.getElementById('mobileNav');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+
+            mobileNav.classList.toggle('active');
+            menuBtn.classList.toggle('active');
+        }
+
+        function toggleUserMenu() {
+            // Add user dropdown menu functionality here
+            alert('Kullanıcı menüsü: Çıkış Yap, Profil, Ayarlar');
+        }
+
+        // Navigation link handling
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle nav link clicks
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Remove active from all links
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+                    // Add active to clicked link
+                    this.classList.add('active');
+
+                    // Get view type
+                    const viewType = this.dataset.view;
+
+                    // Switch view
+                    if (viewType) {
+                        changeView(viewType);
+                    }
+
+                    // Close mobile menu if open
+                    const mobileNav = document.getElementById('mobileNav');
+                    const menuBtn = document.querySelector('.mobile-menu-btn');
+                    if (mobileNav.classList.contains('active')) {
+                        mobileNav.classList.remove('active');
+                        menuBtn.classList.remove('active');
+                    }
+                });
+            });
+
+            // Search functionality
+            const searchInputs = document.querySelectorAll('#navbarSearch, #mobileSearch');
+            searchInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const query = this.value.toLowerCase();
+                    filterActionsBySearch(query);
+                });
+            });
+        });
+
+        function filterActionsBySearch(query) {
+            if (!query) {
+                renderActions();
+                return;
+            }
+
+            const filteredActions = actions.filter(action =>
+                action.title?.toLowerCase().includes(query) ||
+                action.responsible?.toLowerCase().includes(query) ||
+                action.assignedPerson?.toLowerCase().includes(query) ||
+                action.description?.toLowerCase().includes(query)
+            );
+
+            // Render filtered actions based on current view
+            if (currentView === 'card') {
+                renderCardView(filteredActions);
+            } else if (currentView === 'list') {
+                renderListView(filteredActions);
+            } else if (currentView === 'kanban') {
+                renderKanbanView(filteredActions);
+            } else if (currentView === 'calendar') {
+                renderCalendarView(filteredActions);
+            }
         }
 
         // --- DATA HANDLING (FIREBASE) ---
@@ -2421,6 +3186,124 @@
             
             showNotification('📄 Word raporu başarıyla oluşturuldu!', 'success');
         }
+
+        // --- MODERN SIDEBAR FUNCTIONS ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.querySelector('.sidebar-toggle span');
+
+            sidebar.classList.toggle('collapsed');
+
+            if (sidebar.classList.contains('collapsed')) {
+                toggleBtn.textContent = '▶';
+            } else {
+                toggleBtn.textContent = '◀';
+            }
+        }
+
+        function openMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+
+            sidebar.classList.add('mobile-open');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Show mobile menu button on small screens
+        function checkMobileLayout() {
+            const mobileBtn = document.querySelector('.mobile-menu-btn');
+            if (window.innerWidth <= 768) {
+                if (mobileBtn) mobileBtn.style.display = 'block';
+            } else {
+                if (mobileBtn) mobileBtn.style.display = 'none';
+                closeMobileSidebar();
+            }
+        }
+
+        window.addEventListener('resize', checkMobileLayout);
+        document.addEventListener('DOMContentLoaded', checkMobileLayout);
+
+        // Update navbar functions to work with new sidebar
+        function updateActiveNavLink(view) {
+            // Remove active from all nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Add active to current view
+            const activeLink = document.querySelector(`[data-view="${view}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+
+            // Update breadcrumb
+            const pageTitle = document.getElementById('currentPageTitle');
+            if (pageTitle) {
+                const titles = {
+                    'card': 'Dashboard',
+                    'list': 'Liste Görünümü',
+                    'kanban': 'Kanban Board',
+                    'calendar': 'Takvim'
+                };
+                pageTitle.textContent = titles[view] || 'Dashboard';
+            }
+        }
+
+        // Override the existing changeView function
+        const originalChangeView = changeView;
+        changeView = function(view) {
+            originalChangeView(view);
+            updateActiveNavLink(view);
+        };
+
+        // Team filter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Team navigation
+            document.querySelectorAll('[data-team]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const team = this.dataset.team;
+
+                    // Remove active from team links
+                    document.querySelectorAll('[data-team]').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Filter by team
+                    const teamFilter = document.getElementById('teamFilter');
+                    if (teamFilter) {
+                        teamFilter.value = team;
+                        teamFilter.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+
+            // Global search functionality
+            const globalSearch = document.getElementById('globalSearch');
+            if (globalSearch) {
+                globalSearch.addEventListener('input', function() {
+                    const query = this.value.toLowerCase();
+                    filterActionsBySearch(query);
+                });
+            }
+
+            // Initialize active nav state
+            updateActiveNavLink(currentView || 'card');
+        });
+
+                    </main>
+                </div>
+            </div>
+        </div>
 
     </script>
 </body>
