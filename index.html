@@ -363,46 +363,150 @@
             height: 16px;
         }
 
-        /* --- HEADER --- */
+        /* --- MODERN GLASS-MORPHISM HEADER --- */
         .header {
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius-xl);
-            padding: var(--space-6) var(--space-8);
-            margin-bottom: var(--space-6);
-            box-shadow: var(--shadow-md);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 32px 40px;
+            margin-bottom: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.1);
             position: relative;
+            overflow: hidden;
         }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1, #3498db, #9b59b6, #e74c3c);
+            background-size: 200% 200%;
+            animation: shimmer 4s ease-in-out infinite;
+        }
+
         .header-content {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: var(--space-8);
-            margin-bottom: var(--space-2);
+            gap: 32px;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 2;
         }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
         .header h1 {
             color: var(--gray-900);
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(135deg, #1f2937, #4f46e5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-subtitle {
+            color: var(--gray-600);
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .export-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            color: var(--gray-700);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .export-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
         .team-badges {
             display: flex;
-            gap: var(--space-3);
+            gap: 16px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 2;
         }
+
         .team-badge {
-            padding: var(--space-2) var(--space-3);
-            border-radius: var(--radius);
-            font-weight: 600;
-            font-size: 0.8rem;
             display: flex;
             align-items: center;
-            gap: var(--space-2);
-            color: white;
+            gap: 10px;
+            padding: 14px 20px;
+            border-radius: 16px;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.9rem;
             border: none;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
-        .team-badge.anadolu { background: var(--anadolu); }
-        .team-badge.aifteam { background: var(--aifteam); }
-        .team-badge.ortak { background: var(--ortak); }
+
+        .team-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .team-badge:hover::before {
+            left: 100%;
+        }
+
+        .team-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .team-badge.anadolu {
+            background: linear-gradient(135deg, var(--anadolu), #c0392b);
+        }
+        .team-badge.aifteam {
+            background: linear-gradient(135deg, var(--aifteam), #2980b9);
+        }
+        .team-badge.ortak {
+            background: linear-gradient(135deg, var(--ortak), #7d3c98);
+        }
         .header p { color: var(--gray-600); }
 
         /* --- STATS ROW --- */
@@ -874,15 +978,17 @@
             position: absolute;
             top: calc(100% + 8px);
             right: 0;
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-xl);
-            min-width: 200px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.1);
+            min-width: 220px;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
             transition: var(--transition);
+            overflow: hidden;
         }
         .user-dropdown.active { opacity: 1; visibility: visible; transform: translateY(0); }
         .dropdown-item {
@@ -1043,14 +1149,28 @@
             <!-- Header -->
             <div class="header">
                 <div class="header-content">
-                    <h1>Aksiyon Takip Sistemi</h1>
-                    <div class="team-badges">
-                        <div class="team-badge anadolu"><span>🏢</span><span>Anadolu Bakır</span></div>
-                        <div class="team-badge aifteam"><span>💻</span><span>AIFTEAM</span></div>
-                        <div class="team-badge ortak"><span>🤝</span><span>Ortak</span></div>
+                    <div class="header-left">
+                        <h1>Aksiyon Takip Sistemi</h1>
+                        <p class="header-subtitle">Proje sorumlulukları ve aksiyonları merkezi bir sistemden yönetin</p>
+                    </div>
+                    <div class="header-actions">
+                        <div class="export-buttons">
+                            <button class="export-btn" onclick="exportToExcel()">
+                                <span>📊</span>
+                                <span>Excel</span>
+                            </button>
+                            <button class="export-btn" onclick="exportToWord()">
+                                <span>📄</span>
+                                <span>Word</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <p>Proje sorumlulukları ve aksiyonları merkezi bir sistemden yönetin.</p>
+                <div class="team-badges">
+                    <div class="team-badge anadolu"><span>🏢</span><span>Anadolu Bakır</span></div>
+                    <div class="team-badge aifteam"><span>💻</span><span>AIFTEAM</span></div>
+                    <div class="team-badge ortak"><span>🤝</span><span>Ortak</span></div>
+                </div>
             </div>
 
             <!-- Stats Row -->
@@ -1140,8 +1260,7 @@
             </button>
             <div class="user-dropdown" id="userDropdown">
                 <div class="dropdown-item" onclick="openPersonManagement()">👥 Kişi Yönetimi</div>
-                <div class="dropdown-item" onclick="exportToExcel()">📊 Excel'e Aktar</div>
-                <div class="dropdown-item" onclick="exportToWord()">📄 Word'e Aktar</div>
+                <div class="dropdown-item" onclick="openPasswordChange()">🔐 Şifre Değiştir</div>
                 <div class="dropdown-divider"></div>
                 <div class="dropdown-item logout" onclick="signOut()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
@@ -1216,6 +1335,30 @@
                 <div class="modal-buttons">
                     <button type="button" class="btn modal-btn cancel" onclick="closePostponeModal()">İptal</button>
                     <button type="submit" class="btn btn-primary modal-btn save">Ertele</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="passwordModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Şifre Değiştir</h2></div>
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label for="currentPassword">Mevcut Şifre *</label>
+                    <input type="password" id="currentPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">Yeni Şifre *</label>
+                    <input type="password" id="newPassword" required minlength="4">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Yeni Şifre Tekrar *</label>
+                    <input type="password" id="confirmPassword" required minlength="4">
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn modal-btn cancel" onclick="closePasswordModal()">İptal</button>
+                    <button type="submit" class="btn btn-primary modal-btn save">Şifreyi Değiştir</button>
                 </div>
             </form>
         </div>
@@ -1519,6 +1662,25 @@
             postponingId = null;
         }
 
+        // --- PASSWORD CHANGE FUNCTIONS ---
+        function openPasswordChange() {
+            const modal = document.getElementById('passwordModal');
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+
+            // Close user dropdown
+            const userDropdown = document.getElementById('userDropdown');
+            userDropdown.classList.remove('active');
+            document.querySelector('.user-profile').classList.remove('active');
+        }
+
+        function closePasswordModal() {
+            const modal = document.getElementById('passwordModal');
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+            document.getElementById('passwordForm').reset();
+        }
+
         document.getElementById("postponeForm").addEventListener("submit", e => {
             e.preventDefault();
             if (!postponingId) return;
@@ -1533,6 +1695,41 @@
             });
 
             closePostponeModal();
+        });
+
+        document.getElementById("passwordForm").addEventListener("submit", e => {
+            e.preventDefault();
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Şifre kontrolü
+            if (newPassword !== confirmPassword) {
+                showNotification('🚫 Yeni şifreler uyuşmuyor!', 'error');
+                return;
+            }
+
+            if (newPassword.length < 4) {
+                showNotification('🚫 Şifre en az 4 karakter olmalı!', 'error');
+                return;
+            }
+
+            // Mevcut şifre kontrolü (localStorage'dan)
+            const currentUser = localStorage.getItem('currentUser');
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+
+            if (!users[currentUser] || users[currentUser] !== currentPassword) {
+                showNotification('🚫 Mevcut şifre yanlış!', 'error');
+                return;
+            }
+
+            // Şifreyi güncelle
+            users[currentUser] = newPassword;
+            localStorage.setItem('users', JSON.stringify(users));
+
+            showNotification('✅ Şifre başarıyla değiştirildi!', 'success');
+            closePasswordModal();
         });
         
         // --- UI RENDERING ---
@@ -2111,6 +2308,8 @@
                     } else if (activeModal.id === 'postponeModal') {
                         document.getElementById('postponeForm').reset();
                         currentPostponeId = null;
+                    } else if (activeModal.id === 'passwordModal') {
+                        document.getElementById('passwordForm').reset();
                     }
                     
                     // Close user dropdown if open
