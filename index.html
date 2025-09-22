@@ -1350,11 +1350,11 @@
                 </div>
                 <div class="form-group">
                     <label for="newPassword">Yeni Şifre *</label>
-                    <input type="password" id="newPassword" required minlength="4">
+                    <input type="password" id="newPassword" required minlength="6">
                 </div>
                 <div class="form-group">
                     <label for="confirmPassword">Yeni Şifre Tekrar *</label>
-                    <input type="password" id="confirmPassword" required minlength="4">
+                    <input type="password" id="confirmPassword" required minlength="6">
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="btn modal-btn cancel" onclick="closePasswordModal()">İptal</button>
@@ -1710,26 +1710,41 @@
                 return;
             }
 
-            if (newPassword.length < 4) {
-                showNotification('🚫 Şifre en az 4 karakter olmalı!', 'error');
+            if (newPassword.length < 6) {
+                showNotification('🚫 Şifre en az 6 karakter olmalı!', 'error');
                 return;
             }
 
-            // Mevcut şifre kontrolü (localStorage'dan)
-            const currentUser = localStorage.getItem('currentUser');
-            const users = JSON.parse(localStorage.getItem('users') || '{}');
-
-            if (!users[currentUser] || users[currentUser] !== currentPassword) {
-                showNotification('🚫 Mevcut şifre yanlış!', 'error');
+            const user = auth.currentUser;
+            if (!user) {
+                showNotification('🚫 Kullanıcı oturumu bulunamadı!', 'error');
                 return;
             }
 
-            // Şifreyi güncelle
-            users[currentUser] = newPassword;
-            localStorage.setItem('users', JSON.stringify(users));
+            // Firebase ile şifre değiştirme - önce mevcut şifreyi doğrula
+            const email = user.email;
+            const credential = firebase.auth.EmailAuthProvider.credential(email, currentPassword);
 
-            showNotification('✅ Şifre başarıyla değiştirildi!', 'success');
-            closePasswordModal();
+            // Kullanıcının kimliğini tekrar doğrula
+            user.reauthenticateWithCredential(credential)
+                .then(() => {
+                    // Mevcut şifre doğru, yeni şifreyi güncelle
+                    return user.updatePassword(newPassword);
+                })
+                .then(() => {
+                    showNotification('✅ Şifre başarıyla değiştirildi!', 'success');
+                    closePasswordModal();
+                })
+                .catch((error) => {
+                    console.error('Şifre değiştirme hatası:', error);
+                    if (error.code === 'auth/wrong-password') {
+                        showNotification('🚫 Mevcut şifre yanlış!', 'error');
+                    } else if (error.code === 'auth/weak-password') {
+                        showNotification('🚫 Yeni şifre çok zayıf!', 'error');
+                    } else {
+                        showNotification('🚫 Şifre değiştirme başarısız: ' + error.message, 'error');
+                    }
+                });
         });
         
         // --- UI RENDERING ---
