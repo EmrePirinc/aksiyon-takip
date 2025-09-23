@@ -620,47 +620,78 @@
             color: var(--gray-900);
         }
         
-        /* --- CONTROLS / TOOLBAR --- */
-        .controls {
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius-xl);
-            padding: var(--space-5);
-            margin-bottom: var(--space-6);
-            box-shadow: var(--shadow);
+        /* --- MODERN CONTROL PANEL --- */
+        .modern-control-panel {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 24px 28px;
+            margin-bottom: 32px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
         }
-        .controls-top {
+
+        .modern-control-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--anadolu), var(--aifteam), var(--ortak));
+            opacity: 0.6;
+        }
+        .quick-action-bar {
             display: flex;
-            gap: var(--space-4);
+            gap: 20px;
             align-items: center;
-            margin-bottom: var(--space-4);
+            margin-bottom: 24px;
             flex-wrap: wrap;
         }
-        .search-box {
+
+        .search-container {
             flex: 1;
-            min-width: 250px;
+            min-width: 300px;
+        }
+
+        .search-box-modern {
             position: relative;
+            display: flex;
+            align-items: center;
         }
-        .search-box input {
+
+        .search-input-modern {
             width: 100%;
-            padding: var(--space-3) var(--space-4);
-            padding-left: 36px;
-            border: 1px solid var(--gray-300);
-            border-radius: var(--radius);
+            padding: 14px 20px 14px 50px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
             font-size: 1rem;
-            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            color: var(--gray-700);
         }
-        .search-box input:focus {
-             outline: none;
-             border-color: var(--primary);
-             box-shadow: 0 0 0 3px var(--primary-bg);
+
+        .search-input-modern:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            transform: translateY(-1px);
         }
-        .search-icon {
+
+        .search-input-modern::placeholder {
+            color: var(--gray-500);
+        }
+
+        .search-icon-modern {
             position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray-400);
+            left: 16px;
+            color: var(--gray-500);
+            pointer-events: none;
+            z-index: 1;
         }
         .filter-section {
             display: flex;
@@ -694,6 +725,193 @@
             box-shadow: var(--shadow-sm);
             color: var(--primary);
             font-weight: 600;
+        }
+
+        /* --- MODERN FILTER STYLES --- */
+        .btn-modern {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary-modern {
+            background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .advanced-filters {
+            display: flex;
+            gap: 32px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .filter-group-modern {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 200px;
+        }
+
+        .filter-label-modern {
+            font-weight: 700;
+            color: var(--gray-700);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .filter-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-pill:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .filter-pill.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .filter-pill.anadolu.active {
+            background: var(--anadolu);
+            border-color: var(--anadolu);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .filter-pill.aifteam.active {
+            background: var(--aifteam);
+            border-color: var(--aifteam);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .filter-pill.ortak.active {
+            background: var(--ortak);
+            border-color: var(--ortak);
+            box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+        }
+
+        .filter-pill.status-completed.active {
+            background: var(--success);
+            border-color: var(--success);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        .filter-pill.status-progress.active {
+            background: var(--warning);
+            border-color: var(--warning);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .filter-pill.status-waiting.active {
+            background: var(--gray-500);
+            border-color: var(--gray-500);
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+        }
+
+        .filter-pill.priority-filter.active {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-color: #f59e0b;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+
+        /* --- VIEW SELECTOR FLOATING --- */
+        .view-selector-floating {
+            position: fixed;
+            top: 50%;
+            right: 24px;
+            transform: translateY(-50%);
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .view-selector-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .view-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 12px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--gray-600);
+            min-width: 60px;
+        }
+
+        .view-option:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .view-option.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .view-option span {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .view-option svg {
+            transition: transform 0.3s ease;
+        }
+
+        .view-option:hover svg {
+            transform: scale(1.1);
         }
 
         /* --- ACTION CONTAINER & VIEWS --- */
@@ -1328,43 +1546,126 @@
                 </div>
             </div>
 
-            <!-- Controls -->
-            <div class="controls">
-                 <div class="controls-top">
-                    <div class="search-box">
-                         <span class="search-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        </span>
-                        <input type="text" id="searchInput" placeholder="Aksiyon ara... (Ctrl+F)">
+            <!-- Modern Control Panel -->
+            <div class="modern-control-panel">
+                <!-- Quick Action Bar -->
+                <div class="quick-action-bar">
+                    <div class="search-container">
+                        <div class="search-box-modern">
+                            <svg class="search-icon-modern" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" id="searchInput" placeholder="Aksiyon ara... (Ctrl+F)" class="search-input-modern">
+                        </div>
                     </div>
-                    <button class="btn btn-primary" onclick="openModal()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        Yeni Aksiyon
-                    </button>
+
+                    <div class="action-buttons">
+                        <button class="btn-modern btn-primary-modern" onclick="openModal()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Yeni Aksiyon
+                        </button>
+                    </div>
                 </div>
-                <div class="filter-section">
-                    <span class="filter-label">Takım:</span>
-                    <div class="filter-group team-filters">
-                        <button class="filter-btn active" data-team="all">Tümü</button>
-                        <button class="filter-btn" data-team="Anadolu Bakır">Anadolu Bakır</button>
-                        <button class="filter-btn" data-team="AIFTEAM">AIFTEAM</button>
-                        <button class="filter-btn" data-team="Ortak">Ortak</button>
+
+                <!-- Advanced Filters -->
+                <div class="advanced-filters">
+                    <div class="filter-group-modern">
+                        <label class="filter-label-modern">Takım</label>
+                        <div class="filter-pills">
+                            <button class="filter-pill active" data-team="all">
+                                <span>Tümü</span>
+                            </button>
+                            <button class="filter-pill anadolu" data-team="Anadolu Bakır">
+                                <span>🏢</span>
+                                <span>Anadolu Bakır</span>
+                            </button>
+                            <button class="filter-pill aifteam" data-team="AIFTEAM">
+                                <span>🤖</span>
+                                <span>AIFTEAM</span>
+                            </button>
+                            <button class="filter-pill ortak" data-team="Ortak">
+                                <span>🤝</span>
+                                <span>Ortak</span>
+                            </button>
+                        </div>
                     </div>
-                    <span class="filter-label">Durum:</span>
-                     <div class="filter-group status-filters">
-                        <button class="filter-btn active" data-filter="all">Tümü</button>
-                        <button class="filter-btn" data-filter="completed">Tamamlandı</button>
-                        <button class="filter-btn" data-filter="in-progress">Devam Ediyor</button>
-                        <button class="filter-btn" data-filter="waiting">Bekliyor</button>
+
+                    <div class="filter-group-modern">
+                        <label class="filter-label-modern">Durum</label>
+                        <div class="filter-pills">
+                            <button class="filter-pill active" data-filter="all">
+                                <span>Tümü</span>
+                            </button>
+                            <button class="filter-pill status-completed" data-filter="completed">
+                                <span>✅</span>
+                                <span>Tamamlandı</span>
+                            </button>
+                            <button class="filter-pill status-progress" data-filter="in-progress">
+                                <span>⏳</span>
+                                <span>Devam Ediyor</span>
+                            </button>
+                            <button class="filter-pill status-waiting" data-filter="waiting">
+                                <span>⏸️</span>
+                                <span>Bekliyor</span>
+                            </button>
+                        </div>
                     </div>
-                     <div class="filter-group">
-                        <button class="filter-btn" id="priorityFilterBtn" onclick="togglePriorityFilter()">⭐ Öncelikli</button>
+
+                    <div class="filter-group-modern">
+                        <label class="filter-label-modern">Özel</label>
+                        <div class="filter-pills">
+                            <button class="filter-pill priority-filter" id="priorityFilterBtn" onclick="togglePriorityFilter()">
+                                <span>⭐</span>
+                                <span>Öncelikli</span>
+                            </button>
+                        </div>
                     </div>
-                     <div class="filter-group view-toggle" style="margin-left: auto;">
-                        <button class="view-btn filter-btn active" data-view="grouped">Gruplu</button>
-                        <button class="view-btn filter-btn" data-view="list">Liste</button>
-                        <button class="view-btn filter-btn" data-view="kanban">Kanban</button>
-                        <button class="view-btn filter-btn" data-view="calendar">Takvim</button>
+                </div>
+            </div>
+
+            <!-- View Selector (Floating) -->
+            <div class="view-selector-floating">
+                <div class="view-selector-container">
+                    <div class="view-option active" data-view="grouped" title="Gruplu Görünüm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span>Gruplu</span>
+                    </div>
+                    <div class="view-option" data-view="list" title="Liste Görünümü">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                        <span>Liste</span>
+                    </div>
+                    <div class="view-option" data-view="kanban" title="Kanban Tahtası">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="6" height="18"></rect>
+                            <rect x="11" y="3" width="6" height="10"></rect>
+                            <rect x="19" y="3" width="2" height="14"></rect>
+                        </svg>
+                        <span>Kanban</span>
+                    </div>
+                    <div class="view-option" data-view="calendar" title="Takvim Görünümü">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>Takvim</span>
                     </div>
                 </div>
             </div>
@@ -2537,6 +2838,31 @@
             renderActions();
         }
 
+        // Modern Filter Pills - Team Filter
+        document.querySelectorAll("[data-team]").forEach(btn => btn.addEventListener("click", e => {
+            document.querySelectorAll("[data-team]").forEach(b => b.classList.remove("active"));
+            e.currentTarget.classList.add("active");
+            currentTeamFilter = e.currentTarget.dataset.team;
+            renderActions();
+        }));
+
+        // Modern Filter Pills - Status Filter
+        document.querySelectorAll("[data-filter]").forEach(btn => btn.addEventListener("click", e => {
+            document.querySelectorAll("[data-filter]").forEach(b => b.classList.remove("active"));
+            e.currentTarget.classList.add("active");
+            currentStatusFilter = e.currentTarget.dataset.filter;
+            renderActions();
+        }));
+
+        // Modern View Selector
+        document.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", e => {
+            document.querySelectorAll("[data-view]").forEach(b => b.classList.remove("active"));
+            e.currentTarget.classList.add("active");
+            currentView = e.currentTarget.dataset.view;
+            renderActions();
+        }));
+
+        // Legacy filter support (for backward compatibility)
         document.querySelectorAll(".team-filters .filter-btn").forEach(btn => btn.addEventListener("click", e => {
             document.querySelectorAll(".team-filters .filter-btn").forEach(b => b.classList.remove("active"));
             e.currentTarget.classList.add("active");
@@ -2550,7 +2876,7 @@
             currentStatusFilter = e.currentTarget.dataset.filter;
             renderActions();
         }));
-        
+
         document.querySelectorAll(".view-toggle .filter-btn").forEach(btn => btn.addEventListener("click", e => {
             document.querySelectorAll(".view-toggle .filter-btn").forEach(b => b.classList.remove("active"));
             e.currentTarget.classList.add("active");
