@@ -1053,6 +1053,70 @@
         .modal-btn.cancel { background: var(--gray-200); color: var(--gray-800); border-color: var(--gray-200); }
         .modal-btn.cancel:hover { background: var(--gray-300); border-color: var(--gray-300); }
 
+        /* Erteleme Geçmişi Stilleri */
+        .postpone-history-container {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: var(--space-4);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .postpone-history-item {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: var(--space-3);
+            margin-bottom: var(--space-3);
+            position: relative;
+        }
+        .postpone-history-item:last-child {
+            margin-bottom: 0;
+        }
+        .postpone-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-2);
+        }
+        .postpone-date-info {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+        .postpone-actions {
+            display: flex;
+            gap: var(--space-2);
+        }
+        .postpone-edit-btn, .postpone-delete-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .postpone-edit-btn {
+            background: var(--primary-bg);
+            color: var(--primary);
+        }
+        .postpone-edit-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .postpone-delete-btn {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+        .postpone-delete-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+        .postpone-reason {
+            font-size: 0.875rem;
+            line-height: 1.4;
+            color: var(--gray-700);
+        }
+
         /* Detay Modal Stilleri */
         #detailModal .modal-content { max-width: 750px; }
         #detailModal h2 { font-size: 1.8rem; margin-bottom: var(--space-2); }
@@ -1292,6 +1356,17 @@
                 <div class="form-group"><label for="actionDescription">Açıklama *</label><textarea id="actionDescription" rows="4" required></textarea></div>
                 <div class="form-group"><label for="actionStatus">Durum *</label><select id="actionStatus" required><option value="waiting">Bekliyor</option><option value="in-progress">Devam Ediyor</option><option value="completed">Tamamlandı</option></select></div>
                 <div class="form-group"><label for="actionDate">Hedef Tarih</label><input type="date" id="actionDate"></div>
+
+                <!-- Erteleme Geçmişi Bölümü - Sadece düzenleme modunda görünür -->
+                <div id="postponeHistorySection" style="display: none;">
+                    <div class="form-group">
+                        <label>Erteleme Geçmişi</label>
+                        <div id="postponeHistoryContainer" class="postpone-history-container">
+                            <!-- Erteleme geçmişi buraya dinamik olarak eklenecek -->
+                        </div>
+                    </div>
+                </div>
+
                 <div class="modal-buttons">
                     <button type="button" class="btn modal-btn cancel" onclick="closeModal()">İptal</button>
                     <button type="submit" class="btn btn-primary modal-btn save">Kaydet</button>
@@ -1687,11 +1762,45 @@
 
             const reason = document.getElementById('postponeReason').value;
             const newDate = document.getElementById('postponeDate').value;
+            const currentAction = actions.find(a => a.id === postponingId);
+
+            if (!currentAction) return;
+
+            // Mevcut erteleme geçmişini al veya boş array oluştur
+            const postponeHistory = currentAction.postponeHistory || [];
+
+            // Eğer önceden ertelenmiş bir görevse, mevcut erteleme bilgisini geçmişe ekle
+            if (currentAction.postponed && currentAction.postponeReason && currentAction.originalDate) {
+                postponeHistory.push({
+                    reason: currentAction.postponeReason,
+                    originalDate: currentAction.originalDate,
+                    postponeDate: currentAction.date,
+                    timestamp: new Date().toISOString()
+                });
+            } else if (currentAction.postponed && currentAction.postponeReason) {
+                // İlk erteleme durumunda original date'i mevcut date olarak kaydet
+                postponeHistory.push({
+                    reason: currentAction.postponeReason,
+                    originalDate: currentAction.date,
+                    postponeDate: currentAction.date,
+                    timestamp: new Date().toISOString()
+                });
+            }
+
+            // Yeni erteleme bilgisini ekle
+            postponeHistory.push({
+                reason: reason,
+                originalDate: currentAction.originalDate || currentAction.date,
+                postponeDate: newDate,
+                timestamp: new Date().toISOString()
+            });
 
             database.ref('actions/' + postponingId).update({
                 date: newDate,
                 postponed: true,
-                postponeReason: reason
+                postponeReason: reason,
+                originalDate: currentAction.originalDate || currentAction.date,
+                postponeHistory: postponeHistory
             });
 
             closePostponeModal();
@@ -1957,7 +2066,7 @@
                 alert('Aksiyon bulunamadı!');
                 return;
             }
-            
+
             editingId = id;
             document.getElementById("modalTitle").textContent = "Aksiyonu Düzenle";
             document.getElementById("actionTitle").value = action.title || "";
@@ -1966,13 +2075,130 @@
             document.getElementById("actionStatus").value = action.status || "waiting";
             document.getElementById("actionDate").value = action.date || "";
             document.getElementById('assignedPerson').value = action.assignedPerson || "";
-            
+
+            // Erteleme geçmişi bölümünü göster ve doldur
+            const postponeHistorySection = document.getElementById('postponeHistorySection');
+            const postponeHistoryContainer = document.getElementById('postponeHistoryContainer');
+
+            if (action.postponeHistory && action.postponeHistory.length > 0) {
+                postponeHistorySection.style.display = 'block';
+                renderPostponeHistory(action.postponeHistory, id);
+            } else {
+                postponeHistorySection.style.display = 'none';
+            }
+
             // Modal'ı göster
             const modal = document.getElementById("actionModal");
             modal.classList.add("active");
             modal.style.display = "flex";
-            
+
             console.log('Edit modal opened for action:', action.title);
+        }
+
+        function renderPostponeHistory(postponeHistory, actionId) {
+            const container = document.getElementById('postponeHistoryContainer');
+
+            if (!postponeHistory || postponeHistory.length === 0) {
+                container.innerHTML = '<p style="color: var(--gray-500); font-style: italic;">Henüz erteleme geçmişi bulunmuyor.</p>';
+                return;
+            }
+
+            container.innerHTML = postponeHistory.map((postpone, index) => {
+                const postponeDate = new Date(postpone.postponeDate);
+                const originalDate = new Date(postpone.originalDate);
+                const timestamp = postpone.timestamp ? new Date(postpone.timestamp).toLocaleDateString('tr-TR') : 'Bilinmiyor';
+
+                return `
+                    <div class="postpone-history-item" data-index="${index}">
+                        <div class="postpone-history-header">
+                            <div class="postpone-date-info">
+                                <strong>${originalDate.toLocaleDateString('tr-TR')}</strong> → <strong>${postponeDate.toLocaleDateString('tr-TR')}</strong>
+                                <span style="margin-left: var(--space-2); color: var(--gray-400);">(${timestamp})</span>
+                            </div>
+                            <div class="postpone-actions">
+                                <button class="postpone-edit-btn" onclick="editPostpone(${actionId}, ${index})">Düzenle</button>
+                                <button class="postpone-delete-btn" onclick="deletePostpone(${actionId}, ${index})">Sil</button>
+                            </div>
+                        </div>
+                        <div class="postpone-reason">${postpone.reason || 'Sebep belirtilmemiş'}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function editPostpone(actionId, postponeIndex) {
+            const action = actions.find(a => a.id === actionId);
+            if (!action || !action.postponeHistory || !action.postponeHistory[postponeIndex]) {
+                alert('Erteleme verisi bulunamadı!');
+                return;
+            }
+
+            const postpone = action.postponeHistory[postponeIndex];
+            const newReason = prompt('Erteleme sebebini düzenleyin:', postpone.reason || '');
+
+            if (newReason !== null) {
+                const newDate = prompt('Yeni hedef tarihi (YYYY-MM-DD formatında):', postpone.postponeDate || '');
+
+                if (newDate !== null && newDate.trim() !== '') {
+                    // Validate date format
+                    if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
+                        alert('Lütfen tarihi YYYY-MM-DD formatında girin (örn: 2024-01-15)');
+                        return;
+                    }
+
+                    // Güncelleme yap
+                    action.postponeHistory[postponeIndex] = {
+                        ...postpone,
+                        reason: newReason.trim(),
+                        postponeDate: newDate,
+                        lastModified: new Date().toISOString()
+                    };
+
+                    // Database'i güncelle
+                    database.ref('actions/' + actionId).update({
+                        postponeHistory: action.postponeHistory
+                    }).then(() => {
+                        // UI'ı güncelle
+                        renderPostponeHistory(action.postponeHistory, actionId);
+                        showNotification('✅ Erteleme güncellendi!', 'success');
+                    }).catch(error => {
+                        console.error('Error updating postpone:', error);
+                        showNotification('❌ Güncelleme sırasında hata oluştu!', 'error');
+                    });
+                }
+            }
+        }
+
+        function deletePostpone(actionId, postponeIndex) {
+            if (!confirm('Bu erteleme kaydını silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const action = actions.find(a => a.id === actionId);
+            if (!action || !action.postponeHistory) {
+                alert('Erteleme verisi bulunamadı!');
+                return;
+            }
+
+            // Erteleme kaydını sil
+            action.postponeHistory.splice(postponeIndex, 1);
+
+            // Database'i güncelle
+            database.ref('actions/' + actionId).update({
+                postponeHistory: action.postponeHistory
+            }).then(() => {
+                // UI'ı güncelle
+                renderPostponeHistory(action.postponeHistory, actionId);
+                showNotification('✅ Erteleme kaydı silindi!', 'success');
+
+                // Eğer hiç erteleme kalmadıysa bölümü gizle
+                if (action.postponeHistory.length === 0) {
+                    document.getElementById('postponeHistorySection').style.display = 'none';
+                }
+            }).catch(error => {
+                console.error('Error deleting postpone:', error);
+                showNotification('❌ Silme sırasında hata oluştu!', 'error');
+            });
         }
         
         function quickStatusChange(id, currentStatus) {
@@ -2304,7 +2530,7 @@
             }
         });
 
-        // ESC key handler for closing modals
+        // ESC key handler for closing modals and Tab key handler for form submission
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 const activeModal = document.querySelector('.modal.active');
@@ -2312,7 +2538,7 @@
                     // Close the active modal
                     activeModal.classList.remove('active');
                     activeModal.style.display = 'none';
-                    
+
                     // Reset any form data if needed
                     if (activeModal.id === 'actionModal') {
                         document.getElementById('actionForm').reset();
@@ -2345,6 +2571,50 @@
                     if (backupNotification && backupNotification.classList.contains('active')) {
                         backupNotification.classList.remove('active');
                     }
+                }
+            }
+
+            // Tab key handler for form submission (SAP style)
+            if (e.key === 'Tab') {
+                const activeElement = document.activeElement;
+                if (!activeElement) return;
+
+                // Check if we're in a form input field
+                const isFormInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeElement.tagName);
+                if (!isFormInput) return;
+
+                // Get the form that contains the active element
+                const form = activeElement.closest('form');
+                if (!form) return;
+
+                // Check if this is a submit-on-tab enabled form
+                const enabledForms = ['actionForm', 'personForm', 'postponeForm'];
+                if (!enabledForms.includes(form.id)) return;
+
+                // Check if all required fields are filled
+                const requiredFields = form.querySelectorAll('[required]');
+                let allFieldsValid = true;
+
+                for (let field of requiredFields) {
+                    if (!field.value.trim()) {
+                        allFieldsValid = false;
+                        break;
+                    }
+                }
+
+                // If all required fields are filled, submit the form
+                if (allFieldsValid) {
+                    e.preventDefault(); // Prevent default tab behavior
+
+                    // Trigger form submission
+                    const submitEvent = new Event('submit', {
+                        bubbles: true,
+                        cancelable: true
+                    });
+                    form.dispatchEvent(submitEvent);
+
+                    // Show a subtle indication that form was submitted via Tab
+                    showNotification('📋 Form kaydedildi (Tab ile)', 'success');
                 }
             }
         });
