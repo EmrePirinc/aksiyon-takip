@@ -320,6 +320,8 @@
             color: var(--gray-800);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
         
         #app-container {
@@ -885,8 +887,10 @@
             top: 16px;
             left: 16px;
             right: 16px;
-            z-index: 1000;
+            z-index: 10000;
             overflow: visible;
+            will-change: transform;
+            transform: translateZ(0);
         }
 
         .modern-header::before {
@@ -1099,12 +1103,13 @@
             border-radius: 16px;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
             min-width: 260px;
-            z-index: 9999;
+            z-index: 10001;
             display: none;
             overflow: hidden;
             /* Force dropdown to open downward and stay attached */
             transform-origin: top right;
             will-change: transform, opacity;
+            transform: translateZ(0);
         }
 
         .user-dropdown-clean.active {
