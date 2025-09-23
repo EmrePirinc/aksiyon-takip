@@ -891,6 +891,11 @@
             overflow: visible;
             will-change: transform;
             transform: translateZ(0);
+            transition: transform 0.3s ease;
+        }
+
+        .modern-header.hide-on-scroll {
+            transform: translateY(-100%);
         }
 
         .modern-header::before {
@@ -3516,6 +3521,27 @@
         }));
 
         document.getElementById("searchInput").addEventListener("input", renderActions);
+
+        // Header hide on scroll
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', function() {
+            const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const header = document.querySelector('.modern-header');
+            const dropdown = document.getElementById('modernUserDropdown');
+
+            if (currentScrollTop > lastScrollTop && currentScrollTop > 100) {
+                // Scrolling down - hide header and close dropdown
+                header.classList.add('hide-on-scroll');
+                if (dropdown) {
+                    dropdown.classList.remove('active');
+                }
+            } else {
+                // Scrolling up - show header
+                header.classList.remove('hide-on-scroll');
+            }
+
+            lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
+        });
         
         function toggleUserMenu(event) {
             // Event propagation'ı durdur
