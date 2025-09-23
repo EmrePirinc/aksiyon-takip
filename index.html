@@ -854,91 +854,261 @@
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
         }
 
-        /* --- HEADER VIEW SELECTOR --- */
-        .view-selector-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-right: 20px;
+        /* --- MODERN CLEAN HEADER --- */
+        .modern-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
         }
 
-        .view-selector-label {
-            font-weight: 600;
+        .modern-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--anadolu), var(--aifteam), var(--ortak));
+        }
+
+        .modern-header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            gap: 24px;
+        }
+
+        .header-title-section .main-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin: 0 0 4px 0;
+            line-height: 1.2;
+        }
+
+        .header-title-section .subtitle {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .header-user-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Export Menu */
+        .export-menu-wrapper {
+            position: relative;
+        }
+
+        .export-menu-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
             color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
             font-size: 0.9rem;
         }
 
-        .view-options-header {
+        .export-menu-trigger:hover {
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .export-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            min-width: 180px;
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .export-dropdown.active {
+            display: block;
+            animation: dropdownFadeIn 0.2s ease;
+        }
+
+        @keyframes dropdownFadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .export-option {
             display: flex;
-            gap: 4px;
-            background: rgba(255, 255, 255, 0.8);
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            color: var(--gray-700);
+        }
+
+        .export-option:hover {
+            background: var(--gray-50);
+        }
+
+        .export-option.excel:hover {
+            background: rgba(33, 115, 70, 0.1);
+            color: #217346;
+        }
+
+        .export-option.word:hover {
+            background: rgba(43, 87, 154, 0.1);
+            color: #2B579A;
+        }
+
+        /* Smart Toolbar */
+        .smart-toolbar {
+            background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .view-switcher {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
             padding: 4px;
         }
 
-        .view-option-header {
+        .view-tab {
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 12px;
-            border-radius: 8px;
+            gap: 8px;
+            padding: 8px 14px;
+            border: none;
+            background: none;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.3s ease;
             color: var(--gray-600);
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 500;
             white-space: nowrap;
         }
 
-        .view-option-header:hover {
+        .view-tab:hover {
             background: rgba(59, 130, 246, 0.1);
             color: var(--primary);
-            transform: translateY(-1px);
         }
 
-        .view-option-header.active {
+        .view-tab.active {
             background: var(--primary);
             color: white;
             box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
         }
 
-        .view-option-header svg {
+        .view-tab svg {
             transition: transform 0.3s ease;
-            flex-shrink: 0;
         }
 
-        .view-option-header:hover svg {
-            transform: scale(1.1);
+        .view-tab:hover svg {
+            transform: scale(1.05);
         }
 
-        /* Header actions layout */
-        .header-actions {
+        /* Team Indicators */
+        .team-indicators {
+            display: flex;
+            gap: 8px;
+        }
+
+        .team-indicator {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .view-option-header span {
-                display: none;
-            }
+        .team-indicator:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
 
-            .view-options-header {
-                gap: 2px;
-                padding: 2px;
-            }
+        .team-indicator.anadolu:hover {
+            background: var(--anadolu-bg);
+            border-color: var(--anadolu);
+        }
 
-            .view-option-header {
-                padding: 6px 8px;
-            }
+        .team-indicator.aifteam:hover {
+            background: var(--aifteam-bg);
+            border-color: var(--aifteam);
+        }
 
-            .view-selector-label {
-                display: none;
-            }
+        .team-indicator.ortak:hover {
+            background: var(--ortak-bg);
+            border-color: var(--ortak);
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+            border: none;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.5);
+        }
+
+        .fab:active {
+            transform: scale(0.95);
         }
 
         /* --- ACTION CONTAINER & VIEWS --- */
@@ -1509,84 +1679,132 @@
     <div id="app-container" style="display: none;">
         <div class="container">
             <!-- Header -->
-            <div class="header">
-                <div class="header-content">
-                    <div class="header-left">
-                        <h1>Aksiyon Takip Sistemi</h1>
-                        <p class="header-subtitle">Proje sorumlulukları ve aksiyonları merkezi bir sistemden yönetin</p>
+            <!-- Modern Clean Header -->
+            <div class="modern-header">
+                <div class="modern-header-content">
+                    <div class="header-title-section">
+                        <h1 class="main-title">Aksiyon Takip Sistemi</h1>
+                        <p class="subtitle">Anadolu Bakır & AIFTEAM Proje Yönetimi</p>
                     </div>
-                    <div class="header-actions">
-                        <div class="view-selector-header">
-                            <div class="view-selector-label">Görünüm:</div>
-                            <div class="view-options-header">
-                                <div class="view-option-header active" data-view="grouped" title="Gruplu Görünüm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="3" y="3" width="7" height="7"></rect>
-                                        <rect x="14" y="3" width="7" height="7"></rect>
-                                        <rect x="14" y="14" width="7" height="7"></rect>
-                                        <rect x="3" y="14" width="7" height="7"></rect>
-                                    </svg>
-                                    <span>Gruplu</span>
-                                </div>
-                                <div class="view-option-header" data-view="list" title="Liste Görünümü">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <line x1="8" y1="6" x2="21" y2="6"></line>
-                                        <line x1="8" y1="12" x2="21" y2="12"></line>
-                                        <line x1="8" y1="18" x2="21" y2="18"></line>
-                                        <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                                        <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                                        <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                                    </svg>
-                                    <span>Liste</span>
-                                </div>
-                                <div class="view-option-header" data-view="kanban" title="Kanban Tahtası">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="3" y="3" width="6" height="18"></rect>
-                                        <rect x="11" y="3" width="6" height="10"></rect>
-                                        <rect x="19" y="3" width="2" height="14"></rect>
-                                    </svg>
-                                    <span>Kanban</span>
-                                </div>
-                                <div class="view-option-header" data-view="calendar" title="Takvim Görünümü">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                                    </svg>
-                                    <span>Takvim</span>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="export-buttons">
-                            <button class="export-btn excel" onclick="exportToExcel()">
-                                <span class="export-icon">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="header-user-section">
+                        <div class="export-menu-wrapper">
+                            <button class="export-menu-trigger" onclick="toggleExportMenu()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                                    <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                                    <path d="M17 21h-10a2 2 0 0 1-2-2v-14a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path>
+                                    <path d="M9 15l2 2 4-4"></path>
+                                </svg>
+                                <span>Dışa Aktar</span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6,9 12,15 18,9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="export-dropdown" id="exportDropdown">
+                                <button class="export-option excel" onclick="exportToExcel(); closeExportMenu();">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path fill="#217346" d="M3 3h18v18H3z"/>
                                         <path fill="white" d="M8.5 7L12 12l-3.5 5h2.25L12.5 14l1.75 3H16.5L13 12l3.5-5h-2.25L12.5 10 10.75 7H8.5z"/>
                                     </svg>
-                                </span>
-                                <span>Excel Aktar</span>
-                            </button>
-                            <button class="export-btn word" onclick="exportToWord()">
-                                <span class="export-icon">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <span>Excel Dosyası</span>
+                                </button>
+                                <button class="export-option word" onclick="exportToWord(); closeExportMenu();">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path fill="#2B579A" d="M4 4h16v16H4z"/>
                                         <path fill="white" d="M8 7h8v2H8V7zm0 3h8v2H8v-2zm0 3h6v2H8v-2z"/>
                                     </svg>
+                                    <span>Word Dosyası</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="user-menu">
+                            <button class="user-profile" onclick="toggleUserMenu()">
+                                <span class="user-avatar">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
                                 </span>
-                                <span>Word Aktar</span>
+                                <span id="userDisplayName">Admin</span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6,9 12,15 18,9"></polyline>
+                                </svg>
                             </button>
+                            <div class="user-dropdown" id="userDropdown">
+                                <button onclick="openPersonManagement()">Kişi Yönetimi</button>
+                                <button onclick="openPasswordModal()">Şifre Değiştir</button>
+                                <hr>
+                                <button onclick="showBackupSettings()">Yedekleme</button>
+                                <hr>
+                                <button onclick="logout()">Çıkış Yap</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="team-badges">
-                    <div class="team-badge anadolu"><span>🏢</span><span>Anadolu Bakır</span></div>
-                    <div class="team-badge aifteam"><span>💻</span><span>AIFTEAM</span></div>
-                    <div class="team-badge ortak"><span>🤝</span><span>Ortak</span></div>
+            </div>
+
+            <!-- Smart Toolbar -->
+            <div class="smart-toolbar">
+                <div class="toolbar-left">
+                    <div class="view-switcher">
+                        <button class="view-tab active" data-view="grouped" title="Gruplu Görünüm">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="14" width="7" height="7"></rect>
+                                <rect x="3" y="14" width="7" height="7"></rect>
+                            </svg>
+                            <span>Gruplu</span>
+                        </button>
+                        <button class="view-tab" data-view="list" title="Liste Görünümü">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg>
+                            <span>Liste</span>
+                        </button>
+                        <button class="view-tab" data-view="kanban" title="Kanban Tahtası">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="6" height="18"></rect>
+                                <rect x="11" y="3" width="6" height="10"></rect>
+                                <rect x="19" y="3" width="2" height="14"></rect>
+                            </svg>
+                            <span>Kanban</span>
+                        </button>
+                        <button class="view-tab" data-view="calendar" title="Takvim Görünümü">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span>Takvim</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="toolbar-right">
+                    <div class="team-indicators">
+                        <div class="team-indicator anadolu" title="Anadolu Bakır">🏢</div>
+                        <div class="team-indicator aifteam" title="AIFTEAM">🤖</div>
+                        <div class="team-indicator ortak" title="Ortak Projeler">🤝</div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Floating Action Button -->
+            <button class="fab" onclick="openModal()" title="Yeni Aksiyon Ekle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </button>
 
             <!-- Stats Row -->
             <div class="stats-row">
@@ -2882,13 +3100,32 @@
             renderActions();
         }));
 
-        // Modern View Selector - Header
-        document.querySelectorAll(".view-option-header[data-view]").forEach(btn => btn.addEventListener("click", e => {
-            document.querySelectorAll(".view-option-header[data-view]").forEach(b => b.classList.remove("active"));
+        // Modern View Switcher - Toolbar
+        document.querySelectorAll(".view-tab[data-view]").forEach(btn => btn.addEventListener("click", e => {
+            document.querySelectorAll(".view-tab[data-view]").forEach(b => b.classList.remove("active"));
             e.currentTarget.classList.add("active");
             currentView = e.currentTarget.dataset.view;
             renderActions();
         }));
+
+        // Export Menu Functions
+        function toggleExportMenu() {
+            const dropdown = document.getElementById('exportDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        function closeExportMenu() {
+            const dropdown = document.getElementById('exportDropdown');
+            dropdown.classList.remove('active');
+        }
+
+        // Close export menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const exportWrapper = e.target.closest('.export-menu-wrapper');
+            if (!exportWrapper) {
+                closeExportMenu();
+            }
+        });
 
         // General View Selector (for any data-view elements)
         document.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", e => {
