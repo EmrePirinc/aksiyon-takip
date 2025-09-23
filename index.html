@@ -1099,6 +1099,8 @@
             z-index: 1000;
             display: none;
             overflow: hidden;
+            /* Force dropdown to open downward */
+            transform-origin: top center;
         }
 
         .user-dropdown-clean.active {
@@ -2509,7 +2511,14 @@
                     // we'll simulate the code system by storing it temporarily
                     // In a real production app, you'd use a backend service for this
 
-                    successDiv.textContent = `Onay kodu: ${verificationCode} (Demo için gösteriliyor)`;
+                    successDiv.innerHTML = `
+                        <div style="text-align: center;">
+                            <p><strong>Demo Modu:</strong> Onay kodu: <span style="color: #2563eb; font-weight: bold; font-size: 1.2em;">${verificationCode}</span></p>
+                            <p style="font-size: 0.9em; color: #6b7280; margin-top: 8px;">
+                                Ayrıca Firebase reset emaili de gönderildi. Spam klasörünüzü kontrol edin.
+                            </p>
+                        </div>
+                    `;
                     successDiv.style.display = 'block';
 
                     // Switch to step 2 after a short delay
@@ -2780,10 +2789,29 @@
             modal.classList.add('active');
             modal.style.display = 'flex';
 
-            // Close user dropdown
+            // Close user dropdown (eski versiyon)
             const userDropdown = document.getElementById('userDropdown');
-            userDropdown.classList.remove('active');
-            document.querySelector('.user-profile').classList.remove('active');
+            if (userDropdown) {
+                userDropdown.classList.remove('active');
+            }
+
+            // Close modern user dropdown
+            const modernUserDropdown = document.getElementById('modernUserDropdown');
+            if (modernUserDropdown) {
+                modernUserDropdown.classList.remove('active');
+            }
+
+            // Close user profile (eski versiyon)
+            const userProfile = document.querySelector('.user-profile');
+            if (userProfile) {
+                userProfile.classList.remove('active');
+            }
+
+            // Close modern user profile
+            const modernUserProfile = document.querySelector('.user-profile-modern');
+            if (modernUserProfile) {
+                modernUserProfile.classList.remove('active');
+            }
         }
 
         function closePasswordModal() {
