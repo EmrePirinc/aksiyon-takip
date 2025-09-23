@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
     
     <style>
         /* --- MODERN GİRİŞ EKRANI --- */
@@ -1936,7 +1936,7 @@
 
                     <div class="header-user-section">
                         <div class="user-menu-modern">
-                            <button class="user-profile-modern" onclick="toggleUserMenu()">
+                            <button class="user-profile-modern" onclick="toggleUserMenu(event)">
                                 <div class="user-avatar-gradient">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -3604,7 +3604,12 @@
 
         document.getElementById("searchInput").addEventListener("input", renderActions);
         
-        function toggleUserMenu() {
+        function toggleUserMenu(event) {
+            // Event propagation'ı durdur
+            if (event) {
+                event.stopPropagation();
+            }
+
             // Eski dropdown varsa onu kullan
             const oldDropdown = document.getElementById('userDropdown');
             if (oldDropdown) {
