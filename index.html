@@ -430,29 +430,82 @@
 
         .export-buttons {
             display: flex;
-            gap: 12px;
+            gap: 16px;
+            align-items: center;
         }
 
         .export-btn {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            gap: 10px;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, var(--white) 0%, rgba(255, 255, 255, 0.95) 100%);
+            border: 2px solid transparent;
             border-radius: 12px;
-            color: var(--gray-700);
+            font-size: 1rem;
             font-weight: 600;
-            font-size: 0.9rem;
+            color: var(--gray-700);
             cursor: pointer;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .export-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .export-btn:hover::before {
+            left: 100%;
         }
 
         .export-btn:hover {
-            background: rgba(255, 255, 255, 1);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, var(--white) 0%, rgba(255, 255, 255, 1) 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .export-btn.excel {
+            border-left: 4px solid #217346;
+        }
+
+        .export-btn.excel:hover {
+            border-color: #217346;
+            box-shadow: 0 12px 30px rgba(33, 115, 70, 0.2);
+        }
+
+        .export-btn.word {
+            border-left: 4px solid #2B579A;
+        }
+
+        .export-btn.word:hover {
+            border-color: #2B579A;
+            box-shadow: 0 12px 30px rgba(43, 87, 154, 0.2);
+        }
+
+        .export-icon {
+            font-size: 1.25rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+            display: flex;
+            align-items: center;
+        }
+
+        .export-icon svg {
+            transition: transform 0.3s ease;
+        }
+
+        .export-btn:hover .export-icon svg {
+            transform: scale(1.1);
         }
         .team-badges {
             display: flex;
@@ -1219,13 +1272,23 @@
                     </div>
                     <div class="header-actions">
                         <div class="export-buttons">
-                            <button class="export-btn" onclick="exportToExcel()">
-                                <span>📊</span>
-                                <span>Excel</span>
+                            <button class="export-btn excel" onclick="exportToExcel()">
+                                <span class="export-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill="#217346" d="M3 3h18v18H3z"/>
+                                        <path fill="white" d="M8.5 7L12 12l-3.5 5h2.25L12.5 14l1.75 3H16.5L13 12l3.5-5h-2.25L12.5 10 10.75 7H8.5z"/>
+                                    </svg>
+                                </span>
+                                <span>Excel Aktar</span>
                             </button>
-                            <button class="export-btn" onclick="exportToWord()">
-                                <span>📄</span>
-                                <span>Word</span>
+                            <button class="export-btn word" onclick="exportToWord()">
+                                <span class="export-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill="#2B579A" d="M4 4h16v16H4z"/>
+                                        <path fill="white" d="M8 7h8v2H8V7zm0 3h8v2H8v-2zm0 3h6v2H8v-2z"/>
+                                    </svg>
+                                </span>
+                                <span>Word Aktar</span>
                             </button>
                         </div>
                     </div>
