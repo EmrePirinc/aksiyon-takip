@@ -905,6 +905,10 @@
             gap: 16px;
         }
 
+        .user-menu-modern {
+            position: relative;
+        }
+
         /* Export Menu */
         .export-menu-wrapper {
             position: relative;
@@ -998,39 +1002,166 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
         }
 
-        /* Fixed User Profile */
-        .user-profile-fixed {
+        /* Toolbar Export Buttons */
+        .export-buttons-toolbar {
+            display: flex;
+            gap: 12px;
+        }
+
+        .export-buttons-toolbar .export-btn {
+            padding: 10px 16px;
+            font-size: 0.85rem;
+        }
+
+        /* Modern User Profile */
+        .user-profile-modern {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             padding: 8px 12px;
             background: rgba(255, 255, 255, 0.9);
             border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             color: var(--gray-700);
         }
 
-        .user-profile-fixed:hover {
+        .user-profile-modern:hover {
             background: rgba(255, 255, 255, 1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
         }
 
-        .user-avatar-fixed {
-            width: 32px;
-            height: 32px;
+        .user-avatar-modern {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--primary), #4f46e5);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
+            font-weight: 600;
+            font-size: 1rem;
         }
 
-        .user-name-fixed {
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
             font-weight: 600;
             font-size: 0.9rem;
+            color: var(--gray-800);
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-top: 1px;
+        }
+
+        .user-menu-icon {
+            color: var(--gray-400);
+            transition: transform 0.3s ease;
+        }
+
+        .user-profile-modern:hover .user-menu-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Modern User Dropdown */
+        .user-dropdown-modern {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            min-width: 240px;
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .user-dropdown-modern.active {
+            display: block;
+            animation: dropdownFadeIn 0.2s ease;
+        }
+
+        .dropdown-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--gray-50);
+        }
+
+        .dropdown-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #4f46e5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .dropdown-user-info {
+            flex: 1;
+        }
+
+        .dropdown-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--gray-800);
+        }
+
+        .dropdown-email {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            margin-top: 2px;
+        }
+
+        .dropdown-divider {
+            border: none;
+            border-top: 1px solid var(--gray-200);
+            margin: 0;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            color: var(--gray-700);
+        }
+
+        .dropdown-item:hover {
+            background: var(--gray-50);
+        }
+
+        .dropdown-item.logout {
+            color: var(--danger);
+        }
+
+        .dropdown-item.logout:hover {
+            background: var(--danger-bg);
         }
 
         /* Smart Toolbar */
@@ -1697,23 +1828,66 @@
                     </div>
 
                     <div class="header-user-section">
-                        <div class="user-menu">
-                            <button class="user-profile-fixed" onclick="toggleUserMenu()">
-                                <div class="user-avatar-fixed">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="12" cy="7" r="4"></circle>
+                        <div class="user-menu-modern">
+                            <button class="user-profile-modern" onclick="toggleUserMenu()">
+                                <div class="user-avatar-modern">
+                                    <span id="userInitials">U</span>
+                                </div>
+                                <div class="user-info">
+                                    <span class="user-name" id="userDisplayName">Kullanıcı</span>
+                                    <span class="user-role">Proje Yöneticisi</span>
+                                </div>
+                                <div class="user-menu-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6,9 12,15 18,9"></polyline>
                                     </svg>
                                 </div>
-                                <span class="user-name-fixed" id="userDisplayName">Admin</span>
                             </button>
-                            <div class="user-dropdown" id="userDropdown">
-                                <button onclick="openPersonManagement()">Kişi Yönetimi</button>
-                                <button onclick="openPasswordModal()">Şifre Değiştir</button>
-                                <hr>
-                                <button onclick="showBackupSettings()">Yedekleme</button>
-                                <hr>
-                                <button onclick="logout()">Çıkış Yap</button>
+                            <div class="user-dropdown-modern" id="userDropdown">
+                                <div class="dropdown-header">
+                                    <div class="dropdown-avatar">
+                                        <span id="userInitialsDropdown">U</span>
+                                    </div>
+                                    <div class="dropdown-user-info">
+                                        <div class="dropdown-name" id="userDisplayNameDropdown">Kullanıcı</div>
+                                        <div class="dropdown-email">user@domain.com</div>
+                                    </div>
+                                </div>
+                                <hr class="dropdown-divider">
+                                <button class="dropdown-item" onclick="openPersonManagement()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                    <span>Kişi Yönetimi</span>
+                                </button>
+                                <button class="dropdown-item" onclick="openPasswordModal()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <circle cx="12" cy="16" r="1"></circle>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                    <span>Şifre Değiştir</span>
+                                </button>
+                                <button class="dropdown-item" onclick="showBackupSettings()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7,10 12,15 17,10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                    <span>Yedekleme</span>
+                                </button>
+                                <hr class="dropdown-divider">
+                                <button class="dropdown-item logout" onclick="logout()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                        <polyline points="16,17 21,12 16,7"></polyline>
+                                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                                    </svg>
+                                    <span>Çıkış Yap</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -1765,34 +1939,25 @@
                 </div>
 
                 <div class="toolbar-right">
-                    <div class="export-menu-wrapper">
-                        <button class="export-menu-trigger toolbar-export" onclick="toggleExportMenu()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
-                                <path d="M17 21h-10a2 2 0 0 1-2-2v-14a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path>
-                                <path d="M9 15l2 2 4-4"></path>
-                            </svg>
-                            <span>Dışa Aktar</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="6,9 12,15 18,9"></polyline>
-                            </svg>
-                        </button>
-                        <div class="export-dropdown" id="exportDropdownToolbar">
-                            <button class="export-option excel" onclick="exportToExcel(); closeExportMenu();">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="export-buttons-toolbar">
+                        <button class="export-btn excel" onclick="exportToExcel()">
+                            <span class="export-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path fill="#217346" d="M3 3h18v18H3z"/>
                                     <path fill="white" d="M8.5 7L12 12l-3.5 5h2.25L12.5 14l1.75 3H16.5L13 12l3.5-5h-2.25L12.5 10 10.75 7H8.5z"/>
                                 </svg>
-                                <span>Excel Dosyası</span>
-                            </button>
-                            <button class="export-option word" onclick="exportToWord(); closeExportMenu();">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            </span>
+                            <span>Excel Aktar</span>
+                        </button>
+                        <button class="export-btn word" onclick="exportToWord()">
+                            <span class="export-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path fill="#2B579A" d="M4 4h16v16H4z"/>
                                     <path fill="white" d="M8 7h8v2H8V7zm0 3h8v2H8v-2zm0 3h6v2H8v-2z"/>
                                 </svg>
-                                <span>Word Dosyası</span>
-                            </button>
-                        </div>
+                            </span>
+                            <span>Word Aktar</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -3177,8 +3342,35 @@
         document.getElementById("searchInput").addEventListener("input", renderActions);
         
         function toggleUserMenu() {
-            document.getElementById('userDropdown').classList.toggle('active');
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('active');
         }
+
+        // Initialize user profile
+        function initUserProfile() {
+            // Bu kısım Firebase auth'dan gelecek
+            const userName = currentUser?.email || "Kullanıcı";
+            const userInitials = userName.charAt(0).toUpperCase();
+
+            // Update header profile
+            document.getElementById('userDisplayName').textContent = userName;
+            document.getElementById('userInitials').textContent = userInitials;
+
+            // Update dropdown profile
+            document.getElementById('userDisplayNameDropdown').textContent = userName;
+            document.getElementById('userInitialsDropdown').textContent = userInitials;
+        }
+
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const userMenu = e.target.closest('.user-menu-modern');
+            if (!userMenu) {
+                const dropdown = document.getElementById('userDropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('active');
+                }
+            }
+        });
         
         // Event delegation for action buttons
         document.addEventListener('click', function(e) {
