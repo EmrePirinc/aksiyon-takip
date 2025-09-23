@@ -2194,18 +2194,6 @@
             </div>
         </div>
 
-        <!-- User Menu -->
-        <div class="user-menu">
-            <div class="user-dropdown" id="userDropdown">
-                <div class="dropdown-item" onclick="openPersonManagement()">👥 Kişi Yönetimi</div>
-                <div class="dropdown-item" onclick="openPasswordChange()">🔐 Şifre Değiştir</div>
-                <div class="dropdown-divider"></div>
-                <div class="dropdown-item logout" onclick="signOut()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                    Çıkış Yap
-                </div>
-            </div>
-        </div>
     </div>
     
     <!-- Modals -->
@@ -2699,28 +2687,10 @@
             modal.classList.add('active');
             modal.style.display = 'flex';
 
-            // Close user dropdown (eski versiyon)
-            const userDropdown = document.getElementById('userDropdown');
-            if (userDropdown) {
-                userDropdown.classList.remove('active');
-            }
-
             // Close modern user dropdown
             const modernUserDropdown = document.getElementById('modernUserDropdown');
             if (modernUserDropdown) {
                 modernUserDropdown.classList.remove('active');
-            }
-
-            // Close user profile (eski versiyon)
-            const userProfile = document.querySelector('.user-profile');
-            if (userProfile) {
-                userProfile.classList.remove('active');
-            }
-
-            // Close modern user profile
-            const modernUserProfile = document.querySelector('.user-profile-modern');
-            if (modernUserProfile) {
-                modernUserProfile.classList.remove('active');
             }
         }
 
@@ -3548,13 +3518,7 @@
                 event.stopPropagation();
             }
 
-            // Eski dropdown varsa onu kullan
-            const oldDropdown = document.getElementById('userDropdown');
-            if (oldDropdown) {
-                oldDropdown.classList.toggle('active');
-            }
-
-            // Modern dropdown varsa onu kullan
+            // Modern dropdown'ı toggle et
             const modernDropdown = document.getElementById('modernUserDropdown');
             if (modernDropdown) {
                 modernDropdown.classList.toggle('active');
@@ -3580,11 +3544,6 @@
         document.addEventListener('click', function(e) {
             const userMenu = e.target.closest('.user-menu-modern');
             if (!userMenu) {
-                const dropdown = document.getElementById('userDropdown');
-                if (dropdown) {
-                    dropdown.classList.remove('active');
-                }
-
                 const modernDropdown = document.getElementById('modernUserDropdown');
                 if (modernDropdown) {
                     modernDropdown.classList.remove('active');
