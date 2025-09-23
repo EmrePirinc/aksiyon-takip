@@ -2116,8 +2116,8 @@
                                 <span style="margin-left: var(--space-2); color: var(--gray-400);">(${timestamp})</span>
                             </div>
                             <div class="postpone-actions">
-                                <button class="postpone-edit-btn" onclick="editPostpone(${actionId}, ${index})">Düzenle</button>
-                                <button class="postpone-delete-btn" onclick="deletePostpone(${actionId}, ${index})">Sil</button>
+                                <button class="postpone-edit-btn" onclick="editPostpone('${actionId}', ${index})">Düzenle</button>
+                                <button class="postpone-delete-btn" onclick="deletePostpone('${actionId}', ${index})">Sil</button>
                             </div>
                         </div>
                         <div class="postpone-reason">${postpone.reason || 'Sebep belirtilmemiş'}</div>
