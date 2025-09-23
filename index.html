@@ -323,7 +323,7 @@
         }
         
         #app-container {
-             padding: 20px;
+             padding: 120px 20px 20px 20px; /* Top padding increased for fixed header */
         }
 
         .container {
@@ -881,8 +881,12 @@
             border-radius: 16px;
             margin-bottom: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            position: relative;
-            overflow: hidden;
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            z-index: 1000;
+            overflow: visible;
         }
 
         .modern-header::before {
@@ -1087,20 +1091,20 @@
         /* Clean Modern User Dropdown */
         .user-dropdown-clean {
             position: absolute;
-            top: 100%;
+            top: calc(100% + 8px);
             right: 0;
-            margin-top: 12px;
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 16px;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
             min-width: 260px;
-            z-index: 1000;
+            z-index: 9999;
             display: none;
             overflow: hidden;
-            /* Force dropdown to open downward */
-            transform-origin: top center;
+            /* Force dropdown to open downward and stay attached */
+            transform-origin: top right;
+            will-change: transform, opacity;
         }
 
         .user-dropdown-clean.active {
@@ -1111,11 +1115,13 @@
         @keyframes dropdownSlideIn {
             from {
                 opacity: 0;
-                transform: translateY(-12px) scale(0.95);
+                transform: translateY(-8px) scale(0.96);
+                visibility: visible;
             }
             to {
                 opacity: 1;
                 transform: translateY(0) scale(1);
+                visibility: visible;
             }
         }
 
@@ -1834,7 +1840,7 @@
             }
         }
         @media (max-width: 768px) {
-            #app-container { padding: 15px; }
+            #app-container { padding: 120px 15px 15px 15px; }
             .header { padding: 20px; }
             .header-content { flex-direction: column; gap: 15px; text-align: center; }
             .header h1 { font-size: 1.5rem; }
@@ -1895,27 +1901,7 @@
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="modal-btn cancel" onclick="closeForgotPasswordModal()">İptal</button>
-                    <button type="button" class="modal-btn primary" onclick="sendResetCode()">Kod Gönder</button>
-                </div>
-            </div>
-
-            <div id="forgotPasswordStep2" class="forgot-password-step" style="display: none;">
-                <div class="form-group">
-                    <label for="resetCode">Onay Kodu</label>
-                    <input type="text" id="resetCode" placeholder="6 haneli kod" maxlength="6" required>
-                    <small style="color: #6b7280; margin-top: 8px; display: block;">E-posta adresinize gönderilen 6 haneli kodu girin.</small>
-                </div>
-                <div class="form-group">
-                    <label for="newPassword">Yeni Şifre</label>
-                    <input type="password" id="newPassword" placeholder="••••••••••" required>
-                </div>
-                <div class="form-group">
-                    <label for="confirmPassword">Şifre Tekrar</label>
-                    <input type="password" id="confirmPassword" placeholder="••••••••••" required>
-                </div>
-                <div class="modal-buttons">
-                    <button type="button" class="modal-btn cancel" onclick="closeForgotPasswordModal()">İptal</button>
-                    <button type="button" class="modal-btn primary" onclick="resetPassword()">Şifre Değiştir</button>
+                    <button type="button" class="modal-btn primary" onclick="sendPasswordResetEmail()">Şifre Sıfırlama Linki Gönder</button>
                 </div>
             </div>
 
@@ -2461,26 +2447,19 @@
         }
 
         // --- FORGOT PASSWORD FUNCTIONS ---
-        let resetCodeData = null; // Store reset code and email temporarily
-
         function showForgotPasswordModal() {
             document.getElementById('forgotPasswordModal').classList.add('active');
             document.getElementById('forgotPasswordStep1').style.display = 'block';
-            document.getElementById('forgotPasswordStep2').style.display = 'none';
             document.getElementById('forgotPasswordError').style.display = 'none';
             document.getElementById('forgotPasswordSuccess').style.display = 'none';
             document.getElementById('forgotEmail').value = '';
-            document.getElementById('resetCode').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
         }
 
         function closeForgotPasswordModal() {
             document.getElementById('forgotPasswordModal').classList.remove('active');
-            resetCodeData = null;
         }
 
-        function sendResetCode() {
+        function sendPasswordResetEmail() {
             const email = document.getElementById('forgotEmail').value;
             const errorDiv = document.getElementById('forgotPasswordError');
             const successDiv = document.getElementById('forgotPasswordSuccess');
@@ -2489,44 +2468,32 @@
             successDiv.style.display = 'none';
 
             if (!email) {
-                errorDiv.textContent = 'E-posta adresi boş bırakılamaz.';
+                errorDiv.textContent = 'Lütfen e-posta adresinizi girin.';
                 errorDiv.style.display = 'block';
                 return;
             }
 
-            // Generate 6-digit verification code
-            const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-            // Store code and email for later verification
-            resetCodeData = {
-                email: email,
-                code: verificationCode,
-                timestamp: Date.now()
-            };
-
-            // Send reset email with Firebase
+            // Send password reset email with Firebase
             auth.sendPasswordResetEmail(email)
                 .then(() => {
-                    // Since Firebase doesn't support custom codes in password reset emails,
-                    // we'll simulate the code system by storing it temporarily
-                    // In a real production app, you'd use a backend service for this
-
                     successDiv.innerHTML = `
                         <div style="text-align: center;">
-                            <p><strong>Demo Modu:</strong> Onay kodu: <span style="color: #2563eb; font-weight: bold; font-size: 1.2em;">${verificationCode}</span></p>
-                            <p style="font-size: 0.9em; color: #6b7280; margin-top: 8px;">
-                                Ayrıca Firebase reset emaili de gönderildi. Spam klasörünüzü kontrol edin.
+                            <p style="color: #10b981; font-weight: 600; margin-bottom: 8px;">✅ Şifre sıfırlama linki gönderildi!</p>
+                            <p style="font-size: 0.9em; color: #6b7280;">
+                                E-posta adresinize gönderilen linke tıklayarak şifrenizi sıfırlayabilirsiniz.<br>
+                                <strong>Spam klasörünüzü de kontrol etmeyi unutmayın.</strong>
+                            </p>
+                            <p style="font-size: 0.8em; color: #9ca3af; margin-top: 8px;">
+                                Link gelmedi mi? Spam klasörünü kontrol edin veya birkaç dakika sonra tekrar deneyin.
                             </p>
                         </div>
                     `;
                     successDiv.style.display = 'block';
 
-                    // Switch to step 2 after a short delay
+                    // Auto close modal after 8 seconds
                     setTimeout(() => {
-                        document.getElementById('forgotPasswordStep1').style.display = 'none';
-                        document.getElementById('forgotPasswordStep2').style.display = 'block';
-                        successDiv.style.display = 'none';
-                    }, 3000);
+                        closeForgotPasswordModal();
+                    }, 8000);
                 })
                 .catch((error) => {
                     console.error('Password reset error:', error);
@@ -2541,60 +2508,6 @@
                 });
         }
 
-        function resetPassword() {
-            const code = document.getElementById('resetCode').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const errorDiv = document.getElementById('forgotPasswordError');
-            const successDiv = document.getElementById('forgotPasswordSuccess');
-
-            errorDiv.style.display = 'none';
-            successDiv.style.display = 'none';
-
-            // Validate inputs
-            if (!code || !newPassword || !confirmPassword) {
-                errorDiv.textContent = 'Tüm alanları doldurun.';
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            if (newPassword !== confirmPassword) {
-                errorDiv.textContent = 'Şifreler eşleşmiyor.';
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            if (newPassword.length < 6) {
-                errorDiv.textContent = 'Şifre en az 6 karakter olmalıdır.';
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            // Verify code
-            if (!resetCodeData || resetCodeData.code !== code) {
-                errorDiv.textContent = 'Geçersiz onay kodu.';
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            // Check if code expired (5 minutes)
-            if (Date.now() - resetCodeData.timestamp > 5 * 60 * 1000) {
-                errorDiv.textContent = 'Onay kodu süresi dolmuş. Yeni kod talep edin.';
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            // In a production app, you would update the password here
-            // For demo purposes, we'll just show success
-            successDiv.textContent = 'Şifreniz başarıyla değiştirildi! Giriş sayfasına yönlendiriliyorsunuz...';
-            successDiv.style.display = 'block';
-
-            setTimeout(() => {
-                closeForgotPasswordModal();
-                // Here you would normally update the user's password via Firebase
-                // For demo, we'll just close the modal
-            }, 2000);
-        }
 
         // --- DATA HANDLING (FIREBASE) ---
         function loadActions() {
