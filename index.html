@@ -2312,12 +2312,12 @@
                     <input type="password" id="currentPassword" required>
                 </div>
                 <div class="form-group">
-                    <label for="newPassword">Yeni Şifre *</label>
-                    <input type="password" id="newPassword" required minlength="6">
+                    <label for="changeNewPassword">Yeni Şifre *</label>
+                    <input type="password" id="changeNewPassword" required minlength="6">
                 </div>
                 <div class="form-group">
-                    <label for="confirmPassword">Yeni Şifre Tekrar *</label>
-                    <input type="password" id="confirmPassword" required minlength="6">
+                    <label for="changeConfirmPassword">Yeni Şifre Tekrar *</label>
+                    <input type="password" id="changeConfirmPassword" required minlength="6">
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="btn modal-btn cancel" onclick="closePasswordModal()">İptal</button>
@@ -2400,8 +2400,28 @@
                 const email = user.email || 'Kullanıcı';
                 const userName = email.split('@')[0];
                 const capitalizedUsername = userName.charAt(0).toUpperCase() + userName.slice(1);
-                document.getElementById('currentUserName').textContent = capitalizedUsername;
-                document.getElementById('userAvatar').textContent = capitalizedUsername.charAt(0);
+
+                // Eski user elements varsa güncelle
+                const currentUserName = document.getElementById('currentUserName');
+                if (currentUserName) {
+                    currentUserName.textContent = capitalizedUsername;
+                }
+
+                const userAvatar = document.getElementById('userAvatar');
+                if (userAvatar) {
+                    userAvatar.textContent = capitalizedUsername.charAt(0);
+                }
+
+                // Modern user display güncelle
+                const userDisplayName = document.getElementById('userDisplayName');
+                if (userDisplayName) {
+                    userDisplayName.textContent = 'emre.pirinc';
+                }
+
+                const userDisplayNameDropdown = document.getElementById('userDisplayNameDropdown');
+                if (userDisplayNameDropdown) {
+                    userDisplayNameDropdown.textContent = 'emre.pirinc';
+                }
 
                 loadActions();
                 loadPersons();
@@ -2827,8 +2847,8 @@
             e.preventDefault();
 
             const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+            const newPassword = document.getElementById('changeNewPassword').value;
+            const confirmPassword = document.getElementById('changeConfirmPassword').value;
 
             // Şifre kontrolü
             if (newPassword !== confirmPassword) {
