@@ -854,64 +854,91 @@
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
         }
 
-        /* --- VIEW SELECTOR FLOATING --- */
-        .view-selector-floating {
-            position: fixed;
-            top: 50%;
-            right: 24px;
-            transform: translateY(-50%);
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 16px;
-            padding: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-        }
-
-        .view-selector-container {
+        /* --- HEADER VIEW SELECTOR --- */
+        .view-selector-header {
             display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .view-option {
-            display: flex;
-            flex-direction: column;
             align-items: center;
+            gap: 12px;
+            margin-right: 20px;
+        }
+
+        .view-selector-label {
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.9rem;
+        }
+
+        .view-options-header {
+            display: flex;
             gap: 4px;
-            padding: 12px 8px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 12px;
+            padding: 4px;
+        }
+
+        .view-option-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             color: var(--gray-600);
-            min-width: 60px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
         }
 
-        .view-option:hover {
+        .view-option-header:hover {
             background: rgba(59, 130, 246, 0.1);
             color: var(--primary);
-            transform: scale(1.05);
+            transform: translateY(-1px);
         }
 
-        .view-option.active {
+        .view-option-header.active {
             background: var(--primary);
             color: white;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
         }
 
-        .view-option span {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .view-option svg {
+        .view-option-header svg {
             transition: transform 0.3s ease;
+            flex-shrink: 0;
         }
 
-        .view-option:hover svg {
+        .view-option-header:hover svg {
             transform: scale(1.1);
+        }
+
+        /* Header actions layout */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .view-option-header span {
+                display: none;
+            }
+
+            .view-options-header {
+                gap: 2px;
+                padding: 2px;
+            }
+
+            .view-option-header {
+                padding: 6px 8px;
+            }
+
+            .view-selector-label {
+                display: none;
+            }
         }
 
         /* --- ACTION CONTAINER & VIEWS --- */
@@ -1489,6 +1516,49 @@
                         <p class="header-subtitle">Proje sorumlulukları ve aksiyonları merkezi bir sistemden yönetin</p>
                     </div>
                     <div class="header-actions">
+                        <div class="view-selector-header">
+                            <div class="view-selector-label">Görünüm:</div>
+                            <div class="view-options-header">
+                                <div class="view-option-header active" data-view="grouped" title="Gruplu Görünüm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="7" height="7"></rect>
+                                        <rect x="14" y="3" width="7" height="7"></rect>
+                                        <rect x="14" y="14" width="7" height="7"></rect>
+                                        <rect x="3" y="14" width="7" height="7"></rect>
+                                    </svg>
+                                    <span>Gruplu</span>
+                                </div>
+                                <div class="view-option-header" data-view="list" title="Liste Görünümü">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="8" y1="6" x2="21" y2="6"></line>
+                                        <line x1="8" y1="12" x2="21" y2="12"></line>
+                                        <line x1="8" y1="18" x2="21" y2="18"></line>
+                                        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                    </svg>
+                                    <span>Liste</span>
+                                </div>
+                                <div class="view-option-header" data-view="kanban" title="Kanban Tahtası">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="6" height="18"></rect>
+                                        <rect x="11" y="3" width="6" height="10"></rect>
+                                        <rect x="19" y="3" width="2" height="14"></rect>
+                                    </svg>
+                                    <span>Kanban</span>
+                                </div>
+                                <div class="view-option-header" data-view="calendar" title="Takvim Görünümü">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                    <span>Takvim</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="export-buttons">
                             <button class="export-btn excel" onclick="exportToExcel()">
                                 <span class="export-icon">
@@ -1627,48 +1697,6 @@
                 </div>
             </div>
 
-            <!-- View Selector (Floating) -->
-            <div class="view-selector-floating">
-                <div class="view-selector-container">
-                    <div class="view-option active" data-view="grouped" title="Gruplu Görünüm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="14" width="7" height="7"></rect>
-                            <rect x="3" y="14" width="7" height="7"></rect>
-                        </svg>
-                        <span>Gruplu</span>
-                    </div>
-                    <div class="view-option" data-view="list" title="Liste Görünümü">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="8" y1="6" x2="21" y2="6"></line>
-                            <line x1="8" y1="12" x2="21" y2="12"></line>
-                            <line x1="8" y1="18" x2="21" y2="18"></line>
-                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                        </svg>
-                        <span>Liste</span>
-                    </div>
-                    <div class="view-option" data-view="kanban" title="Kanban Tahtası">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="6" height="18"></rect>
-                            <rect x="11" y="3" width="6" height="10"></rect>
-                            <rect x="19" y="3" width="2" height="14"></rect>
-                        </svg>
-                        <span>Kanban</span>
-                    </div>
-                    <div class="view-option" data-view="calendar" title="Takvim Görünümü">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                        </svg>
-                        <span>Takvim</span>
-                    </div>
-                </div>
-            </div>
             
             <!-- Actions Container -->
             <div id="actionsContainerWrapper">
@@ -2854,7 +2882,15 @@
             renderActions();
         }));
 
-        // Modern View Selector
+        // Modern View Selector - Header
+        document.querySelectorAll(".view-option-header[data-view]").forEach(btn => btn.addEventListener("click", e => {
+            document.querySelectorAll(".view-option-header[data-view]").forEach(b => b.classList.remove("active"));
+            e.currentTarget.classList.add("active");
+            currentView = e.currentTarget.dataset.view;
+            renderActions();
+        }));
+
+        // General View Selector (for any data-view elements)
         document.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", e => {
             document.querySelectorAll("[data-view]").forEach(b => b.classList.remove("active"));
             e.currentTarget.classList.add("active");
