@@ -1950,7 +1950,7 @@
                                     </svg>
                                 </div>
                             </button>
-                            <div class="user-dropdown-clean" id="userDropdown">
+                            <div class="user-dropdown-clean" id="modernUserDropdown">
                                 <div class="dropdown-header-clean">
                                     <div class="dropdown-avatar-clean">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3585,8 +3585,17 @@
         document.getElementById("searchInput").addEventListener("input", renderActions);
         
         function toggleUserMenu() {
-            const dropdown = document.getElementById('userDropdown');
-            dropdown.classList.toggle('active');
+            // Eski dropdown varsa onu kullan
+            const oldDropdown = document.getElementById('userDropdown');
+            if (oldDropdown) {
+                oldDropdown.classList.toggle('active');
+            }
+
+            // Modern dropdown varsa onu kullan
+            const modernDropdown = document.getElementById('modernUserDropdown');
+            if (modernDropdown) {
+                modernDropdown.classList.toggle('active');
+            }
         }
 
         // Initialize user profile
