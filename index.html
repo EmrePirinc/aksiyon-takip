@@ -4120,18 +4120,26 @@
 
             if (!postponeItem) return;
 
-            const originalDate = new Date(postpone.originalDate);
-            const postponeDate = new Date(postpone.postponeDate);
+            // Safe date parsing
+            function formatDateForInput(dateStr) {
+                if (!dateStr) return '';
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) return '';
+                return date.toISOString().split('T')[0];
+            }
+
+            const originalDateFormatted = formatDateForInput(postpone.originalDate);
+            const postponeDateFormatted = formatDateForInput(postpone.postponeDate);
 
             postponeItem.innerHTML = `
                 <div class="postpone-edit-form" style="padding: 12px; background: #fff8f0; border-left: 4px solid #f39c12; border-radius: 6px;">
                     <div style="margin-bottom: 12px;">
                         <label style="display: block; font-weight: 600; color: #e67e22; margin-bottom: 5px;">Eski Tarih:</label>
-                        <input type="date" id="editOriginal-${actionId}-${postponeIndex}" value="${originalDate.toISOString().split('T')[0]}" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 150px;">
+                        <input type="date" id="editOriginal-${actionId}-${postponeIndex}" value="${originalDateFormatted}" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 150px;">
                     </div>
                     <div style="margin-bottom: 12px;">
                         <label style="display: block; font-weight: 600; color: #e67e22; margin-bottom: 5px;">Yeni Tarih:</label>
-                        <input type="date" id="editPostpone-${actionId}-${postponeIndex}" value="${postponeDate.toISOString().split('T')[0]}" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 150px;">
+                        <input type="date" id="editPostpone-${actionId}-${postponeIndex}" value="${postponeDateFormatted}" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 150px;">
                     </div>
                     <div style="margin-bottom: 12px;">
                         <label style="display: block; font-weight: 600; color: #e67e22; margin-bottom: 5px;">Erteleme Sebebi:</label>
