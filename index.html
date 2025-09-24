@@ -2556,27 +2556,23 @@
             apiKey: null
         };
 
-        // Initialize Google API credentials (temporary fallback)
+        // Initialize Google API credentials (run once to store in Firebase)
         async function initializeGoogleCredentials() {
             try {
-                // Temporary: Load credentials directly due to Firebase permission issue
-                googleApiCredentials.clientId = "598838942977-2ormcvf1k5sbsn469j5ia1355rl7ual5.apps.googleusercontent.com";
-                googleApiCredentials.apiKey = "AIzaSyBQk65tQHizhFDqh-CpuAfYOM8ngJ6SGeI";
-                console.log("Google API credentials loaded directly (fallback method)");
-                return true;
-
-                // TODO: When Firebase rules are fixed, use this secure method:
-                /*
+                // Store credentials securely in Firebase Database
                 const credentials = {
                     clientId: "598838942977-2ormcvf1k5sbsn469j5ia1355rl7ual5.apps.googleusercontent.com",
                     apiKey: "AIzaSyBQk65tQHizhFDqh-CpuAfYOM8ngJ6SGeI"
                 };
+
                 await database.ref('config/google').set(credentials);
                 console.log("Google API credentials stored securely in Firebase");
+
+                // Load the credentials immediately after storing
                 await loadGoogleCredentials();
-                */
+                return true;
             } catch (error) {
-                console.error("Error initializing Google credentials:", error);
+                console.error("Error storing Google credentials:", error);
                 return false;
             }
         }
@@ -2706,11 +2702,11 @@
                 loadActions();
                 loadPersons();
 
-                // Load Google API credentials
+                // Load Google API credentials from Firebase
                 loadGoogleCredentials().then((loaded) => {
                     if (!loaded) {
-                        console.warn("Google credentials not found in Firebase, using fallback...");
-                        // Use fallback initialization due to Firebase permission issue
+                        console.warn("Google credentials not found, initializing...");
+                        // Initialize credentials if they don't exist (run once)
                         initializeGoogleCredentials().then((success) => {
                             if (success) {
                                 // Test credentials after initialization
@@ -2722,7 +2718,7 @@
                             }
                         });
                     } else {
-                        // Test credentials after loading from Firebase
+                        // Test credentials after loading
                         console.log("🔑 Test - Client ID:", getGoogleClientId() ? "✅ Loaded" : "❌ Failed");
                         console.log("🔑 Test - API Key:", getGoogleApiKey() ? "✅ Loaded" : "❌ Failed");
 
