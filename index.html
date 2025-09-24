@@ -2674,7 +2674,10 @@
         // --- POSTPONE ACTION LOGIC ---
         function postponeAction(id) {
             postponingId = id;
-            document.getElementById('postponeForm').reset();
+            const postponeForm = document.getElementById('postponeForm');
+            if (postponeForm) {
+                postponeForm.reset();
+            }
             const action = actions.find(a => a.id === id);
             if (action && action.date) {
                 document.getElementById('postponeDate').value = action.date;
@@ -2708,7 +2711,10 @@
             const modal = document.getElementById('passwordModal');
             modal.classList.remove('active');
             modal.style.display = 'none';
-            document.getElementById('passwordForm').reset();
+            const passwordForm = document.getElementById('passwordForm');
+            if (passwordForm) {
+                passwordForm.reset();
+            }
         }
 
         document.getElementById("postponeForm").addEventListener("submit", e => {
@@ -3000,7 +3006,10 @@
         
         function openModal() {
             editingId = null;
-            document.getElementById("actionForm").reset();
+            const actionForm = document.getElementById("actionForm");
+            if (actionForm) {
+                actionForm.reset();
+            }
             document.getElementById("modalTitle").textContent = "Yeni Aksiyon Ekle";
             const modal = document.getElementById("actionModal");
             modal.classList.add("active");
@@ -3412,7 +3421,9 @@
             const team = document.getElementById('personTeam').value;
             if (name && team) {
                 database.ref('persons').push({ name, team });
-                e.target.reset();
+                if (e.target) {
+                    e.target.reset();
+                }
             }
         });
 
@@ -3622,16 +3633,28 @@
 
                     // Reset any form data if needed
                     if (activeModal.id === 'actionModal') {
-                        document.getElementById('actionForm').reset();
+                        const actionForm = document.getElementById('actionForm');
+                        if (actionForm) {
+                            actionForm.reset();
+                        }
                         editingId = null;
                     } else if (activeModal.id === 'personModal') {
-                        document.getElementById('personForm').reset();
-                        delete document.getElementById('personForm').dataset.editId;
+                        const personForm = document.getElementById('personForm');
+                        if (personForm) {
+                            personForm.reset();
+                            delete personForm.dataset.editId;
+                        }
                     } else if (activeModal.id === 'postponeModal') {
-                        document.getElementById('postponeForm').reset();
+                        const postponeForm = document.getElementById('postponeForm');
+                        if (postponeForm) {
+                            postponeForm.reset();
+                        }
                         currentPostponeId = null;
                     } else if (activeModal.id === 'passwordModal') {
-                        document.getElementById('passwordForm').reset();
+                        const passwordForm = document.getElementById('passwordForm');
+                        if (passwordForm) {
+                            passwordForm.reset();
+                        }
                     }
                     
                     // Close user dropdown if open
@@ -3702,10 +3725,13 @@
 
         // Close dropdown on outside click
         document.addEventListener('click', function(e) {
-            const userMenu = e.target.closest('.user-menu');
+            const userMenu = e.target.closest('.user-menu-modern');
             const activeModal = document.querySelector('.modal.active');
             if (!userMenu) {
-                document.getElementById('userDropdown').classList.remove('active');
+                const modernDropdown = document.getElementById('modernUserDropdown');
+                if (modernDropdown) {
+                    modernDropdown.classList.remove('active');
+                }
             }
             if (activeModal && e.target === activeModal) {
                  activeModal.classList.remove('active');
@@ -3985,6 +4011,15 @@
             URL.revokeObjectURL(url);
             
             showNotification('📄 Word raporu başarıyla oluşturuldu!', 'success');
+        }
+
+        // Missing function definitions
+        function openPasswordModal() {
+            showNotification('🔑 Şifre değiştirme özelliği aktif değil', 'info');
+        }
+
+        function showBackupSettings() {
+            showNotification('💾 Yedekleme ayarları yakında eklenecek', 'info');
         }
 
     </script>
