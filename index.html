@@ -1697,9 +1697,14 @@
             background: rgba(17, 24, 39, 0.6);
             backdrop-filter: blur(4px);
             justify-content: center; align-items: center;
-            z-index: 1000;
+            z-index: 9999;
             overflow-y: auto;
             padding: 20px;
+        }
+
+        /* Ensure important modals are on top */
+        #passwordModal, #backupModal, #detailModal {
+            z-index: 10000 !important;
         }
         .modal.active { 
             display: flex !important; 
@@ -2773,6 +2778,35 @@
             <div class="modal-buttons" style="margin-top: 30px;">
                 <button type="button" class="btn modal-btn cancel" onclick="closeDetailModal()">Kapat</button>
                 <button type="button" class="btn btn-success" onclick="openAddNoteModal(currentDetailActionId)" style="margin-left: 10px;">+ Not Ekle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backup Settings Modal -->
+    <div class="modal" id="backupModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Yedekleme Ayarları</h2></div>
+            <div style="margin-bottom: 20px;">
+                <p>Verilerinizi güvenle yedekleyebilir ve geri yükleyebilirsiniz.</p>
+            </div>
+
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-success" onclick="exportAllData()" style="flex: 1; min-width: 200px;">
+                    📁 Verileri Dışa Aktar (JSON)
+                </button>
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('importFile').click()" style="flex: 1; min-width: 200px;">
+                    📂 Verileri İçe Aktar
+                </button>
+            </div>
+
+            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+
+            <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 6px; border-left: 4px solid #ffc107;">
+                <strong>⚠️ Dikkat:</strong> Veri içe aktarımı mevcut tüm verilerin üzerine yazacaktır. Bu işlemden önce mevcut verilerinizi yedeklediğinizden emin olun.
+            </div>
+
+            <div class="modal-buttons" style="margin-top: 25px;">
+                <button type="button" class="btn modal-btn cancel" onclick="closeBackupModal()">Kapat</button>
             </div>
         </div>
     </div>
@@ -5361,11 +5395,103 @@
 
         // Missing function definitions
         function openPasswordModal() {
-            showNotification('🔑 Şifre değiştirme özelliği aktif değil', 'info');
+            const modal = document.getElementById('passwordModal');
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+            modal.style.zIndex = '10000'; // Ensure it's on top
+
+            // Close user dropdown
+            const modernUserDropdown = document.getElementById('modernUserDropdown');
+            if (modernUserDropdown) {
+                modernUserDropdown.style.display = 'none';
+            }
         }
 
         function showBackupSettings() {
-            showNotification('💾 Yedekleme ayarları yakında eklenecek', 'info');
+            const modal = document.getElementById('backupModal');
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+            modal.style.zIndex = '10000'; // Ensure it's on top
+
+            // Close user dropdown
+            const modernUserDropdown = document.getElementById('modernUserDropdown');
+            if (modernUserDropdown) {
+                modernUserDropdown.style.display = 'none';
+            }
+        }
+
+        function closeBackupModal() {
+            const modal = document.getElementById('backupModal');
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+        }
+
+        function exportAllData() {
+            const allData = {
+                actions: actions,
+                persons: persons,
+                exportDate: new Date().toISOString(),
+                version: "1.0"
+            };
+
+            const dataStr = JSON.stringify(allData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `aksiyon-takip-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showNotification('📁 Veriler başarıyla dışa aktarıldı!', 'success');
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!confirm('⚠️ Bu işlem mevcut tüm verilerinizin üzerine yazacaktır. Devam etmek istediğinizden emin misiniz?')) {
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+
+                    if (importedData.actions && importedData.persons) {
+                        // Update Firebase with imported data
+                        const updates = {};
+
+                        // Import actions
+                        importedData.actions.forEach(action => {
+                            updates[`actions/${action.id}`] = action;
+                        });
+
+                        // Import persons
+                        importedData.persons.forEach(person => {
+                            updates[`persons/${person.id}`] = person;
+                        });
+
+                        database.ref().update(updates).then(() => {
+                            showNotification('📂 Veriler başarıyla içe aktarıldı! Sayfa yenileniyor...', 'success');
+                            setTimeout(() => location.reload(), 1500);
+                        }).catch(error => {
+                            console.error('Import error:', error);
+                            showNotification('❌ İçe aktarma sırasında hata oluştu!', 'error');
+                        });
+                    } else {
+                        showNotification('❌ Geçersiz dosya formatı!', 'error');
+                    }
+                } catch (error) {
+                    console.error('Parse error:', error);
+                    showNotification('❌ Dosya okunamadı! Geçerli bir JSON dosyası seçin.', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
         }
 
         // Initialize setup functions
