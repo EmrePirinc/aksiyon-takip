@@ -2510,6 +2510,31 @@
         </div>
     </div>
 
+    <!-- Postpone Edit Modal -->
+    <div class="modal" id="postponeEditModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Erteleme Düzenle</h2></div>
+            <form id="postponeEditForm">
+                <div class="form-group">
+                    <label for="postponeEditReason">Erteleme Sebebi *</label>
+                    <textarea id="postponeEditReason" rows="3" required placeholder="Erteleme sebebini açıklayın..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="postponeEditOriginalDate">Orijinal Tarih</label>
+                    <input type="date" id="postponeEditOriginalDate" readonly style="background: #f5f5f5;">
+                </div>
+                <div class="form-group">
+                    <label for="postponeEditNewDate">Yeni Hedef Tarih *</label>
+                    <input type="date" id="postponeEditNewDate" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn modal-btn cancel" onclick="closePostponeEditModal()">İptal</button>
+                    <button type="submit" class="btn btn-primary modal-btn save">Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="modal" id="addNoteModal">
         <div class="modal-content">
             <div class="modal-header"><h2>Aksiyon Ekle</h2></div>
@@ -3955,6 +3980,8 @@
             }).join('');
         }
 
+        let currentEditingPostpone = { actionId: null, postponeIndex: null };
+
         function editPostpone(actionId, postponeIndex) {
             const action = actions.find(a => a.id === actionId);
             if (!action || !action.postponeHistory || !action.postponeHistory[postponeIndex]) {
@@ -3963,39 +3990,26 @@
             }
 
             const postpone = action.postponeHistory[postponeIndex];
-            const newReason = prompt('Erteleme sebebini düzenleyin:', postpone.reason || '');
 
-            if (newReason !== null) {
-                const newDate = prompt('Yeni hedef tarihi (YYYY-MM-DD formatında):', postpone.postponeDate || '');
+            // Store current editing info
+            currentEditingPostpone = { actionId, postponeIndex };
 
-                if (newDate !== null && newDate.trim() !== '') {
-                    // Validate date format
-                    if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
-                        alert('Lütfen tarihi YYYY-MM-DD formatında girin (örn: 2024-01-15)');
-                        return;
-                    }
+            // Fill modal with current data
+            document.getElementById('postponeEditReason').value = postpone.reason || '';
+            document.getElementById('postponeEditOriginalDate').value = postpone.originalDate || action.date || '';
+            document.getElementById('postponeEditNewDate').value = postpone.postponeDate || '';
 
-                    // Güncelleme yap
-                    action.postponeHistory[postponeIndex] = {
-                        ...postpone,
-                        reason: newReason.trim(),
-                        postponeDate: newDate,
-                        lastModified: new Date().toISOString()
-                    };
+            // Show modal
+            const modal = document.getElementById('postponeEditModal');
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+        }
 
-                    // Database'i güncelle
-                    database.ref('actions/' + actionId).update({
-                        postponeHistory: action.postponeHistory
-                    }).then(() => {
-                        // UI'ı güncelle
-                        renderPostponeHistory(action.postponeHistory, actionId);
-                        showNotification('✅ Erteleme güncellendi!', 'success');
-                    }).catch(error => {
-                        console.error('Error updating postpone:', error);
-                        showNotification('❌ Güncelleme sırasında hata oluştu!', 'error');
-                    });
-                }
-            }
+        function closePostponeEditModal() {
+            const modal = document.getElementById('postponeEditModal');
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+            currentEditingPostpone = { actionId: null, postponeIndex: null };
         }
 
         function deletePostpone(actionId, postponeIndex) {
@@ -4520,6 +4534,12 @@
                         if (passwordForm) {
                             passwordForm.reset();
                         }
+                    } else if (activeModal.id === 'postponeEditModal') {
+                        const postponeEditForm = document.getElementById('postponeEditForm');
+                        if (postponeEditForm) {
+                            postponeEditForm.reset();
+                        }
+                        currentEditingPostpone = { actionId: null, postponeIndex: null };
                     }
                     
                     // Close user dropdown if open
@@ -4898,6 +4918,52 @@
             if (typeof gapi !== 'undefined') {
                 initGoogleDriveAPI();
             }
+
+            // Handle postpone edit form submission
+            document.getElementById('postponeEditForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const { actionId, postponeIndex } = currentEditingPostpone;
+                if (!actionId || postponeIndex === null) {
+                    alert('Düzenleme bilgisi bulunamadı!');
+                    return;
+                }
+
+                const action = actions.find(a => a.id === actionId);
+                if (!action || !action.postponeHistory || !action.postponeHistory[postponeIndex]) {
+                    alert('Erteleme verisi bulunamadı!');
+                    return;
+                }
+
+                const newReason = document.getElementById('postponeEditReason').value.trim();
+                const newDate = document.getElementById('postponeEditNewDate').value;
+
+                if (!newReason || !newDate) {
+                    alert('Lütfen tüm zorunlu alanları doldurun!');
+                    return;
+                }
+
+                // Update postpone data
+                action.postponeHistory[postponeIndex] = {
+                    ...action.postponeHistory[postponeIndex],
+                    reason: newReason,
+                    postponeDate: newDate,
+                    editTimestamp: new Date().toISOString()
+                };
+
+                // Update database
+                database.ref('actions/' + actionId).update({
+                    postponeHistory: action.postponeHistory,
+                    date: newDate // Update main date as well
+                }).then(() => {
+                    renderPostponeHistory(action.postponeHistory, actionId);
+                    showNotification('✅ Erteleme başarıyla güncellendi!', 'success');
+                    closePostponeEditModal();
+                }).catch(error => {
+                    console.error('Error updating postpone:', error);
+                    showNotification('❌ Güncelleme sırasında hata oluştu!', 'error');
+                });
+            });
         });
 
         // Also call setup functions when modal is opened
