@@ -1862,6 +1862,167 @@
             #actionsContainerList .list-item > div { width: 100%; padding: 0; }
         }
 
+        /* Color Picker Styles */
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .color-picker input[type="color"] {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+        }
+
+        .color-presets {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        .color-preset {
+            width: 30px;
+            height: 30px;
+            border: 2px solid transparent;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .color-preset:hover, .color-preset.selected {
+            border-color: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        /* Image Preview Styles */
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+            margin-top: var(--space-2);
+        }
+
+        .image-preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+        }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview-item .remove-image {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(231, 76, 60, 0.8);
+            color: white;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Note Display Styles */
+        .note-item {
+            margin: var(--space-2) 0;
+            padding: var(--space-3);
+            border-radius: var(--border-radius);
+            border-left: 4px solid;
+        }
+
+        .note-item.type-postpone { border-left-color: #f39c12; background: rgba(243, 156, 18, 0.1); }
+        .note-item.type-note { border-left-color: #3498db; background: rgba(52, 152, 219, 0.1); }
+        .note-item.type-update { border-left-color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
+        .note-item.type-reminder { border-left-color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-2);
+        }
+
+        .note-type {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .note-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+            margin-top: var(--space-2);
+        }
+
+        .note-image {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+
+        .note-image:hover {
+            transform: scale(1.05);
+        }
+
+        .note-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Image Modal */
+        .image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .image-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: var(--border-radius);
+        }
+
+        .image-modal .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -2273,15 +2434,47 @@
         </div>
     </div>
 
-    <div class="modal" id="postponeModal">
+    <div class="modal" id="addNoteModal">
         <div class="modal-content">
-            <div class="modal-header"><h2>Görevi Ertele</h2></div>
-            <form id="postponeForm">
-                <div class="form-group"><label for="postponeReason">Erteleme Sebebi *</label><textarea id="postponeReason" required></textarea></div>
-                <div class="form-group"><label for="postponeDate">Yeni Hedef Tarih *</label><input type="date" id="postponeDate" required></div>
+            <div class="modal-header"><h2>Aksiyon Ekle</h2></div>
+            <form id="addNoteForm">
+                <div class="form-group">
+                    <label for="noteType">Tip *</label>
+                    <select id="noteType" required>
+                        <option value="">Tip Seç</option>
+                        <option value="postpone">Erteleme</option>
+                        <option value="note">Not</option>
+                        <option value="update">Güncelleme</option>
+                        <option value="reminder">Hatırlatma</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="noteColor">Renk</label>
+                    <div class="color-picker">
+                        <input type="color" id="noteColor" value="#3498db">
+                        <div class="color-presets">
+                            <button type="button" class="color-preset" data-color="#3498db" style="background: #3498db"></button>
+                            <button type="button" class="color-preset" data-color="#e74c3c" style="background: #e74c3c"></button>
+                            <button type="button" class="color-preset" data-color="#f39c12" style="background: #f39c12"></button>
+                            <button type="button" class="color-preset" data-color="#2ecc71" style="background: #2ecc71"></button>
+                            <button type="button" class="color-preset" data-color="#9b59b6" style="background: #9b59b6"></button>
+                            <button type="button" class="color-preset" data-color="#95a5a6" style="background: #95a5a6"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group"><label for="noteText">Açıklama *</label><textarea id="noteText" required placeholder="Açıklama girin..."></textarea></div>
+                <div class="form-group" id="postponeDateGroup" style="display: none;">
+                    <label for="notePostponeDate">Yeni Hedef Tarih *</label>
+                    <input type="date" id="notePostponeDate">
+                </div>
+                <div class="form-group">
+                    <label for="noteImages">Resim Ekle</label>
+                    <input type="file" id="noteImages" multiple accept="image/*">
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
                 <div class="modal-buttons">
-                    <button type="button" class="btn modal-btn cancel" onclick="closePostponeModal()">İptal</button>
-                    <button type="submit" class="btn btn-primary modal-btn save">Ertele</button>
+                    <button type="button" class="btn modal-btn cancel" onclick="closeAddNoteModal()">İptal</button>
+                    <button type="submit" class="btn btn-primary modal-btn save">Ekle</button>
                 </div>
             </form>
         </div>
@@ -2329,10 +2522,18 @@
         </div>
     </div>
 
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal" onclick="closeImageModal()" style="display: none;">
+        <img id="modalImage" src="" alt="">
+        <button class="close-modal" onclick="closeImageModal()">×</button>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <!-- Google Drive API -->
+    <script src="https://apis.google.com/js/api.js"></script>
 
     <script>
         // --- YOUR FIREBASE CONFIG ---
@@ -2427,6 +2628,17 @@
             return true;
         }
 
+        // --- GOOGLE DRIVE CONFIG (Legacy support) ---
+        const GOOGLE_DRIVE_CONFIG = {
+            CLIENT_ID: 'YOUR_GOOGLE_CLIENT_ID', // Bu değer kullanıcı tarafından ayarlanmalı
+            API_KEY: 'YOUR_GOOGLE_API_KEY', // Bu değer kullanıcı tarafından ayarlanmalı
+            DISCOVERY_DOC: 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
+            SCOPES: 'https://www.googleapis.com/auth/drive.file'
+        };
+
+        let gapi_loaded = false;
+        let google_drive_ready = false;
+
         // --- GLOBAL STATE ---
         let actions = [];
         let persons = [];
@@ -2444,7 +2656,8 @@
             priority: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
             postpone: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
             delete: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`,
-            user: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`
+            user: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`,
+            add: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`
         };
 
 
@@ -2770,27 +2983,270 @@
         }
 
         // --- POSTPONE ACTION LOGIC ---
-        function postponeAction(id) {
-            postponingId = id;
-            const postponeForm = document.getElementById('postponeForm');
-            if (postponeForm) {
-                postponeForm.reset();
+        // --- ADD NOTE/ACTION LOGIC ---
+        let currentActionId = null;
+        let selectedImages = [];
+
+        function openAddNoteModal(id) {
+            currentActionId = id;
+            selectedImages = [];
+
+            // Reset form
+            const form = document.getElementById('addNoteForm');
+            if (form) {
+                form.reset();
+                document.getElementById('noteColor').value = '#3498db';
+                document.getElementById('imagePreview').innerHTML = '';
+                document.getElementById('postponeDateGroup').style.display = 'none';
             }
+
+            // Set date if postpone type
             const action = actions.find(a => a.id === id);
             if (action && action.date) {
-                document.getElementById('postponeDate').value = action.date;
+                document.getElementById('notePostponeDate').value = action.date;
             }
-            const modal = document.getElementById('postponeModal');
+
+            // Show modal
+            const modal = document.getElementById('addNoteModal');
             modal.classList.add('active');
             modal.style.display = 'flex';
         }
 
-        function closePostponeModal() {
-            const modal = document.getElementById('postponeModal');
+        function closeAddNoteModal() {
+            const modal = document.getElementById('addNoteModal');
             modal.classList.remove('active');
             modal.style.display = 'none';
-            postponingId = null;
+            currentActionId = null;
+            selectedImages = [];
         }
+
+        // Color picker functionality
+        function setupColorPicker() {
+            const colorInput = document.getElementById('noteColor');
+            const colorPresets = document.querySelectorAll('.color-preset');
+
+            colorPresets.forEach(preset => {
+                preset.addEventListener('click', () => {
+                    const color = preset.getAttribute('data-color');
+                    colorInput.value = color;
+                    colorPresets.forEach(p => p.classList.remove('selected'));
+                    preset.classList.add('selected');
+                });
+            });
+        }
+
+        // Image handling functions
+        function handleImageUpload() {
+            const imageInput = document.getElementById('noteImages');
+            const imagePreview = document.getElementById('imagePreview');
+
+            imageInput.addEventListener('change', async (e) => {
+                const files = Array.from(e.target.files);
+
+                for (const file of files) {
+                    if (file.type.startsWith('image/')) {
+                        const imageData = await uploadToGoogleDrive(file);
+                        selectedImages.push(imageData);
+                        displayImagePreview(imageData);
+                    }
+                }
+
+                imageInput.value = ''; // Reset input
+            });
+        }
+
+        // Google Drive API initialization
+        async function initGoogleDriveAPI() {
+            if (!GOOGLE_DRIVE_CONFIG.CLIENT_ID || GOOGLE_DRIVE_CONFIG.CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID') {
+                console.log('Google Drive API not configured');
+                return false;
+            }
+
+            try {
+                await gapi.load('auth2:client', async () => {
+                    await gapi.client.init({
+                        apiKey: GOOGLE_DRIVE_CONFIG.API_KEY,
+                        clientId: GOOGLE_DRIVE_CONFIG.CLIENT_ID,
+                        discoveryDocs: [GOOGLE_DRIVE_CONFIG.DISCOVERY_DOC],
+                        scope: GOOGLE_DRIVE_CONFIG.SCOPES
+                    });
+
+                    google_drive_ready = true;
+                    console.log('Google Drive API initialized');
+                });
+                return true;
+            } catch (error) {
+                console.error('Google Drive API initialization failed:', error);
+                return false;
+            }
+        }
+
+        async function authenticateGoogleDrive() {
+            if (!google_drive_ready) {
+                await initGoogleDriveAPI();
+            }
+
+            if (!google_drive_ready) return false;
+
+            try {
+                const authInstance = gapi.auth2.getAuthInstance();
+                if (!authInstance.isSignedIn.get()) {
+                    await authInstance.signIn();
+                }
+                return true;
+            } catch (error) {
+                console.error('Google Drive authentication failed:', error);
+                return false;
+            }
+        }
+
+        async function uploadToGoogleDriveAPI(file) {
+            try {
+                const authenticated = await authenticateGoogleDrive();
+                if (!authenticated) {
+                    throw new Error('Google Drive authentication failed');
+                }
+
+                // Create file metadata
+                const metadata = {
+                    name: `aksiyon-takip-${Date.now()}-${file.name}`,
+                    parents: [] // You can specify a folder ID here if needed
+                };
+
+                // Convert file to base64
+                const base64Data = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result.split(',')[1]);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+
+                // Upload to Google Drive
+                const response = await gapi.client.request({
+                    path: 'https://www.googleapis.com/upload/drive/v3/files',
+                    method: 'POST',
+                    params: {
+                        uploadType: 'multipart'
+                    },
+                    headers: {
+                        'Content-Type': 'multipart/related; boundary="foo_bar_baz"'
+                    },
+                    body: `--foo_bar_baz\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n--foo_bar_baz\r\nContent-Type: ${file.type}\r\nContent-Transfer-Encoding: base64\r\n\r\n${base64Data}\r\n--foo_bar_baz--`
+                });
+
+                // Make the file publicly viewable
+                await gapi.client.drive.permissions.create({
+                    fileId: response.result.id,
+                    resource: {
+                        role: 'reader',
+                        type: 'anyone'
+                    }
+                });
+
+                return {
+                    id: response.result.id,
+                    name: file.name,
+                    url: `https://drive.google.com/uc?id=${response.result.id}`,
+                    driveId: response.result.id
+                };
+
+            } catch (error) {
+                console.error('Google Drive upload failed:', error);
+                throw error;
+            }
+        }
+
+        async function uploadToGoogleDrive(file) {
+            // Try Google Drive upload first
+            if (google_drive_ready || GOOGLE_DRIVE_CONFIG.CLIENT_ID !== 'YOUR_GOOGLE_CLIENT_ID') {
+                try {
+                    const result = await uploadToGoogleDriveAPI(file);
+                    showNotification('📁 Google Drive\'a yüklendi', 'success');
+                    return result;
+                } catch (error) {
+                    console.error('Google Drive upload failed, using local storage:', error);
+                    showNotification('⚠️ Google Drive yüklenemedi, yerel önizleme kullanılıyor', 'warning');
+                }
+            }
+
+            // Fallback to local preview
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    resolve({
+                        id: Date.now() + Math.random(),
+                        name: file.name,
+                        url: e.target.result,
+                        driveId: null
+                    });
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function displayImagePreview(imageData) {
+            const imagePreview = document.getElementById('imagePreview');
+            const previewItem = document.createElement('div');
+            previewItem.className = 'image-preview-item';
+            previewItem.innerHTML = `
+                <img src="${imageData.url}" alt="${imageData.name}">
+                <button type="button" class="remove-image" onclick="removeImagePreview('${imageData.id}')">×</button>
+            `;
+            imagePreview.appendChild(previewItem);
+        }
+
+        function removeImagePreview(imageId) {
+            selectedImages = selectedImages.filter(img => img.id !== imageId);
+            const previewItems = document.querySelectorAll('.image-preview-item');
+            previewItems.forEach(item => {
+                if (item.querySelector('button').getAttribute('onclick').includes(imageId)) {
+                    item.remove();
+                }
+            });
+        }
+
+        // Note type change handler
+        function setupNoteTypeHandler() {
+            const noteType = document.getElementById('noteType');
+            const postponeDateGroup = document.getElementById('postponeDateGroup');
+
+            noteType.addEventListener('change', () => {
+                if (noteType.value === 'postpone') {
+                    postponeDateGroup.style.display = 'block';
+                    document.getElementById('notePostponeDate').required = true;
+                } else {
+                    postponeDateGroup.style.display = 'none';
+                    document.getElementById('notePostponeDate').required = false;
+                }
+            });
+        }
+
+        // Image modal functions
+        function openImageModal(imageUrl) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+
+            modalImage.src = imageUrl;
+            modal.style.display = 'flex';
+
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+
+            // Restore body scroll
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal with escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
+        });
 
         // --- PASSWORD CHANGE FUNCTIONS ---
         function openPasswordChange() {
@@ -2815,54 +3271,80 @@
             }
         }
 
-        document.getElementById("postponeForm").addEventListener("submit", e => {
+        document.getElementById("addNoteForm").addEventListener("submit", async e => {
             e.preventDefault();
-            if (!postponingId) return;
+            if (!currentActionId) return;
 
-            const reason = document.getElementById('postponeReason').value;
-            const newDate = document.getElementById('postponeDate').value;
-            const currentAction = actions.find(a => a.id === postponingId);
+            const noteType = document.getElementById('noteType').value;
+            const noteText = document.getElementById('noteText').value;
+            const noteColor = document.getElementById('noteColor').value;
+            const currentAction = actions.find(a => a.id === currentActionId);
 
             if (!currentAction) return;
 
-            // Mevcut erteleme geçmişini al veya boş array oluştur
-            const postponeHistory = currentAction.postponeHistory || [];
+            // Create note object
+            const noteData = {
+                id: Date.now(),
+                type: noteType,
+                text: noteText,
+                color: noteColor,
+                images: selectedImages,
+                timestamp: new Date().toISOString(),
+                author: currentUser ? currentUser.email : 'unknown'
+            };
 
-            // Eğer önceden ertelenmiş bir görevse, mevcut erteleme bilgisini geçmişe ekle
-            if (currentAction.postponed && currentAction.postponeReason && currentAction.originalDate) {
+            // Handle postpone type specially
+            if (noteType === 'postpone') {
+                const newDate = document.getElementById('notePostponeDate').value;
+                if (!newDate) {
+                    showNotification('🚫 Erteleme için yeni tarih gerekli!', 'error');
+                    return;
+                }
+
+                // Handle postpone history
+                const postponeHistory = currentAction.postponeHistory || [];
+
+                if (currentAction.postponed && currentAction.postponeReason && currentAction.originalDate) {
+                    postponeHistory.push({
+                        reason: currentAction.postponeReason,
+                        originalDate: currentAction.originalDate,
+                        postponeDate: currentAction.date,
+                        timestamp: new Date().toISOString()
+                    });
+                } else if (currentAction.postponed && currentAction.postponeReason) {
+                    postponeHistory.push({
+                        reason: currentAction.postponeReason,
+                        originalDate: currentAction.date,
+                        postponeDate: currentAction.date,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+
                 postponeHistory.push({
-                    reason: currentAction.postponeReason,
-                    originalDate: currentAction.originalDate,
-                    postponeDate: currentAction.date,
+                    reason: noteText,
+                    originalDate: currentAction.originalDate || currentAction.date,
+                    postponeDate: newDate,
                     timestamp: new Date().toISOString()
                 });
-            } else if (currentAction.postponed && currentAction.postponeReason) {
-                // İlk erteleme durumunda original date'i mevcut date olarak kaydet
-                postponeHistory.push({
-                    reason: currentAction.postponeReason,
-                    originalDate: currentAction.date,
-                    postponeDate: currentAction.date,
-                    timestamp: new Date().toISOString()
+
+                // Update action with postpone data
+                await database.ref('actions/' + currentActionId).update({
+                    date: newDate,
+                    postponed: true,
+                    postponeReason: noteText,
+                    originalDate: currentAction.originalDate || currentAction.date,
+                    postponeHistory: postponeHistory
                 });
             }
 
-            // Yeni erteleme bilgisini ekle
-            postponeHistory.push({
-                reason: reason,
-                originalDate: currentAction.originalDate || currentAction.date,
-                postponeDate: newDate,
-                timestamp: new Date().toISOString()
-            });
+            // Add note to action's notes array
+            const actionNotes = currentAction.notes || [];
+            actionNotes.push(noteData);
 
-            database.ref('actions/' + postponingId).update({
-                date: newDate,
-                postponed: true,
-                postponeReason: reason,
-                originalDate: currentAction.originalDate || currentAction.date,
-                postponeHistory: postponeHistory
-            });
+            await database.ref('actions/' + currentActionId + '/notes').set(actionNotes);
 
-            closePostponeModal();
+            showNotification(`✅ ${noteType.charAt(0).toUpperCase() + noteType.slice(1)} eklendi!`, 'success');
+            closeAddNoteModal();
         });
 
         document.getElementById("passwordForm").addEventListener("submit", e => {
@@ -3048,8 +3530,36 @@
                     </div>
 
                     <div class="action-body" onclick="openDetailView('${id}')" style="cursor: pointer;">
-                         ${postponed ? `<div class="update-box"><strong>Ertelendi:</strong> ${postponeReason || ''}</div>` : ''}
+                         ${action.postponeHistory && action.postponeHistory.length > 0 ?
+                            action.postponeHistory.map((postpone, index) => {
+                                const postponeDate = new Date(postpone.postponeDate);
+                                const originalDate = new Date(postpone.originalDate);
+                                return `<div class="update-box" style="margin-bottom: 5px;"><strong>Erteleme ${index + 1}:</strong> ${postpone.reason || 'Sebep belirtilmemiş'} <br><small style="color: #666;">${originalDate.toLocaleDateString('tr-TR')} → ${postponeDate.toLocaleDateString('tr-TR')}</small></div>`;
+                            }).join('')
+                            : (postponed ? `<div class="update-box"><strong>Ertelendi:</strong> ${postponeReason || ''}</div>` : '')
+                         }
                         <div class="action-description">${description || 'Açıklama yok'}</div>
+                        ${action.notes && action.notes.length > 0 ?
+                            action.notes.map(note => `
+                                <div class="note-item type-${note.type}" style="border-left-color: ${note.color};">
+                                    <div class="note-header">
+                                        <span class="note-type" style="color: ${note.color};">${note.type.toUpperCase()}</span>
+                                        <small>${new Date(note.timestamp).toLocaleDateString('tr-TR')} ${new Date(note.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
+                                    </div>
+                                    <div class="note-text">${note.text}</div>
+                                    ${note.images && note.images.length > 0 ? `
+                                        <div class="note-images">
+                                            ${note.images.map(img => `
+                                                <div class="note-image" onclick="openImageModal('${img.url}')">
+                                                    <img src="${img.url}" alt="${img.name}">
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')
+                            : ''
+                        }
                     </div>
 
                     <div class="action-footer">
@@ -3060,7 +3570,7 @@
                         <div class="action-buttons">
                             <button class="action-btn" data-action="edit" data-action-id="${id}" title="Düzenle">${ICONS.edit}</button>
                             <button class="action-btn ${priority ? 'priority-active' : ''}" data-action="priority" data-action-id="${id}" title="Öncelik">${ICONS.priority}</button>
-                            <button class="action-btn" data-action="postpone" data-action-id="${id}" title="Ertele">${ICONS.postpone}</button>
+                            <button class="action-btn" data-action="add-note" data-action-id="${id}" title="Aksiyon Ekle">${ICONS.add}</button>
                             <button class="action-btn" data-action="delete" data-action-id="${id}" title="Sil">${ICONS.delete}</button>
                         </div>
                     </div>
@@ -3712,8 +4222,8 @@
                     case 'delete':
                         deleteAction(id);
                         break;
-                    case 'postpone':
-                        postponeAction(id);
+                    case 'add-note':
+                        openAddNoteModal(id);
                         break;
                 }
                 return false; // Prevent any further event handling
@@ -4119,6 +4629,29 @@
         function showBackupSettings() {
             showNotification('💾 Yedekleme ayarları yakında eklenecek', 'info');
         }
+
+        // Initialize setup functions
+        document.addEventListener('DOMContentLoaded', function() {
+            setupColorPicker();
+            handleImageUpload();
+            setupNoteTypeHandler();
+
+            // Initialize Google Drive API
+            if (typeof gapi !== 'undefined') {
+                initGoogleDriveAPI();
+            }
+        });
+
+        // Also call setup functions when modal is opened
+        const originalOpenAddNoteModal = openAddNoteModal;
+        openAddNoteModal = function(id) {
+            originalOpenAddNoteModal(id);
+            setTimeout(() => {
+                setupColorPicker();
+                handleImageUpload();
+                setupNoteTypeHandler();
+            }, 100);
+        };
 
     </script>
 </body>
