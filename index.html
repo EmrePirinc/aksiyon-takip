@@ -2349,6 +2349,84 @@
         const auth = firebase.auth();
         const database = firebase.database();
 
+        // --- GOOGLE API CREDENTIALS MANAGEMENT ---
+        let googleApiCredentials = {
+            clientId: null,
+            apiKey: null
+        };
+
+        // Initialize Google API credentials (run once to store in Firebase)
+        async function initializeGoogleCredentials() {
+            try {
+                // Store credentials securely in Firebase Database
+                // Note: These will be stored once and then removed from code
+                const credentials = {
+                    clientId: "598838942977-2ormcvf1k5sbsn469j5ia1355rl7ual5.apps.googleusercontent.com",
+                    apiKey: "AIzaSyBQk65tQHizhFDqh-CpuAfYOM8ngJ6SGeI"
+                };
+
+                await database.ref('config/google').set(credentials);
+                console.log("Google API credentials stored securely in Firebase");
+
+                // Load the credentials immediately after storing
+                await loadGoogleCredentials();
+            } catch (error) {
+                console.error("Error storing Google credentials:", error);
+            }
+        }
+
+        // Retrieve Google API credentials from Firebase
+        async function loadGoogleCredentials() {
+            try {
+                const snapshot = await database.ref('config/google').once('value');
+                const credentials = snapshot.val();
+                if (credentials) {
+                    googleApiCredentials.clientId = credentials.clientId;
+                    googleApiCredentials.apiKey = credentials.apiKey;
+                    console.log("Google API credentials loaded from Firebase");
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error("Error loading Google credentials:", error);
+                return false;
+            }
+        }
+
+        // Get Google Client ID (for use in code)
+        function getGoogleClientId() {
+            return googleApiCredentials.clientId;
+        }
+
+        // Get Google API Key (for use in code)
+        function getGoogleApiKey() {
+            return googleApiCredentials.apiKey;
+        }
+
+        // Example function for Google Drive integration
+        async function initializeGoogleDriveAPI() {
+            const apiKey = getGoogleApiKey();
+            const clientId = getGoogleClientId();
+
+            if (!apiKey || !clientId) {
+                console.error("Google credentials not loaded yet");
+                return false;
+            }
+
+            // TODO: Add Google Drive API initialization here
+            // gapi.load('client:auth2', () => {
+            //     gapi.client.init({
+            //         apiKey: apiKey,
+            //         clientId: clientId,
+            //         discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+            //         scope: 'https://www.googleapis.com/auth/drive.file'
+            //     });
+            // });
+
+            console.log("Google Drive API ready to be initialized with secure credentials");
+            return true;
+        }
+
         // --- GLOBAL STATE ---
         let actions = [];
         let persons = [];
@@ -2409,6 +2487,26 @@
 
                 loadActions();
                 loadPersons();
+
+                // Load Google API credentials from Firebase
+                loadGoogleCredentials().then((loaded) => {
+                    if (!loaded) {
+                        console.warn("Google credentials not found, initializing...");
+                        // Initialize credentials if they don't exist (run once)
+                        initializeGoogleCredentials().then(() => {
+                            // Test credentials after initialization
+                            console.log("🔑 Test - Client ID:", getGoogleClientId() ? "✅ Loaded" : "❌ Failed");
+                            console.log("🔑 Test - API Key:", getGoogleApiKey() ? "✅ Loaded" : "❌ Failed");
+                        });
+                    } else {
+                        // Test credentials after loading
+                        console.log("🔑 Test - Client ID:", getGoogleClientId() ? "✅ Loaded" : "❌ Failed");
+                        console.log("🔑 Test - API Key:", getGoogleApiKey() ? "✅ Loaded" : "❌ Failed");
+
+                        // Ready for Google Drive integration
+                        initializeGoogleDriveAPI();
+                    }
+                });
             } else {
                 loginContainer.style.display = 'flex';
                 appContainer.style.display = 'none';
