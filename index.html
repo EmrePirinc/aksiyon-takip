@@ -4109,7 +4109,7 @@
         let currentEditingPostpone = { actionId: null, postponeIndex: null };
 
         function editPostpone(actionId, postponeIndex) {
-            const action = actions.find(a => a.id === actionId);
+            const action = actions.find(a => String(a.id) === String(actionId));
             if (!action || !action.postponeHistory || !action.postponeHistory[postponeIndex]) {
                 alert('Erteleme verisi bulunamadı!');
                 return;
@@ -4143,7 +4143,7 @@
                 return;
             }
 
-            const action = actions.find(a => a.id === actionId);
+            const action = actions.find(a => String(a.id) === String(actionId));
             if (!action || !action.notes) {
                 alert('Not bulunamadı!');
                 return;
@@ -4169,7 +4169,7 @@
                 return;
             }
 
-            const action = actions.find(a => a.id === actionId);
+            const action = actions.find(a => String(a.id) === String(actionId));
             if (!action || !action.notes) {
                 alert('Not bulunamadı!');
                 return;
@@ -4229,7 +4229,7 @@
                 return;
             }
 
-            const action = actions.find(a => a.id === actionId);
+            const action = actions.find(a => String(a.id) === String(actionId));
             if (!action || !action.postponeHistory) {
                 alert('Erteleme verisi bulunamadı!');
                 return;
