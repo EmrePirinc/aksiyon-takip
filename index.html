@@ -3296,7 +3296,7 @@
                 color: noteColor,
                 images: selectedImages,
                 timestamp: new Date().toISOString(),
-                author: currentUser ? currentUser.email : 'unknown'
+                author: auth.currentUser ? auth.currentUser.email : 'unknown'
             };
 
             // Handle postpone type specially
@@ -4184,7 +4184,7 @@
         // Initialize user profile
         function initUserProfile() {
             // Bu kısım Firebase auth'dan gelecek
-            const userName = currentUser?.email || "Kullanıcı";
+            const userName = auth.currentUser?.email || "Kullanıcı";
             const userInitials = userName.charAt(0).toUpperCase();
 
             // Update header profile
