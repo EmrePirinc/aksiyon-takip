@@ -1717,8 +1717,17 @@
              max-height: 90vh;
              overflow-y: auto;
         }
-        .modal-header { margin-bottom: 25px; }
-        .modal-header h2 { color: var(--gray-900); font-size: 1.5rem; }
+        .modal-header {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 {
+            color: var(--gray-900);
+            font-size: 1.5rem;
+            margin: 0;
+        }
         .modal-content .form-group label { color: var(--gray-700); font-weight: 600; }
         .modal-content .form-group input, .modal-content .form-group select, .modal-content .form-group textarea {
             width: 100%;
@@ -1804,9 +1813,51 @@
         }
 
         /* Detay Modal Stilleri */
-        #detailModal .modal-content { max-width: 750px; }
+        #detailModal .modal-content { max-width: 900px; }
         #detailModal h2 { font-size: 1.8rem; margin-bottom: var(--space-2); }
         #detailModal .detail-grid { display: grid; grid-template-columns: 150px 1fr; gap: var(--space-3) var(--space-6); align-items: center; margin-bottom: var(--space-6); }
+
+        .detail-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-section:last-of-type {
+            border-bottom: none;
+        }
+
+        .attachment-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .attachment-item-detail {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .attachment-item-detail:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        .attachment-icon {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
+        .attachment-name {
+            font-size: 0.9rem;
+            color: #495057;
+        }
         .detail-label { font-weight: 600; color: var(--gray-600); }
         .detail-value { font-weight: 500; color: var(--gray-800); }
         #detailDescription { background: var(--gray-50); padding: var(--space-4); border-radius: var(--radius-lg); line-height: 1.6; white-space: pre-wrap; }
@@ -2650,19 +2701,46 @@
     </div>
 
     <div class="modal" id="detailModal">
-        <div class="modal-content modal-content-scrollable">
-            <div class="modal-header"><h2 id="detailTitle">Aksiyon Detayı</h2></div>
+        <div class="modal-content modal-content-scrollable" style="max-width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <h2 id="detailTitle">Aksiyon Detayı</h2>
+                <button type="button" class="btn btn-primary" onclick="editActionFromDetail()" style="margin-left: auto;">✏️ Düzenle</button>
+            </div>
+
+            <!-- Basic Info -->
             <div class="detail-grid">
                 <div class="detail-label">Sorumlu Takım</div><div class="detail-value" id="detailResponsible"></div>
                 <div class="detail-label">Atanan Kişi</div><div class="detail-value" id="detailAssignedPerson"></div>
                 <div class="detail-label">Durum</div><div class="detail-value" id="detailStatus"></div>
                 <div class="detail-label">Hedef Tarih</div><div class="detail-value" id="detailDate"></div>
-                <div class="detail-label" id="detailPostponeLabel" style="display: none;">Erteleme Notu</div><div class="detail-value" id="detailPostponeNote" style="display: none;"></div>
             </div>
-            <div class="detail-label" style="margin-bottom: var(--space-2);">Açıklama</div>
-            <p id="detailDescription"></p>
-            <div class="modal-buttons">
+
+            <div class="detail-section">
+                <div class="detail-label" style="margin-bottom: 8px;">Açıklama</div>
+                <p id="detailDescription" style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 20px;"></p>
+            </div>
+
+            <!-- Attachments Section -->
+            <div id="detailAttachments" class="detail-section" style="display: none;">
+                <div class="detail-label" style="margin-bottom: 8px;">📎 Ekler</div>
+                <div id="detailAttachmentsList" class="attachment-list"></div>
+            </div>
+
+            <!-- Postpone History Section -->
+            <div id="detailPostponeHistory" class="detail-section" style="display: none;">
+                <div class="detail-label" style="margin-bottom: 8px;">📅 Erteleme Geçmişi</div>
+                <div id="detailPostponeHistoryList"></div>
+            </div>
+
+            <!-- Notes Section -->
+            <div id="detailNotes" class="detail-section" style="display: none;">
+                <div class="detail-label" style="margin-bottom: 8px;">📝 Notlar</div>
+                <div id="detailNotesList"></div>
+            </div>
+
+            <div class="modal-buttons" style="margin-top: 30px;">
                 <button type="button" class="btn modal-btn cancel" onclick="closeDetailModal()">Kapat</button>
+                <button type="button" class="btn btn-success" onclick="openAddNoteModal(currentDetailActionId)" style="margin-left: 10px;">+ Not Ekle</button>
             </div>
         </div>
     </div>
@@ -3822,7 +3900,7 @@
                                     ${action.attachments.map(file => `
                                         <div class="attachment-item" style="display: flex; align-items: center; padding: 2px 5px; background: #f8f9fa; border-radius: 3px; font-size: 0.7rem;">
                                             <span style="margin-right: 3px; font-size: 0.8rem;">${getFileIcon(file.type)}</span>
-                                            <a href="${file.url}" target="_blank" style="color: #007bff; text-decoration: none; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${file.name}">${file.name}</a>
+                                            <span onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="color: #007bff; cursor: pointer; text-decoration: underline; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${file.name} - Görüntüle/İndir">${file.name}</span>
                                         </div>
                                     `).join('')}
                                 </div>
@@ -4118,6 +4196,34 @@
             });
         }
 
+        function handleAttachmentClick(fileUrl, fileName, fileType) {
+            if (fileType.startsWith('image/')) {
+                // Open image in modal for preview
+                openImageModal(fileUrl);
+            } else {
+                // Download file for non-image types
+                downloadFile(fileUrl, fileName);
+            }
+        }
+
+        function downloadFile(url, filename) {
+            try {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showNotification('📁 Dosya indiriliyor...', 'info');
+            } catch (error) {
+                console.error('Download failed:', error);
+                // Fallback: open in new tab
+                window.open(url, '_blank');
+                showNotification('🔗 Dosya yeni sekmede açıldı', 'info');
+            }
+        }
+
         function deletePostpone(actionId, postponeIndex) {
             if (!confirm('Bu erteleme kaydını silmek istediğinizden emin misiniz?')) {
                 return;
@@ -4165,37 +4271,118 @@
         }
         
         // --- DETAIL VIEW MODAL ---
+        let currentDetailActionId = null;
+
         function openDetailView(id) {
             const action = actions.find(a => String(a.id) === String(id));
             if (!action) {
                 console.error('Action not found for detail view:', id);
                 return;
             }
-            
+
+            currentDetailActionId = id;
             const personName = action.assignedPerson ? (persons.find(p => p.id === action.assignedPerson)?.name || 'Atanmamış') : 'Atanmamış';
-            
+
+            // Basic info
             document.getElementById('detailTitle').textContent = action.title;
             document.getElementById('detailResponsible').textContent = action.responsible;
             document.getElementById('detailAssignedPerson').textContent = personName;
             document.getElementById('detailStatus').innerHTML = `<span class="status-badge ${action.status}">${getStatusText(action.status)}</span>`;
             document.getElementById('detailDate').textContent = action.date ? formatDate(action.date) : 'Tarih Belirtilmemiş';
             document.getElementById('detailDescription').textContent = action.description;
-            
-            // Erteleme notu varsa göster
-            const postponeLabel = document.getElementById('detailPostponeLabel');
-            const postponeNote = document.getElementById('detailPostponeNote');
-            if (action.postponed && action.postponeReason) {
-                postponeLabel.style.display = 'block';
-                postponeNote.style.display = 'block';
-                postponeNote.innerHTML = `<div class="postpone-note">${action.postponeReason}</div>`;
+
+            // Attachments
+            const attachmentsSection = document.getElementById('detailAttachments');
+            const attachmentsList = document.getElementById('detailAttachmentsList');
+
+            if (action.attachments && action.attachments.length > 0) {
+                attachmentsSection.style.display = 'block';
+                attachmentsList.innerHTML = action.attachments.map(file => `
+                    <div class="attachment-item-detail" onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')">
+                        <span class="attachment-icon">${getFileIcon(file.type)}</span>
+                        <span class="attachment-name" title="${file.name}">${file.name}</span>
+                    </div>
+                `).join('');
             } else {
-                postponeLabel.style.display = 'none';
-                postponeNote.style.display = 'none';
+                attachmentsSection.style.display = 'none';
             }
-            
+
+            // Postpone History
+            const postponeHistorySection = document.getElementById('detailPostponeHistory');
+            const postponeHistoryList = document.getElementById('detailPostponeHistoryList');
+
+            if (action.postponeHistory && action.postponeHistory.length > 0) {
+                postponeHistorySection.style.display = 'block';
+                postponeHistoryList.innerHTML = action.postponeHistory.map((postpone, index) => {
+                    const postponeDate = new Date(postpone.postponeDate);
+                    const originalDate = new Date(postpone.originalDate);
+                    const timestamp = postpone.timestamp ? new Date(postpone.timestamp).toLocaleDateString('tr-TR') : 'Bilinmiyor';
+
+                    return `
+                        <div class="postpone-history-item" style="margin-bottom: 15px; padding: 12px; background: #fff8f0; border-left: 4px solid #f39c12; border-radius: 6px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div style="font-weight: 600; color: #e67e22;">
+                                    ${originalDate.toLocaleDateString('tr-TR')} → ${postponeDate.toLocaleDateString('tr-TR')}
+                                </div>
+                                <div style="display: flex; gap: 5px;">
+                                    <button class="postpone-edit-btn" onclick="editPostpone('${id}', ${index})" style="font-size: 0.7rem;">Düzenle</button>
+                                    <button class="postpone-delete-btn" onclick="deletePostpone('${id}', ${index})" style="font-size: 0.7rem;">Sil</button>
+                                </div>
+                            </div>
+                            <div style="color: #666; font-size: 0.9rem;">${postpone.reason || 'Sebep belirtilmemiş'}</div>
+                            <small style="color: #999; font-size: 0.8rem;">Erteleme tarihi: ${timestamp}</small>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                postponeHistorySection.style.display = 'none';
+            }
+
+            // Notes
+            const notesSection = document.getElementById('detailNotes');
+            const notesList = document.getElementById('detailNotesList');
+
+            if (action.notes && action.notes.length > 0) {
+                notesSection.style.display = 'block';
+                notesList.innerHTML = action.notes.map(note => {
+                    const noteDate = new Date(note.timestamp);
+                    return `
+                        <div class="note-item type-${note.type}" style="margin-bottom: 15px; padding: 12px; border-left: 4px solid ${note.color}; border-radius: 6px; background: ${note.color}15;">
+                            <div class="note-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span class="note-type" style="color: ${note.color}; font-weight: bold; font-size: 0.8rem; text-transform: uppercase;">${note.type}</span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <small style="color: #666; font-size: 0.75rem;">${noteDate.toLocaleDateString('tr-TR')} ${noteDate.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
+                                    <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" style="background: none; border: none; cursor: pointer; opacity: 0.6; font-size: 0.8rem;">🗑️</button>
+                                </div>
+                            </div>
+                            <div style="color: #333; line-height: 1.4; margin-bottom: 8px;">${note.text}</div>
+                            ${note.images && note.images.length > 0 ? `
+                                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                                    ${note.images.map((img, imgIndex) => `
+                                        <div style="position: relative;">
+                                            <img src="${img.url}" alt="${img.name}" onclick="openImageModal('${img.url}')" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; cursor: pointer;">
+                                            <button class="image-delete-btn" onclick="deleteNoteImage('${id}', ${note.id}, ${imgIndex})" style="position: absolute; top: -5px; right: -5px; background: rgba(231,76,60,0.9); color: white; border: none; width: 18px; height: 18px; border-radius: 50%; cursor: pointer; font-size: 10px; opacity: 0; transition: opacity 0.2s;">×</button>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                notesSection.style.display = 'none';
+            }
+
             const modal = document.getElementById('detailModal');
             modal.classList.add('active');
             modal.style.display = 'flex';
+        }
+
+        function editActionFromDetail() {
+            if (currentDetailActionId) {
+                closeDetailModal();
+                editAction(currentDetailActionId);
+            }
         }
 
         function closeDetailModal() {
