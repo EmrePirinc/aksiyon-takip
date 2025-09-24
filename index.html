@@ -4488,22 +4488,14 @@
             // Erteleme kaydını sil
             action.postponeHistory.splice(postponeIndex, 1);
 
-            // Database'i güncelle
-            database.ref('actions/' + actionId).update({
-                postponeHistory: action.postponeHistory
-            }).then(() => {
-                // UI'ı güncelle
-                renderPostponeHistory(action.postponeHistory, actionId);
-                showNotification('✅ Erteleme kaydı silindi!', 'success');
+            // Save to storage
+            saveToLocalStorage();
 
-                // Eğer hiç erteleme kalmadıysa bölümü gizle
-                if (action.postponeHistory.length === 0) {
-                    document.getElementById('postponeHistorySection').style.display = 'none';
-                }
-            }).catch(error => {
-                console.error('Error deleting postpone:', error);
-                showNotification('❌ Silme sırasında hata oluştu!', 'error');
-            });
+            // Refresh displays
+            displayActions();
+            displayPostponeHistory(action);
+
+            alert('✅ Erteleme kaydı silindi!');
         }
         
         function quickStatusChange(id, currentStatus) {
@@ -4597,15 +4589,19 @@
 
             if (action.postponeHistory && action.postponeHistory.length > 0) {
                 postponeSection.style.display = 'block';
-                postponeList.innerHTML = action.postponeHistory.map(postpone =>
+                postponeList.innerHTML = action.postponeHistory.map((postpone, index) =>
                     `<div class="postpone-item">
                         <div class="postpone-dates">
-                            <span class="old-date">${postpone.oldDate || 'Tarih yok'}</span>
+                            <span class="old-date">${postpone.oldDate ? formatDate(postpone.oldDate) : 'Tarih yok'}</span>
                             →
-                            <span class="new-date">${postpone.newDate}</span>
+                            <span class="new-date">${postpone.newDate ? formatDate(postpone.newDate) : 'Tarih yok'}</span>
                         </div>
-                        <div class="postpone-reason">${postpone.reason}</div>
-                        <div class="postpone-timestamp">${new Date(postpone.timestamp).toLocaleDateString('tr-TR')}</div>
+                        <div class="postpone-reason">${postpone.reason || 'Sebep belirtilmedi'}</div>
+                        <div class="postpone-timestamp">${postpone.timestamp ? new Date(postpone.timestamp).toLocaleDateString('tr-TR') : ''}</div>
+                        <div class="postpone-actions">
+                            <button class="postpone-edit-btn" onclick="editPostpone('${action.id}', ${index})">Düzenle</button>
+                            <button class="postpone-delete-btn" onclick="deletePostpone('${action.id}', ${index})">Sil</button>
+                        </div>
                     </div>`
                 ).join('');
             } else {
@@ -4639,6 +4635,60 @@
                 'reminder': '🔔 Hatırlatma'
             };
             return types[type] || '📝 Not';
+        }
+
+        function addPostponeFromEdit() {
+            const originalDate = document.getElementById('postponeOriginalDate').value;
+            const newDate = document.getElementById('postponeNewDate').value;
+            const reason = document.getElementById('postponeReason').value.trim();
+
+            if (!newDate || !reason) {
+                alert('Lütfen yeni tarih ve erteleme sebebini girin!');
+                return;
+            }
+
+            if (!currentDetailActionId) {
+                alert('Aksiyon bulunamadı!');
+                return;
+            }
+
+            const action = actions.find(a => String(a.id) === String(currentDetailActionId));
+            if (!action) {
+                alert('Aksiyon bulunamadı!');
+                return;
+            }
+
+            // Initialize postpone history if it doesn't exist
+            if (!action.postponeHistory) action.postponeHistory = [];
+
+            // Add new postpone entry
+            const postponeEntry = {
+                oldDate: originalDate || action.date,
+                newDate: newDate,
+                reason: reason,
+                timestamp: new Date().toISOString()
+            };
+
+            action.postponeHistory.push(postponeEntry);
+
+            // Update the action's date to the new date
+            action.date = newDate;
+
+            // Save to storage
+            saveToLocalStorage();
+
+            // Refresh displays
+            displayActions();
+            displayPostponeHistory(action);
+
+            // Update the edit form's original date field with the new date for next postpone
+            document.getElementById('postponeOriginalDate').value = newDate;
+
+            // Clear the form
+            document.getElementById('postponeNewDate').value = '';
+            document.getElementById('postponeReason').value = '';
+
+            alert('Erteleme başarıyla eklendi!');
         }
 
         function toggleEditMode() {
