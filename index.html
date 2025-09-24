@@ -2755,6 +2755,26 @@
                         Öncelikli Aksiyon
                     </label>
                 </div>
+
+                <!-- Dosya Yükleme Bölümü -->
+                <div class="form-group">
+                    <label for="editActionFiles">Dosya Ekle (Resim, PDF, Word, Excel)</label>
+                    <input type="file" id="editActionFiles" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" style="margin-bottom: 10px;">
+                    <div id="editActionFilePreview" class="file-preview-container">
+                        <!-- Yüklenen dosyalar buraya gelecek -->
+                    </div>
+                </div>
+
+                <!-- Erteleme Ekleme Bölümü -->
+                <div class="form-group">
+                    <label>Erteleme Ekle</label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <input type="date" id="postponeOriginalDate" placeholder="Eski Tarih" style="flex: 1;">
+                        <input type="date" id="postponeNewDate" placeholder="Yeni Tarih" style="flex: 1;">
+                    </div>
+                    <textarea id="postponeReason" placeholder="Erteleme sebebini yazın..." rows="2" style="width: 100%; margin-bottom: 10px;"></textarea>
+                    <button type="button" class="btn btn-secondary" onclick="addPostponeFromEdit()" style="font-size: 0.9rem;">+ Erteleme Ekle</button>
+                </div>
             </form>
 
             <!-- Attachments Section -->
@@ -4429,6 +4449,17 @@
             // Update person dropdown
             updatePersonDropdown();
 
+            // Initialize file upload for edit modal
+            initializeEditFileUpload();
+
+            // Clear postpone form fields
+            document.getElementById('postponeOriginalDate').value = action.date || '';
+            document.getElementById('postponeNewDate').value = '';
+            document.getElementById('postponeReason').value = '';
+
+            // Show existing file attachments in preview
+            showExistingAttachments(action);
+
             // Attachments
             const attachmentsSection = document.getElementById('detailAttachments');
             const attachmentsList = document.getElementById('detailAttachmentsList');
@@ -4560,24 +4591,13 @@
                 actionData.postponeReason = existingAction.postponeReason;
             }
 
-            // Update in Firebase
-            database.ref(`actions/${currentEditingActionId}`).set(actionData).then(() => {
-                showNotification('✅ Aksiyon başarıyla güncellendi!', 'success');
-
-                // Update local actions array
-                const actionIndex = actions.findIndex(a => String(a.id) === String(currentEditingActionId));
-                if (actionIndex !== -1) {
-                    actions[actionIndex] = actionData;
-                }
-
-                // Close modal and refresh
-                closeDetailModal();
-                renderActions();
-                currentEditingActionId = null;
-            }).catch(error => {
-                console.error('Update error:', error);
-                showNotification('❌ Güncellerken hata oluştu!', 'error');
-            });
+            // Handle file uploads if any
+            if (editSelectedFiles.length > 0) {
+                uploadEditFilesAndSaveAction(actionData);
+            } else {
+                // No new files, just update the action
+                updateActionInFirebase(actionData);
+            }
         }
 
         function editActionFromDetail() {
@@ -5492,6 +5512,189 @@
             };
             reader.readAsText(file);
             event.target.value = '';
+        }
+
+        // File upload functions for edit modal
+        let editSelectedFiles = [];
+        let editFileUploadInitialized = false;
+
+        function initializeEditFileUpload() {
+            if (editFileUploadInitialized) return;
+            editFileUploadInitialized = true;
+
+            const fileInput = document.getElementById('editActionFiles');
+            if (!fileInput) return;
+
+            fileInput.addEventListener('change', handleEditActionFileSelect);
+        }
+
+        function handleEditActionFileSelect(event) {
+            const files = event.target.files;
+            for (let file of files) {
+                editSelectedFiles.push(file);
+                displayEditActionFilePreview(file);
+            }
+        }
+
+        function displayEditActionFilePreview(file) {
+            const preview = document.getElementById('editActionFilePreview');
+            if (!preview) return;
+
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-preview-item';
+            fileItem.innerHTML = `
+                <div class="file-info">
+                    <span class="file-icon">${getFileIcon(file.type)}</span>
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-size">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                </div>
+                <button type="button" onclick="removeEditActionFile('${file.name}')" class="remove-file-btn">×</button>
+            `;
+            preview.appendChild(fileItem);
+        }
+
+        function removeEditActionFile(fileName) {
+            editSelectedFiles = editSelectedFiles.filter(file => file.name !== fileName);
+            const preview = document.getElementById('editActionFilePreview');
+            const fileItems = preview.querySelectorAll('.file-preview-item');
+            fileItems.forEach(item => {
+                if (item.querySelector('.file-name').textContent === fileName) {
+                    item.remove();
+                }
+            });
+        }
+
+        function showExistingAttachments(action) {
+            const preview = document.getElementById('editActionFilePreview');
+            if (!preview || !action.attachments) return;
+
+            preview.innerHTML = ''; // Clear existing preview
+
+            action.attachments.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-preview-item existing-file';
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <span class="file-icon">${getFileIcon(file.type)}</span>
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-size">(Mevcut dosya)</span>
+                    </div>
+                    <button type="button" onclick="removeExistingAttachment('${currentEditingActionId}', '${file.name}')" class="remove-file-btn">×</button>
+                `;
+                preview.appendChild(fileItem);
+            });
+        }
+
+        function removeExistingAttachment(actionId, fileName) {
+            if (!confirm('Bu dosyayı silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (action && action.attachments) {
+                action.attachments = action.attachments.filter(att => att.name !== fileName);
+
+                database.ref(`actions/${actionId}/attachments`).set(action.attachments).then(() => {
+                    showNotification('📎 Dosya başarıyla silindi!', 'success');
+                    showExistingAttachments(action);
+                }).catch(error => {
+                    console.error('Delete error:', error);
+                    showNotification('❌ Dosya silinirken hata oluştu!', 'error');
+                });
+            }
+        }
+
+        function uploadEditFilesAndSaveAction(actionData) {
+            if (!window.gapi || !window.gapi.client || !window.gapi.client.drive) {
+                showNotification('❌ Google Drive API hazır değil! Lütfen biraz bekleyin.', 'error');
+                return;
+            }
+
+            showNotification('📤 Dosyalar yükleniyor...', 'info');
+
+            const uploadPromises = editSelectedFiles.map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const fileMetadata = {
+                            name: file.name,
+                            parents: [GOOGLE_DRIVE_FOLDER_ID]
+                        };
+
+                        const form = new FormData();
+                        form.append('metadata', new Blob([JSON.stringify(fileMetadata)], {type: 'application/json'}));
+                        form.append('file', file);
+
+                        fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                            method: 'POST',
+                            headers: new Headers({
+                                'Authorization': `Bearer ${window.gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token}`
+                            }),
+                            body: form
+                        }).then(response => response.json())
+                        .then(result => {
+                            if (result.id) {
+                                const publicUrl = `https://drive.google.com/uc?id=${result.id}&export=view`;
+                                resolve({
+                                    id: result.id,
+                                    name: file.name,
+                                    url: publicUrl,
+                                    type: file.type,
+                                    size: file.size
+                                });
+                            } else {
+                                reject(new Error('File upload failed'));
+                            }
+                        }).catch(reject);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            Promise.all(uploadPromises).then(uploadedFiles => {
+                // Add new files to existing attachments
+                if (!actionData.attachments) {
+                    actionData.attachments = [];
+                }
+                actionData.attachments = [...actionData.attachments, ...uploadedFiles];
+
+                // Clear selected files for next time
+                editSelectedFiles = [];
+
+                // Update action in Firebase
+                updateActionInFirebase(actionData);
+                showNotification(`✅ ${uploadedFiles.length} dosya başarıyla yüklendi!`, 'success');
+            }).catch(error => {
+                console.error('File upload error:', error);
+                showNotification('❌ Dosya yükleme hatası!', 'error');
+
+                // Still save the action without files
+                updateActionInFirebase(actionData);
+            });
+        }
+
+        function updateActionInFirebase(actionData) {
+            database.ref(`actions/${currentEditingActionId}`).set(actionData).then(() => {
+                showNotification('✅ Aksiyon başarıyla güncellendi!', 'success');
+
+                // Update local actions array
+                const actionIndex = actions.findIndex(a => String(a.id) === String(currentEditingActionId));
+                if (actionIndex !== -1) {
+                    actions[actionIndex] = actionData;
+                }
+
+                // Close modal and refresh
+                closeDetailModal();
+                renderActions();
+                currentEditingActionId = null;
+
+                // Reset edit file upload state
+                editSelectedFiles = [];
+                editFileUploadInitialized = false;
+            }).catch(error => {
+                console.error('Update error:', error);
+                showNotification('❌ Güncellerken hata oluştu!', 'error');
+            });
         }
 
         // Initialize setup functions
