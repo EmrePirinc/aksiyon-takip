@@ -1932,6 +1932,73 @@
             cursor: pointer;
             font-size: 12px;
             display: flex;
+        }
+
+        /* File Preview Styles */
+        .file-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .file-preview-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--light-gray);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            max-width: 200px;
+        }
+
+        .file-preview-item .file-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .file-preview-item .file-name {
+            font-size: 12px;
+            color: var(--dark);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-preview-item .remove-file {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            border: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-preview-item.image {
+            width: 80px;
+            height: 80px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .file-preview-item.image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
             align-items: center;
             justify-content: center;
         }
@@ -2390,6 +2457,15 @@
                 <div class="form-group"><label for="actionStatus">Durum *</label><select id="actionStatus" required><option value="waiting">Bekliyor</option><option value="in-progress">Devam Ediyor</option><option value="completed">Tamamlandı</option></select></div>
                 <div class="form-group"><label for="actionDate">Hedef Tarih</label><input type="date" id="actionDate"></div>
 
+                <!-- Dosya Yükleme Bölümü -->
+                <div class="form-group">
+                    <label for="actionFiles">Dosya Ekle (Resim, PDF, Word, Excel)</label>
+                    <input type="file" id="actionFiles" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" style="margin-bottom: 10px;">
+                    <div id="actionFilePreview" class="file-preview-container">
+                        <!-- Yüklenen dosyalar buraya gelecek -->
+                    </div>
+                </div>
+
                 <!-- Erteleme Geçmişi Bölümü - Sadece düzenleme modunda görünür -->
                 <div id="postponeHistorySection" style="display: none;">
                     <div class="form-group">
@@ -2843,8 +2919,29 @@
             });
         }
 
-        document.getElementById("actionForm").addEventListener("submit", e => {
+        document.getElementById("actionForm").addEventListener("submit", async e => {
             e.preventDefault();
+
+            // Upload files to Google Drive if any
+            let uploadedFiles = [];
+            if (selectedActionFiles.length > 0) {
+                for (const fileData of selectedActionFiles) {
+                    try {
+                        const uploadedFile = await uploadFileToGoogleDrive(fileData.file);
+                        uploadedFiles.push({
+                            name: fileData.name,
+                            type: fileData.type,
+                            size: fileData.size,
+                            url: uploadedFile.url || uploadedFile.webViewLink,
+                            driveId: uploadedFile.id
+                        });
+                    } catch (error) {
+                        console.error('File upload failed:', error);
+                        // Continue with other files
+                    }
+                }
+            }
+
             const actionData = {
                 title: document.getElementById("actionTitle").value,
                 responsible: document.getElementById("actionResponsible").value,
@@ -2853,6 +2950,7 @@
                 date: document.getElementById("actionDate").value,
                 assignedPerson: document.getElementById('assignedPerson').value,
                 priority: editingId ? (actions.find(a => a.id === editingId)?.priority || false) : false,
+                attachments: uploadedFiles // Add uploaded files
             };
 
             if (editingId) {
@@ -2860,6 +2958,12 @@
             } else {
                 database.ref('actions').push(actionData);
             }
+
+            // Reset selected files
+            selectedActionFiles = [];
+            const previewContainer = document.getElementById('actionFilePreview');
+            if (previewContainer) previewContainer.innerHTML = '';
+
             closeModal();
         });
         
@@ -3042,23 +3146,114 @@
         }
 
         // Image handling functions
+        let imageUploadInitialized = false;
+        let actionFilesInitialized = false;
+        let selectedActionFiles = []; // Store selected action files
+
         function handleImageUpload() {
+            if (imageUploadInitialized) return; // Prevent duplicate event listeners
+
             const imageInput = document.getElementById('noteImages');
             const imagePreview = document.getElementById('imagePreview');
+
+            if (!imageInput) return;
 
             imageInput.addEventListener('change', async (e) => {
                 const files = Array.from(e.target.files);
 
                 for (const file of files) {
-                    if (file.type.startsWith('image/')) {
-                        const imageData = await uploadToGoogleDrive(file);
-                        selectedImages.push(imageData);
-                        displayImagePreview(imageData);
+                    if (file.type.startsWith('image/') || file.type.startsWith('application/')) {
+                        const fileData = await uploadToGoogleDrive(file);
+                        selectedImages.push(fileData);
+                        displayImagePreview(fileData);
                     }
                 }
 
                 imageInput.value = ''; // Reset input
             });
+
+            imageUploadInitialized = true;
+        }
+
+        function handleActionFileUpload() {
+            if (actionFilesInitialized) return; // Prevent duplicate event listeners
+
+            const fileInput = document.getElementById('actionFiles');
+            const filePreview = document.getElementById('actionFilePreview');
+
+            if (!fileInput) return;
+
+            fileInput.addEventListener('change', async (e) => {
+                const files = Array.from(e.target.files);
+
+                for (const file of files) {
+                    const fileData = {
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        lastModified: file.lastModified,
+                        file: file, // Keep original file for upload later
+                        url: URL.createObjectURL(file) // Temporary URL for preview
+                    };
+
+                    selectedActionFiles.push(fileData);
+                    displayActionFilePreview(fileData);
+                }
+
+                fileInput.value = ''; // Reset input
+            });
+
+            actionFilesInitialized = true;
+        }
+
+        function displayActionFilePreview(fileData) {
+            const previewContainer = document.getElementById('actionFilePreview');
+            if (!previewContainer) return;
+
+            const fileItem = document.createElement('div');
+            fileItem.className = fileData.type.startsWith('image/') ? 'file-preview-item image' : 'file-preview-item';
+
+            if (fileData.type.startsWith('image/')) {
+                fileItem.innerHTML = `
+                    <img src="${fileData.url}" alt="${fileData.name}">
+                    <button class="remove-file" onclick="removeActionFile('${fileData.name}')" title="Dosyayı kaldır">×</button>
+                `;
+            } else {
+                const fileIcon = getFileIcon(fileData.type);
+                fileItem.innerHTML = `
+                    <div class="file-icon">${fileIcon}</div>
+                    <div class="file-name">${fileData.name}</div>
+                    <button class="remove-file" onclick="removeActionFile('${fileData.name}')" title="Dosyayı kaldır">×</button>
+                `;
+            }
+
+            previewContainer.appendChild(fileItem);
+        }
+
+        function removeActionFile(fileName) {
+            selectedActionFiles = selectedActionFiles.filter(f => f.name !== fileName);
+
+            // Remove from preview
+            const previewContainer = document.getElementById('actionFilePreview');
+            const fileItems = previewContainer.children;
+            for (let i = 0; i < fileItems.length; i++) {
+                const item = fileItems[i];
+                if (item.querySelector('.file-name')?.textContent === fileName ||
+                    item.querySelector('img')?.alt === fileName) {
+                    item.remove();
+                    break;
+                }
+            }
+        }
+
+        function getFileIcon(fileType) {
+            if (fileType.includes('pdf')) return '📄';
+            if (fileType.includes('word') || fileType.includes('document')) return '📝';
+            if (fileType.includes('sheet') || fileType.includes('excel')) return '📊';
+            if (fileType.includes('presentation') || fileType.includes('powerpoint')) return '📊';
+            if (fileType.includes('text')) return '📄';
+            if (fileType.includes('zip') || fileType.includes('rar')) return '🗜️';
+            return '📎';
         }
 
         // Google Drive API initialization
@@ -3188,6 +3383,11 @@
                 };
                 reader.readAsDataURL(file);
             });
+        }
+
+        async function uploadFileToGoogleDrive(file) {
+            // Use same logic as existing uploadToGoogleDrive
+            return await uploadToGoogleDrive(file);
         }
 
         function displayImagePreview(imageData) {
@@ -3545,6 +3745,21 @@
                             : (postponed ? `<div class="update-box"><strong>Ertelendi:</strong> ${postponeReason || ''}</div>` : '')
                          }
                         <div class="action-description">${description || 'Açıklama yok'}</div>
+
+                        ${action.attachments && action.attachments.length > 0 ? `
+                            <div class="action-attachments" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">
+                                <small style="color: #666; font-weight: 500; font-size: 0.75rem;">📎 Ekler (${action.attachments.length})</small>
+                                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;">
+                                    ${action.attachments.map(file => `
+                                        <div class="attachment-item" style="display: flex; align-items: center; padding: 2px 5px; background: #f8f9fa; border-radius: 3px; font-size: 0.7rem;">
+                                            <span style="margin-right: 3px; font-size: 0.8rem;">${getFileIcon(file.type)}</span>
+                                            <a href="${file.url}" target="_blank" style="color: #007bff; text-decoration: none; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${file.name}">${file.name}</a>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
                         ${action.notes && action.notes.length > 0 ?
                             action.notes.map(note => `
                                 <div class="note-item type-${note.type}" style="border-left-color: ${note.color};">
@@ -3624,6 +3839,18 @@
             if (actionForm) {
                 actionForm.reset();
             }
+
+            // Clear file preview and selected files
+            selectedActionFiles = [];
+            const previewContainer = document.getElementById('actionFilePreview');
+            if (previewContainer) previewContainer.innerHTML = '';
+
+            // Hide postpone history section for new actions
+            const postponeHistorySection = document.getElementById('postponeHistorySection');
+            if (postponeHistorySection) {
+                postponeHistorySection.style.display = 'none';
+            }
+
             document.getElementById("modalTitle").textContent = "Yeni Aksiyon Ekle";
             const modal = document.getElementById("actionModal");
             modal.classList.add("active");
@@ -3653,6 +3880,30 @@
             document.getElementById("actionStatus").value = action.status || "waiting";
             document.getElementById("actionDate").value = action.date || "";
             document.getElementById('assignedPerson').value = action.assignedPerson || "";
+
+            // Clear file preview and selected files
+            selectedActionFiles = [];
+            const previewContainer = document.getElementById('actionFilePreview');
+            if (previewContainer) previewContainer.innerHTML = '';
+
+            // Show existing attachments if any
+            if (action.attachments && action.attachments.length > 0) {
+                action.attachments.forEach(file => {
+                    selectedActionFiles.push({
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        url: file.url,
+                        existing: true // Mark as existing attachment
+                    });
+                    displayActionFilePreview({
+                        name: file.name,
+                        type: file.type,
+                        url: file.url,
+                        existing: true
+                    });
+                });
+            }
 
             // Erteleme geçmişi bölümünü göster ve doldur
             const postponeHistorySection = document.getElementById('postponeHistorySection');
@@ -4640,6 +4891,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             setupColorPicker();
             handleImageUpload();
+            handleActionFileUpload(); // Add action file upload handler
             setupNoteTypeHandler();
 
             // Initialize Google Drive API
