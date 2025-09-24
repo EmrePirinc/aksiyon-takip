@@ -2708,49 +2708,78 @@
     <div class="modal" id="detailModal">
         <div class="modal-content modal-content-scrollable" style="max-width: 900px; max-height: 90vh;">
             <div class="modal-header">
-                <h2 id="detailTitle">Aksiyon Düzenle</h2>
-                <button type="button" class="btn btn-primary" onclick="saveComprehensiveEdit()" style="margin-left: auto;">💾 Kaydet</button>
+                <h2 id="detailTitle">Aksiyon Detayları</h2>
+                <div style="margin-left: auto; display: flex; gap: 10px;">
+                    <button type="button" class="btn btn-secondary" id="editToggleBtn" onclick="toggleEditMode()" style="display: block;">✏️ Düzenle</button>
+                    <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveComprehensiveEdit()" style="display: none;">💾 Kaydet</button>
+                </div>
+            </div>
+
+            <!-- Detail View (Read-only) -->
+            <div id="detailViewForm" style="display: block;">
+                <div class="detail-grid">
+                    <strong>Başlık:</strong>
+                    <span id="viewActionTitle"></span>
+
+                    <strong>Sorumlu:</strong>
+                    <span id="viewActionResponsible"></span>
+
+                    <strong>Atanan Kişi:</strong>
+                    <span id="viewActionAssignedPerson"></span>
+
+                    <strong>Durum:</strong>
+                    <span id="viewActionStatus" class="status-badge"></span>
+
+                    <strong>Hedef Tarih:</strong>
+                    <span id="viewActionDate"></span>
+
+                    <strong>Açıklama:</strong>
+                    <span id="viewActionDescription"></span>
+
+                    <strong>Öncelikli:</strong>
+                    <span id="viewActionPriority"></span>
+                </div>
             </div>
 
             <!-- Edit Form -->
-            <form id="detailEditForm" style="display: block;">
+            <form id="detailEditForm" style="display: none;">
                 <div class="form-group">
-                    <label for="actionTitle">Başlık *</label>
-                    <input type="text" id="actionTitle" required>
+                    <label for="editActionTitle">Başlık *</label>
+                    <input type="text" id="editActionTitle" required>
                 </div>
                 <div class="form-group">
-                    <label for="actionResponsible">Sorumlu *</label>
-                    <select id="actionResponsible" required>
+                    <label for="editActionResponsible">Sorumlu *</label>
+                    <select id="editActionResponsible" required>
                         <option value="">Sorumlu Seç</option>
                         <option value="Anadolu Bakır">Anadolu Bakır</option>
                         <option value="AIFTEAM">AIFTEAM</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="actionAssignedPerson">Atanan Kişi</label>
-                    <select id="actionAssignedPerson">
+                    <label for="editActionAssignedPerson">Atanan Kişi</label>
+                    <select id="editActionAssignedPerson">
                         <option value="">Kişi seçilmedi</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="actionStatus">Durum *</label>
-                    <select id="actionStatus" required>
+                    <label for="editActionStatus">Durum *</label>
+                    <select id="editActionStatus" required>
                         <option value="waiting">Bekliyor</option>
                         <option value="in-progress">Devam Ediyor</option>
                         <option value="completed">Tamamlandı</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="actionDate">Hedef Tarih</label>
-                    <input type="date" id="actionDate">
+                    <label for="editActionDate">Hedef Tarih</label>
+                    <input type="date" id="editActionDate">
                 </div>
                 <div class="form-group">
-                    <label for="actionDescription">Açıklama</label>
-                    <textarea id="actionDescription" rows="3"></textarea>
+                    <label for="editActionDescription">Açıklama</label>
+                    <textarea id="editActionDescription" rows="3"></textarea>
                 </div>
                 <div class="form-group">
                     <label class="checkbox-label">
-                        <input type="checkbox" id="actionPriority">
+                        <input type="checkbox" id="editActionPriority">
                         <span class="checkmark"></span>
                         Öncelikli Aksiyon
                     </label>
@@ -2795,9 +2824,55 @@
                 <div id="detailNotesList"></div>
             </div>
 
+            <!-- Not Ekleme Formu -->
+            <div id="inlineNoteForm" style="display: none; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+                <h3 style="margin-bottom: 15px; color: #495057;">📝 Not Ekle</h3>
+                <div class="form-group">
+                    <label for="inlineNoteType">Tip *</label>
+                    <select id="inlineNoteType" required>
+                        <option value="">Tip Seç</option>
+                        <option value="postpone">Erteleme</option>
+                        <option value="note">Not</option>
+                        <option value="update">Güncelleme</option>
+                        <option value="reminder">Hatırlatma</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="inlineNoteColor">Renk</label>
+                    <div class="color-picker">
+                        <input type="color" id="inlineNoteColor" value="#3498db">
+                        <div class="color-presets">
+                            <button type="button" class="color-preset" data-color="#3498db" style="background: #3498db" onclick="setInlineNoteColor('#3498db')"></button>
+                            <button type="button" class="color-preset" data-color="#e74c3c" style="background: #e74c3c" onclick="setInlineNoteColor('#e74c3c')"></button>
+                            <button type="button" class="color-preset" data-color="#f39c12" style="background: #f39c12" onclick="setInlineNoteColor('#f39c12')"></button>
+                            <button type="button" class="color-preset" data-color="#2ecc71" style="background: #2ecc71" onclick="setInlineNoteColor('#2ecc71')"></button>
+                            <button type="button" class="color-preset" data-color="#9b59b6" style="background: #9b59b6" onclick="setInlineNoteColor('#9b59b6')"></button>
+                            <button type="button" class="color-preset" data-color="#95a5a6" style="background: #95a5a6" onclick="setInlineNoteColor('#95a5a6')"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inlineNoteText">Açıklama *</label>
+                    <textarea id="inlineNoteText" required placeholder="Açıklama girin..." rows="4"></textarea>
+                </div>
+                <div class="form-group" id="inlinePostponeDateGroup" style="display: none;">
+                    <label for="inlineNotePostponeDate">Yeni Hedef Tarih *</label>
+                    <input type="date" id="inlineNotePostponeDate">
+                </div>
+                <div class="form-group">
+                    <label for="inlineNoteImages">Resim Ekle</label>
+                    <input type="file" id="inlineNoteImages" multiple accept="image/*">
+                    <div id="inlineImagePreview" class="image-preview"></div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="button" class="btn btn-primary" onclick="saveInlineNote()">✅ Ekle</button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleInlineNoteForm()">❌ İptal</button>
+                </div>
+            </div>
+
             <div class="modal-buttons" style="margin-top: 30px;">
                 <button type="button" class="btn modal-btn cancel" onclick="closeDetailModal()">Kapat</button>
-                <button type="button" class="btn btn-success" onclick="openAddNoteModal(currentDetailActionId)" style="margin-left: 10px;">+ Not Ekle</button>
+                <button type="button" class="btn btn-success" id="addNoteBtn" onclick="toggleInlineNoteForm()" style="margin-left: 10px;">+ Not Ekle</button>
             </div>
         </div>
     </div>
@@ -3658,6 +3733,35 @@
                     document.getElementById('notePostponeDate').required = false;
                 }
             });
+
+            // Add handler for inline note type
+            const inlineNoteType = document.getElementById('inlineNoteType');
+            const inlinePostponeDateGroup = document.getElementById('inlinePostponeDateGroup');
+
+            if (inlineNoteType && inlinePostponeDateGroup) {
+                inlineNoteType.addEventListener('change', () => {
+                    if (inlineNoteType.value === 'postpone') {
+                        inlinePostponeDateGroup.style.display = 'block';
+                        document.getElementById('inlineNotePostponeDate').required = true;
+                    } else {
+                        inlinePostponeDateGroup.style.display = 'none';
+                        document.getElementById('inlineNotePostponeDate').required = false;
+                    }
+                });
+            }
+
+            // Add handler for edit status change to update view status color
+            const editStatusSelect = document.getElementById('editActionStatus');
+            if (editStatusSelect) {
+                editStatusSelect.addEventListener('change', () => {
+                    const newStatus = editStatusSelect.value;
+                    const viewStatusSpan = document.getElementById('viewActionStatus');
+                    if (viewStatusSpan) {
+                        viewStatusSpan.textContent = getStatusText(newStatus);
+                        viewStatusSpan.className = `status-badge ${newStatus}`;
+                    }
+                });
+            }
         }
 
         // Image modal functions
@@ -4420,8 +4524,95 @@
         let currentDetailActionId = null;
 
         function openDetailView(id) {
-            // Directly open comprehensive edit mode
-            openComprehensiveEdit(id);
+            const action = actions.find(a => String(a.id) === String(id));
+            if (!action) {
+                console.error('Action not found for view:', id);
+                return;
+            }
+
+            currentDetailActionId = id;
+            currentEditingActionId = null; // Reset editing state
+
+            // Set modal title and show detail view
+            document.getElementById('detailTitle').textContent = action.title;
+
+            // Show detail view, hide edit form
+            document.getElementById('detailViewForm').style.display = 'block';
+            document.getElementById('detailEditForm').style.display = 'none';
+            document.getElementById('editToggleBtn').style.display = 'block';
+            document.getElementById('saveBtn').style.display = 'none';
+
+            // Fill detail view fields
+            document.getElementById('viewActionTitle').textContent = action.title || '';
+            document.getElementById('viewActionResponsible').textContent = action.responsible || '';
+            document.getElementById('viewActionAssignedPerson').textContent = action.assignedPerson || 'Kişi seçilmedi';
+            const statusElement = document.getElementById('viewActionStatus');
+            statusElement.textContent = getStatusText(action.status || 'waiting');
+            statusElement.className = `status-badge ${action.status || 'waiting'}`;
+            document.getElementById('viewActionDate').textContent = action.date ? formatDate(action.date) : 'Tarih yok';
+            document.getElementById('viewActionDescription').textContent = action.description || 'Açıklama yok';
+            document.getElementById('viewActionPriority').textContent = action.priority ? 'Evet' : 'Hayır';
+
+            // Update person dropdown for potential editing later
+            updatePersonDropdown();
+
+            // Show attachments if any
+            displayActionAttachments(action);
+
+            // Show postpone history if any
+            displayPostponeHistory(action);
+
+            // Show notes if any
+            displayActionNotes(action);
+
+            // Show the modal
+            const modal = document.getElementById('detailModal');
+            modal.style.display = 'flex';
+        }
+
+        function toggleEditMode() {
+            if (!currentDetailActionId) return;
+
+            const action = actions.find(a => String(a.id) === String(currentDetailActionId));
+            if (!action) return;
+
+            // Toggle between view and edit modes
+            const isCurrentlyEditing = document.getElementById('detailEditForm').style.display === 'block';
+
+            if (isCurrentlyEditing) {
+                // Switch to view mode
+                document.getElementById('detailViewForm').style.display = 'block';
+                document.getElementById('detailEditForm').style.display = 'none';
+                document.getElementById('editToggleBtn').style.display = 'block';
+                document.getElementById('saveBtn').style.display = 'none';
+                document.getElementById('detailTitle').textContent = action.title;
+                currentEditingActionId = null;
+            } else {
+                // Switch to edit mode
+                document.getElementById('detailViewForm').style.display = 'none';
+                document.getElementById('detailEditForm').style.display = 'block';
+                document.getElementById('editToggleBtn').style.display = 'none';
+                document.getElementById('saveBtn').style.display = 'block';
+                document.getElementById('detailTitle').textContent = `${action.title} - Düzenleniyor`;
+                currentEditingActionId = currentDetailActionId;
+
+                // Fill edit form fields
+                document.getElementById('editActionTitle').value = action.title || '';
+                document.getElementById('editActionResponsible').value = action.responsible || '';
+                document.getElementById('editActionAssignedPerson').value = action.assignedPerson || '';
+                document.getElementById('editActionStatus').value = action.status || 'waiting';
+                document.getElementById('editActionDate').value = action.date || '';
+                document.getElementById('editActionDescription').value = action.description || '';
+                document.getElementById('editActionPriority').checked = action.priority || false;
+
+                // Initialize file upload for edit modal
+                initializeEditFileUpload();
+
+                // Clear postpone form fields
+                document.getElementById('postponeOriginalDate').value = action.date || '';
+                document.getElementById('postponeNewDate').value = '';
+                document.getElementById('postponeReason').value = '';
+            }
         }
 
         function openComprehensiveEdit(id) {
@@ -4438,13 +4629,13 @@
             document.getElementById('detailTitle').textContent = `${action.title} - Düzenleniyor`;
 
             // Fill edit form fields
-            document.getElementById('actionTitle').value = action.title || '';
-            document.getElementById('actionResponsible').value = action.responsible || '';
-            document.getElementById('actionAssignedPerson').value = action.assignedPerson || '';
-            document.getElementById('actionStatus').value = action.status || 'waiting';
-            document.getElementById('actionDate').value = action.date || '';
-            document.getElementById('actionDescription').value = action.description || '';
-            document.getElementById('actionPriority').checked = action.priority || false;
+            document.getElementById('editActionTitle').value = action.title || '';
+            document.getElementById('editActionResponsible').value = action.responsible || '';
+            document.getElementById('editActionAssignedPerson').value = action.assignedPerson || '';
+            document.getElementById('editActionStatus').value = action.status || 'waiting';
+            document.getElementById('editActionDate').value = action.date || '';
+            document.getElementById('editActionDescription').value = action.description || '';
+            document.getElementById('editActionPriority').checked = action.priority || false;
 
             // Update person dropdown
             updatePersonDropdown();
@@ -4555,13 +4746,13 @@
                 return;
             }
 
-            const title = document.getElementById('actionTitle').value.trim();
-            const responsible = document.getElementById('actionResponsible').value;
-            const assignedPerson = document.getElementById('actionAssignedPerson').value;
-            const status = document.getElementById('actionStatus').value;
-            const date = document.getElementById('actionDate').value;
-            const description = document.getElementById('actionDescription').value.trim();
-            const priority = document.getElementById('actionPriority').checked;
+            const title = document.getElementById('editActionTitle').value.trim();
+            const responsible = document.getElementById('editActionResponsible').value;
+            const assignedPerson = document.getElementById('editActionAssignedPerson').value;
+            const status = document.getElementById('editActionStatus').value;
+            const date = document.getElementById('editActionDate').value;
+            const description = document.getElementById('editActionDescription').value.trim();
+            const priority = document.getElementById('editActionPriority').checked;
 
             if (!title || !responsible) {
                 alert('Lütfen başlık ve sorumlu alanlarını doldurun!');
@@ -4611,6 +4802,103 @@
             const modal = document.getElementById('detailModal');
             modal.classList.remove('active');
             modal.style.display = 'none';
+            // Reset inline note form
+            document.getElementById('inlineNoteForm').style.display = 'none';
+        }
+
+        function toggleInlineNoteForm() {
+            const form = document.getElementById('inlineNoteForm');
+            const button = document.getElementById('addNoteBtn');
+
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+                button.textContent = '❌ İptal';
+                button.onclick = toggleInlineNoteForm;
+
+                // Clear form
+                document.getElementById('inlineNoteType').value = '';
+                document.getElementById('inlineNoteColor').value = '#3498db';
+                document.getElementById('inlineNoteText').value = '';
+                document.getElementById('inlineNotePostponeDate').value = '';
+                document.getElementById('inlinePostponeDateGroup').style.display = 'none';
+                document.getElementById('inlineImagePreview').innerHTML = '';
+                document.getElementById('inlineNoteImages').value = '';
+
+            } else {
+                form.style.display = 'none';
+                button.textContent = '+ Not Ekle';
+                button.onclick = toggleInlineNoteForm;
+            }
+        }
+
+        function setInlineNoteColor(color) {
+            document.getElementById('inlineNoteColor').value = color;
+        }
+
+        function saveInlineNote() {
+            const type = document.getElementById('inlineNoteType').value;
+            const color = document.getElementById('inlineNoteColor').value;
+            const text = document.getElementById('inlineNoteText').value.trim();
+            const postponeDate = document.getElementById('inlineNotePostponeDate').value;
+
+            if (!type || !text) {
+                alert('Lütfen tip ve açıklama alanlarını doldurun!');
+                return;
+            }
+
+            if (type === 'postpone' && !postponeDate) {
+                alert('Erteleme için yeni hedef tarih gerekli!');
+                return;
+            }
+
+            if (!currentDetailActionId) {
+                alert('Aksiyon bulunamadı!');
+                return;
+            }
+
+            // Create note object
+            const note = {
+                id: Date.now(),
+                type: type,
+                color: color,
+                text: text,
+                timestamp: new Date().toISOString(),
+                images: [] // TODO: Handle image uploads
+            };
+
+            // Find the action and add the note
+            const action = actions.find(a => String(a.id) === String(currentDetailActionId));
+            if (action) {
+                if (!action.notes) action.notes = [];
+                action.notes.push(note);
+
+                // If it's a postpone, update the action date and add to postpone history
+                if (type === 'postpone' && postponeDate) {
+                    if (!action.postponeHistory) action.postponeHistory = [];
+                    action.postponeHistory.push({
+                        oldDate: action.date,
+                        newDate: postponeDate,
+                        reason: text,
+                        timestamp: new Date().toISOString()
+                    });
+                    action.date = postponeDate;
+                }
+
+                // Save to storage
+                saveToLocalStorage();
+
+                // Refresh displays
+                displayActions();
+                displayActionNotes(action);
+                if (type === 'postpone') {
+                    displayPostponeHistory(action);
+                }
+
+                // Close the inline form
+                toggleInlineNoteForm();
+
+                alert('Not başarıyla eklendi!');
+            }
         }
 
         // --- RENDER FUNCTIONS FOR DIFFERENT VIEWS ---
