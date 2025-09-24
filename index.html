@@ -4574,6 +4574,73 @@
             modal.style.display = 'flex';
         }
 
+        function displayActionAttachments(action) {
+            const attachmentsSection = document.getElementById('detailAttachments');
+            const attachmentsList = document.getElementById('detailAttachmentsList');
+
+            if (action.attachments && action.attachments.length > 0) {
+                attachmentsSection.style.display = 'block';
+                attachmentsList.innerHTML = action.attachments.map(file =>
+                    `<div class="attachment-item">
+                        <span class="attachment-name">${file.name}</span>
+                        <button onclick="downloadFile('${file.url}', '${file.name}')" class="btn btn-sm">📥 İndir</button>
+                    </div>`
+                ).join('');
+            } else {
+                attachmentsSection.style.display = 'none';
+            }
+        }
+
+        function displayPostponeHistory(action) {
+            const postponeSection = document.getElementById('detailPostponeHistory');
+            const postponeList = document.getElementById('detailPostponeHistoryList');
+
+            if (action.postponeHistory && action.postponeHistory.length > 0) {
+                postponeSection.style.display = 'block';
+                postponeList.innerHTML = action.postponeHistory.map(postpone =>
+                    `<div class="postpone-item">
+                        <div class="postpone-dates">
+                            <span class="old-date">${postpone.oldDate || 'Tarih yok'}</span>
+                            →
+                            <span class="new-date">${postpone.newDate}</span>
+                        </div>
+                        <div class="postpone-reason">${postpone.reason}</div>
+                        <div class="postpone-timestamp">${new Date(postpone.timestamp).toLocaleDateString('tr-TR')}</div>
+                    </div>`
+                ).join('');
+            } else {
+                postponeSection.style.display = 'none';
+            }
+        }
+
+        function displayActionNotes(action) {
+            const notesSection = document.getElementById('detailNotes');
+            const notesList = document.getElementById('detailNotesList');
+
+            if (action.notes && action.notes.length > 0) {
+                notesSection.style.display = 'block';
+                notesList.innerHTML = action.notes.map(note =>
+                    `<div class="note-item" style="border-left: 4px solid ${note.color};">
+                        <div class="note-type">${getNoteTypeText(note.type)}</div>
+                        <div class="note-text">${note.text}</div>
+                        <div class="note-timestamp">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
+                    </div>`
+                ).join('');
+            } else {
+                notesSection.style.display = 'none';
+            }
+        }
+
+        function getNoteTypeText(type) {
+            const types = {
+                'note': '📝 Not',
+                'postpone': '⏰ Erteleme',
+                'update': '🔄 Güncelleme',
+                'reminder': '🔔 Hatırlatma'
+            };
+            return types[type] || '📝 Not';
+        }
+
         function toggleEditMode() {
             if (!currentDetailActionId) return;
 
