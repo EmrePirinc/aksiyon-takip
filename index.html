@@ -2029,11 +2029,55 @@
             font-size: 12px;
         }
 
+        .note-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .note-delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+            padding: 2px;
+        }
+
+        .note-delete-btn:hover {
+            opacity: 1;
+        }
+
         .note-images {
             display: flex;
             flex-wrap: wrap;
             gap: var(--space-2);
             margin-top: var(--space-2);
+        }
+
+        .image-delete-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .note-image:hover .image-delete-btn {
+            opacity: 1;
         }
 
         .note-image {
@@ -3790,14 +3834,18 @@
                                 <div class="note-item type-${note.type}" style="border-left-color: ${note.color};">
                                     <div class="note-header">
                                         <span class="note-type" style="color: ${note.color};">${note.type.toUpperCase()}</span>
-                                        <small>${new Date(note.timestamp).toLocaleDateString('tr-TR')} ${new Date(note.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
+                                        <div class="note-actions">
+                                            <small>${new Date(note.timestamp).toLocaleDateString('tr-TR')} ${new Date(note.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
+                                            <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil">🗑️</button>
+                                        </div>
                                     </div>
                                     <div class="note-text">${note.text}</div>
                                     ${note.images && note.images.length > 0 ? `
                                         <div class="note-images">
-                                            ${note.images.map(img => `
-                                                <div class="note-image" onclick="openImageModal('${img.url}')">
-                                                    <img src="${img.url}" alt="${img.name}">
+                                            ${note.images.map((img, imgIndex) => `
+                                                <div class="note-image" style="position: relative;">
+                                                    <img src="${img.url}" alt="${img.name}" onclick="openImageModal('${img.url}')">
+                                                    <button class="image-delete-btn" onclick="deleteNoteImage('${id}', ${note.id}, ${imgIndex})" title="Resmi sil">×</button>
                                                 </div>
                                             `).join('')}
                                         </div>
@@ -4010,6 +4058,64 @@
             modal.classList.remove('active');
             modal.style.display = 'none';
             currentEditingPostpone = { actionId: null, postponeIndex: null };
+        }
+
+        function deleteNote(actionId, noteId) {
+            if (!confirm('Bu notu silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const action = actions.find(a => a.id === actionId);
+            if (!action || !action.notes) {
+                alert('Not bulunamadı!');
+                return;
+            }
+
+            // Remove note from array
+            action.notes = action.notes.filter(note => note.id !== noteId);
+
+            // Update database
+            database.ref('actions/' + actionId).update({
+                notes: action.notes
+            }).then(() => {
+                renderActions(); // Refresh UI
+                showNotification('✅ Not başarıyla silindi!', 'success');
+            }).catch(error => {
+                console.error('Error deleting note:', error);
+                showNotification('❌ Not silinirken hata oluştu!', 'error');
+            });
+        }
+
+        function deleteNoteImage(actionId, noteId, imageIndex) {
+            if (!confirm('Bu resmi silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const action = actions.find(a => a.id === actionId);
+            if (!action || !action.notes) {
+                alert('Not bulunamadı!');
+                return;
+            }
+
+            const note = action.notes.find(n => n.id === noteId);
+            if (!note || !note.images || !note.images[imageIndex]) {
+                alert('Resim bulunamadı!');
+                return;
+            }
+
+            // Remove image from note
+            note.images.splice(imageIndex, 1);
+
+            // Update database
+            database.ref('actions/' + actionId).update({
+                notes: action.notes
+            }).then(() => {
+                renderActions(); // Refresh UI
+                showNotification('✅ Resim başarıyla silindi!', 'success');
+            }).catch(error => {
+                console.error('Error deleting image:', error);
+                showNotification('❌ Resim silinirken hata oluştu!', 'error');
+            });
         }
 
         function deletePostpone(actionId, postponeIndex) {
