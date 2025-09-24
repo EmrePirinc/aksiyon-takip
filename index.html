@@ -4116,19 +4116,71 @@
             }
 
             const postpone = action.postponeHistory[postponeIndex];
+            const postponeItem = document.querySelector(`[data-postpone-id="${actionId}-${postponeIndex}"]`);
 
-            // Store current editing info
-            currentEditingPostpone = { actionId, postponeIndex };
+            if (!postponeItem) return;
 
-            // Fill modal with current data
-            document.getElementById('postponeEditReason').value = postpone.reason || '';
-            document.getElementById('postponeEditOriginalDate').value = postpone.originalDate || action.date || '';
-            document.getElementById('postponeEditNewDate').value = postpone.postponeDate || '';
+            const originalDate = new Date(postpone.originalDate);
+            const postponeDate = new Date(postpone.postponeDate);
 
-            // Show modal
-            const modal = document.getElementById('postponeEditModal');
-            modal.classList.add('active');
-            modal.style.display = 'flex';
+            postponeItem.innerHTML = `
+                <div class="postpone-edit-form" style="padding: 12px; background: #fff8f0; border-left: 4px solid #f39c12; border-radius: 6px;">
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-weight: 600; color: #e67e22; margin-bottom: 5px;">Eski Tarih:</label>
+                        <input type="date" id="editOriginal-${actionId}-${postponeIndex}" value="${originalDate.toISOString().split('T')[0]}" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 150px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-weight: 600; color: #e67e22; margin-bottom: 5px;">Yeni Tarih:</label>
+                        <input type="date" id="editPostpone-${actionId}-${postponeIndex}" value="${postponeDate.toISOString().split('T')[0]}" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 150px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-weight: 600; color: #e67e22; margin-bottom: 5px;">Erteleme Sebebi:</label>
+                        <textarea id="editReason-${actionId}-${postponeIndex}" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; min-height: 60px; resize: vertical;">${postpone.reason || ''}</textarea>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <button onclick="savePostponeEdit('${actionId}', ${postponeIndex})" style="padding: 6px 12px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Kaydet</button>
+                        <button onclick="cancelPostponeEdit('${actionId}', ${postponeIndex})" style="padding: 6px 12px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">İptal</button>
+                        <button onclick="deletePostpone('${actionId}', ${postponeIndex})" style="padding: 6px 12px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Sil</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function savePostponeEdit(actionId, postponeIndex) {
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (!action || !action.postponeHistory || !action.postponeHistory[postponeIndex]) {
+                alert('Erteleme verisi bulunamadı!');
+                return;
+            }
+
+            const newReason = document.getElementById(`editReason-${actionId}-${postponeIndex}`).value.trim();
+            const newOriginalDate = document.getElementById(`editOriginal-${actionId}-${postponeIndex}`).value;
+            const newPostponeDate = document.getElementById(`editPostpone-${actionId}-${postponeIndex}`).value;
+
+            if (!newReason || !newOriginalDate || !newPostponeDate) {
+                alert('Lütfen tüm alanları doldurun!');
+                return;
+            }
+
+            // Update postpone data
+            action.postponeHistory[postponeIndex].reason = newReason;
+            action.postponeHistory[postponeIndex].originalDate = newOriginalDate;
+            action.postponeHistory[postponeIndex].postponeDate = newPostponeDate;
+
+            // Update in Firebase
+            database.ref(`actions/${actionId}`).set(action).then(() => {
+                showNotification('✅ Erteleme başarıyla güncellendi!', 'success');
+                // Refresh detail view
+                openDetailView(actionId);
+            }).catch(error => {
+                console.error('Update error:', error);
+                showNotification('❌ Güncellerken hata oluştu!', 'error');
+            });
+        }
+
+        function cancelPostponeEdit(actionId, postponeIndex) {
+            // Simply refresh the detail view to show original data
+            openDetailView(actionId);
         }
 
         function closePostponeEditModal() {
@@ -4319,18 +4371,20 @@
                     const timestamp = postpone.timestamp ? new Date(postpone.timestamp).toLocaleDateString('tr-TR') : 'Bilinmiyor';
 
                     return `
-                        <div class="postpone-history-item" style="margin-bottom: 15px; padding: 12px; background: #fff8f0; border-left: 4px solid #f39c12; border-radius: 6px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <div style="font-weight: 600; color: #e67e22;">
-                                    ${originalDate.toLocaleDateString('tr-TR')} → ${postponeDate.toLocaleDateString('tr-TR')}
+                        <div class="postpone-history-item" data-postpone-id="${id}-${index}" style="margin-bottom: 15px;">
+                            <div style="padding: 12px; background: #fff8f0; border-left: 4px solid #f39c12; border-radius: 6px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-weight: 600; color: #e67e22;">
+                                        ${originalDate.toLocaleDateString('tr-TR')} → ${postponeDate.toLocaleDateString('tr-TR')}
+                                    </div>
+                                    <div style="display: flex; gap: 5px;">
+                                        <button class="postpone-edit-btn" onclick="editPostpone('${id}', ${index})" style="font-size: 0.7rem; padding: 4px 8px; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer;">Düzenle</button>
+                                        <button class="postpone-delete-btn" onclick="deletePostpone('${id}', ${index})" style="font-size: 0.7rem; padding: 4px 8px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer;">Sil</button>
+                                    </div>
                                 </div>
-                                <div style="display: flex; gap: 5px;">
-                                    <button class="postpone-edit-btn" onclick="editPostpone('${id}', ${index})" style="font-size: 0.7rem;">Düzenle</button>
-                                    <button class="postpone-delete-btn" onclick="deletePostpone('${id}', ${index})" style="font-size: 0.7rem;">Sil</button>
-                                </div>
+                                <div style="color: #666; font-size: 0.9rem;">${postpone.reason || 'Sebep belirtilmemiş'}</div>
+                                <small style="color: #999; font-size: 0.8rem;">Erteleme tarihi: ${timestamp}</small>
                             </div>
-                            <div style="color: #666; font-size: 0.9rem;">${postpone.reason || 'Sebep belirtilmemiş'}</div>
-                            <small style="color: #999; font-size: 0.8rem;">Erteleme tarihi: ${timestamp}</small>
                         </div>
                     `;
                 }).join('');
