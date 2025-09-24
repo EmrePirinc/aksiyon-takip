@@ -4542,6 +4542,10 @@
             document.getElementById('editToggleBtn').style.display = 'block';
             document.getElementById('saveBtn').style.display = 'none';
 
+            // Hide inline note form initially
+            document.getElementById('inlineNoteForm').style.display = 'none';
+            document.getElementById('addNoteBtn').textContent = '+ Not Ekle';
+
             // Fill detail view fields
             document.getElementById('viewActionTitle').textContent = action.title || '';
             document.getElementById('viewActionResponsible').textContent = action.responsible || '';
