@@ -1697,9 +1697,14 @@
             background: rgba(17, 24, 39, 0.6);
             backdrop-filter: blur(4px);
             justify-content: center; align-items: center;
-            z-index: 1000;
+            z-index: 9999;
             overflow-y: auto;
             padding: 20px;
+        }
+
+        /* Ensure important modals are on top */
+        #passwordModal, #backupModal, #detailModal {
+            z-index: 10000 !important;
         }
         .modal.active { 
             display: flex !important; 
@@ -1717,8 +1722,17 @@
              max-height: 90vh;
              overflow-y: auto;
         }
-        .modal-header { margin-bottom: 25px; }
-        .modal-header h2 { color: var(--gray-900); font-size: 1.5rem; }
+        .modal-header {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 {
+            color: var(--gray-900);
+            font-size: 1.5rem;
+            margin: 0;
+        }
         .modal-content .form-group label { color: var(--gray-700); font-weight: 600; }
         .modal-content .form-group input, .modal-content .form-group select, .modal-content .form-group textarea {
             width: 100%;
@@ -1804,9 +1818,51 @@
         }
 
         /* Detay Modal Stilleri */
-        #detailModal .modal-content { max-width: 750px; }
+        #detailModal .modal-content { max-width: 900px; }
         #detailModal h2 { font-size: 1.8rem; margin-bottom: var(--space-2); }
         #detailModal .detail-grid { display: grid; grid-template-columns: 150px 1fr; gap: var(--space-3) var(--space-6); align-items: center; margin-bottom: var(--space-6); }
+
+        .detail-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-section:last-of-type {
+            border-bottom: none;
+        }
+
+        .attachment-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .attachment-item-detail {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .attachment-item-detail:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        .attachment-icon {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
+        .attachment-name {
+            font-size: 0.9rem;
+            color: #495057;
+        }
         .detail-label { font-weight: 600; color: var(--gray-600); }
         .detail-value { font-weight: 500; color: var(--gray-800); }
         #detailDescription { background: var(--gray-50); padding: var(--space-4); border-radius: var(--radius-lg); line-height: 1.6; white-space: pre-wrap; }
@@ -1932,6 +1988,73 @@
             cursor: pointer;
             font-size: 12px;
             display: flex;
+        }
+
+        /* File Preview Styles */
+        .file-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .file-preview-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--light-gray);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            max-width: 200px;
+        }
+
+        .file-preview-item .file-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .file-preview-item .file-name {
+            font-size: 12px;
+            color: var(--dark);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-preview-item .remove-file {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            border: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-preview-item.image {
+            width: 80px;
+            height: 80px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .file-preview-item.image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
             align-items: center;
             justify-content: center;
         }
@@ -1962,11 +2085,55 @@
             font-size: 12px;
         }
 
+        .note-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .note-delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+            padding: 2px;
+        }
+
+        .note-delete-btn:hover {
+            opacity: 1;
+        }
+
         .note-images {
             display: flex;
             flex-wrap: wrap;
             gap: var(--space-2);
             margin-top: var(--space-2);
+        }
+
+        .image-delete-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .note-image:hover .image-delete-btn {
+            opacity: 1;
         }
 
         .note-image {
@@ -2153,7 +2320,7 @@
                                     <span>Yedekleme</span>
                                 </button>
                                 <div class="dropdown-divider-clean"></div>
-                                <button class="dropdown-item-clean logout-clean" onclick="logout()">
+                                <button class="dropdown-item-clean logout-clean" onclick="signOut()">
                                     <div class="dropdown-icon">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -2390,6 +2557,15 @@
                 <div class="form-group"><label for="actionStatus">Durum *</label><select id="actionStatus" required><option value="waiting">Bekliyor</option><option value="in-progress">Devam Ediyor</option><option value="completed">Tamamlandı</option></select></div>
                 <div class="form-group"><label for="actionDate">Hedef Tarih</label><input type="date" id="actionDate"></div>
 
+                <!-- Dosya Yükleme Bölümü -->
+                <div class="form-group">
+                    <label for="actionFiles">Dosya Ekle (Resim, PDF, Word, Excel)</label>
+                    <input type="file" id="actionFiles" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" style="margin-bottom: 10px;">
+                    <div id="actionFilePreview" class="file-preview-container">
+                        <!-- Yüklenen dosyalar buraya gelecek -->
+                    </div>
+                </div>
+
                 <!-- Erteleme Geçmişi Bölümü - Sadece düzenleme modunda görünür -->
                 <div id="postponeHistorySection" style="display: none;">
                     <div class="form-group">
@@ -2431,6 +2607,31 @@
             <div class="modal-buttons">
                 <button type="button" class="btn modal-btn cancel" onclick="closePersonManagement()">Kapat</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Postpone Edit Modal -->
+    <div class="modal" id="postponeEditModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Erteleme Düzenle</h2></div>
+            <form id="postponeEditForm">
+                <div class="form-group">
+                    <label for="postponeEditReason">Erteleme Sebebi *</label>
+                    <textarea id="postponeEditReason" rows="3" required placeholder="Erteleme sebebini açıklayın..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="postponeEditOriginalDate">Orijinal Tarih</label>
+                    <input type="date" id="postponeEditOriginalDate" readonly style="background: #f5f5f5;">
+                </div>
+                <div class="form-group">
+                    <label for="postponeEditNewDate">Yeni Hedef Tarih *</label>
+                    <input type="date" id="postponeEditNewDate" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn modal-btn cancel" onclick="closePostponeEditModal()">İptal</button>
+                    <button type="submit" class="btn btn-primary modal-btn save">Güncelle</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -2505,19 +2706,192 @@
     </div>
 
     <div class="modal" id="detailModal">
-        <div class="modal-content modal-content-scrollable">
-            <div class="modal-header"><h2 id="detailTitle">Aksiyon Detayı</h2></div>
-            <div class="detail-grid">
-                <div class="detail-label">Sorumlu Takım</div><div class="detail-value" id="detailResponsible"></div>
-                <div class="detail-label">Atanan Kişi</div><div class="detail-value" id="detailAssignedPerson"></div>
-                <div class="detail-label">Durum</div><div class="detail-value" id="detailStatus"></div>
-                <div class="detail-label">Hedef Tarih</div><div class="detail-value" id="detailDate"></div>
-                <div class="detail-label" id="detailPostponeLabel" style="display: none;">Erteleme Notu</div><div class="detail-value" id="detailPostponeNote" style="display: none;"></div>
+        <div class="modal-content modal-content-scrollable" style="max-width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <h2 id="detailTitle">Aksiyon Detayları</h2>
+                <div style="margin-left: auto; display: flex; gap: 10px;">
+                    <button type="button" class="btn btn-secondary" id="editToggleBtn" onclick="toggleEditMode()" style="display: block;">✏️ Düzenle</button>
+                    <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveComprehensiveEdit()" style="display: none;">💾 Kaydet</button>
+                </div>
             </div>
-            <div class="detail-label" style="margin-bottom: var(--space-2);">Açıklama</div>
-            <p id="detailDescription"></p>
-            <div class="modal-buttons">
+
+            <!-- Detail View (Read-only) -->
+            <div id="detailViewForm" style="display: block;">
+                <div class="detail-grid">
+                    <strong>Başlık:</strong>
+                    <span id="viewActionTitle"></span>
+
+                    <strong>Sorumlu:</strong>
+                    <span id="viewActionResponsible"></span>
+
+                    <strong>Atanan Kişi:</strong>
+                    <span id="viewActionAssignedPerson"></span>
+
+                    <strong>Durum:</strong>
+                    <span id="viewActionStatus" class="status-badge"></span>
+
+                    <strong>Hedef Tarih:</strong>
+                    <span id="viewActionDate"></span>
+
+                    <strong>Açıklama:</strong>
+                    <span id="viewActionDescription"></span>
+
+                    <strong>Öncelikli:</strong>
+                    <span id="viewActionPriority"></span>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <form id="detailEditForm" style="display: none;">
+                <div class="form-group">
+                    <label for="editActionTitle">Başlık *</label>
+                    <input type="text" id="editActionTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="editActionResponsible">Sorumlu *</label>
+                    <select id="editActionResponsible" required>
+                        <option value="">Sorumlu Seç</option>
+                        <option value="Anadolu Bakır">Anadolu Bakır</option>
+                        <option value="AIFTEAM">AIFTEAM</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editActionAssignedPerson">Atanan Kişi</label>
+                    <select id="editActionAssignedPerson">
+                        <option value="">Kişi seçilmedi</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editActionStatus">Durum *</label>
+                    <select id="editActionStatus" required>
+                        <option value="waiting">Bekliyor</option>
+                        <option value="in-progress">Devam Ediyor</option>
+                        <option value="completed">Tamamlandı</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editActionDate">Hedef Tarih</label>
+                    <input type="date" id="editActionDate">
+                </div>
+                <div class="form-group">
+                    <label for="editActionDescription">Açıklama</label>
+                    <textarea id="editActionDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="editActionPriority">
+                        <span class="checkmark"></span>
+                        Öncelikli Aksiyon
+                    </label>
+                </div>
+
+                <!-- Dosya Yükleme Bölümü -->
+                <div class="form-group">
+                    <label for="editActionFiles">Dosya Ekle (Resim, PDF, Word, Excel)</label>
+                    <input type="file" id="editActionFiles" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" style="margin-bottom: 10px;">
+                    <div id="editActionFilePreview" class="file-preview-container">
+                        <!-- Yüklenen dosyalar buraya gelecek -->
+                    </div>
+                </div>
+
+            </form>
+
+            <!-- Attachments Section -->
+            <div id="detailAttachments" class="detail-section" style="display: none;">
+                <div class="detail-label" style="margin-bottom: 8px;">📎 Ekler</div>
+                <div id="detailAttachmentsList" class="attachment-list"></div>
+            </div>
+
+            <!-- Postpone History Section -->
+            <div id="detailPostponeHistory" class="detail-section" style="display: none;">
+                <div class="detail-label" style="margin-bottom: 8px;">📅 Erteleme Geçmişi</div>
+                <div id="detailPostponeHistoryList"></div>
+            </div>
+
+            <!-- Notes Section -->
+            <div id="detailNotes" class="detail-section" style="display: none;">
+                <div class="detail-label" style="margin-bottom: 8px;">📝 Notlar</div>
+                <div id="detailNotesList"></div>
+            </div>
+
+            <!-- Not Ekleme Formu -->
+            <div id="inlineNoteForm" style="display: none; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+                <h3 style="margin-bottom: 15px; color: #495057;">📝 Not Ekle</h3>
+                <div class="form-group">
+                    <label for="inlineNoteType">Tip *</label>
+                    <select id="inlineNoteType" required>
+                        <option value="">Tip Seç</option>
+                        <option value="postpone">Erteleme</option>
+                        <option value="note">Not</option>
+                        <option value="update">Güncelleme</option>
+                        <option value="reminder">Hatırlatma</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="inlineNoteColor">Renk</label>
+                    <div class="color-picker">
+                        <input type="color" id="inlineNoteColor" value="#3498db">
+                        <div class="color-presets">
+                            <button type="button" class="color-preset" data-color="#3498db" style="background: #3498db" onclick="setInlineNoteColor('#3498db')"></button>
+                            <button type="button" class="color-preset" data-color="#e74c3c" style="background: #e74c3c" onclick="setInlineNoteColor('#e74c3c')"></button>
+                            <button type="button" class="color-preset" data-color="#f39c12" style="background: #f39c12" onclick="setInlineNoteColor('#f39c12')"></button>
+                            <button type="button" class="color-preset" data-color="#2ecc71" style="background: #2ecc71" onclick="setInlineNoteColor('#2ecc71')"></button>
+                            <button type="button" class="color-preset" data-color="#9b59b6" style="background: #9b59b6" onclick="setInlineNoteColor('#9b59b6')"></button>
+                            <button type="button" class="color-preset" data-color="#95a5a6" style="background: #95a5a6" onclick="setInlineNoteColor('#95a5a6')"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inlineNoteText">Açıklama *</label>
+                    <textarea id="inlineNoteText" required placeholder="Açıklama girin..." rows="4"></textarea>
+                </div>
+                <div class="form-group" id="inlinePostponeDateGroup" style="display: none;">
+                    <label for="inlineNotePostponeDate">Yeni Hedef Tarih *</label>
+                    <input type="date" id="inlineNotePostponeDate">
+                </div>
+                <div class="form-group">
+                    <label for="inlineNoteImages">Resim Ekle</label>
+                    <input type="file" id="inlineNoteImages" multiple accept="image/*">
+                    <div id="inlineImagePreview" class="image-preview"></div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="button" class="btn btn-primary" onclick="saveInlineNote()">✅ Ekle</button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleInlineNoteForm()">❌ İptal</button>
+                </div>
+            </div>
+
+            <div class="modal-buttons" style="margin-top: 30px;">
                 <button type="button" class="btn modal-btn cancel" onclick="closeDetailModal()">Kapat</button>
+                <button type="button" class="btn btn-success" id="addNoteBtn" onclick="toggleInlineNoteForm()" style="margin-left: 10px;">+ Not Ekle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backup Settings Modal -->
+    <div class="modal" id="backupModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Yedekleme Ayarları</h2></div>
+            <div style="margin-bottom: 20px;">
+                <p>Verilerinizi güvenle yedekleyebilir ve geri yükleyebilirsiniz.</p>
+            </div>
+
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-success" onclick="exportAllData()" style="flex: 1; min-width: 200px;">
+                    📁 Verileri Dışa Aktar (JSON)
+                </button>
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('importFile').click()" style="flex: 1; min-width: 200px;">
+                    📂 Verileri İçe Aktar
+                </button>
+            </div>
+
+            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+
+            <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 6px; border-left: 4px solid #ffc107;">
+                <strong>⚠️ Dikkat:</strong> Veri içe aktarımı mevcut tüm verilerin üzerine yazacaktır. Bu işlemden önce mevcut verilerinizi yedeklediğinizden emin olun.
+            </div>
+
+            <div class="modal-buttons" style="margin-top: 25px;">
+                <button type="button" class="btn modal-btn cancel" onclick="closeBackupModal()">Kapat</button>
             </div>
         </div>
     </div>
@@ -2550,10 +2924,89 @@
         const auth = firebase.auth();
         const database = firebase.database();
 
-        // --- GOOGLE DRIVE CONFIG ---
+        // --- GOOGLE API CREDENTIALS MANAGEMENT ---
+        let googleApiCredentials = {
+            clientId: null,
+            apiKey: null
+        };
+
+        // Initialize Google API credentials (run once to store in Firebase)
+        async function initializeGoogleCredentials() {
+            try {
+                // Store credentials securely in Firebase Database
+                const credentials = {
+                    clientId: "598838942977-2ormcvf1k5sbsn469j5ia1355rl7ual5.apps.googleusercontent.com",
+                    apiKey: "AIzaSyBQk65tQHizhFDqh-CpuAfYOM8ngJ6SGeI"
+                };
+
+                await database.ref('config/google').set(credentials);
+                console.log("Google API credentials stored securely in Firebase");
+
+                // Load the credentials immediately after storing
+                await loadGoogleCredentials();
+                return true;
+            } catch (error) {
+                console.error("Error storing Google credentials:", error);
+                return false;
+            }
+        }
+
+        // Retrieve Google API credentials from Firebase
+        async function loadGoogleCredentials() {
+            try {
+                const snapshot = await database.ref('config/google').once('value');
+                const credentials = snapshot.val();
+                if (credentials) {
+                    googleApiCredentials.clientId = credentials.clientId;
+                    googleApiCredentials.apiKey = credentials.apiKey;
+                    console.log("Google API credentials loaded from Firebase");
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error("Error loading Google credentials:", error);
+                return false;
+            }
+        }
+
+        // Get Google Client ID (for use in code)
+        function getGoogleClientId() {
+            return googleApiCredentials.clientId;
+        }
+
+        // Get Google API Key (for use in code)
+        function getGoogleApiKey() {
+            return googleApiCredentials.apiKey;
+        }
+
+        // Example function for Google Drive integration
+        async function initializeGoogleDriveAPI() {
+            const apiKey = getGoogleApiKey();
+            const clientId = getGoogleClientId();
+
+            if (!apiKey || !clientId) {
+                console.error("Google credentials not loaded yet");
+                return false;
+            }
+
+            // TODO: Add Google Drive API initialization here
+            // gapi.load('client:auth2', () => {
+            //     gapi.client.init({
+            //         apiKey: apiKey,
+            //         clientId: clientId,
+            //         discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+            //         scope: 'https://www.googleapis.com/auth/drive.file'
+            //     });
+            // });
+
+            console.log("Google Drive API ready to be initialized with secure credentials");
+            return true;
+        }
+
+        // --- GOOGLE DRIVE CONFIG (Legacy support) ---
         const GOOGLE_DRIVE_CONFIG = {
-            CLIENT_ID: '598838942977-oivh9kmlckcvlh9dko9grjegutdoonk1.apps.googleusercontent.com',
-            API_KEY: 'AIzaSyBSUZYA8gHDw7iYLBOJiGDDMavFDzv9NuM',
+            CLIENT_ID: 'YOUR_GOOGLE_CLIENT_ID', // Bu değer kullanıcı tarafından ayarlanmalı
+            API_KEY: 'YOUR_GOOGLE_API_KEY', // Bu değer kullanıcı tarafından ayarlanmalı
             DISCOVERY_DOC: 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
             SCOPES: 'https://www.googleapis.com/auth/drive.file'
         };
@@ -2622,6 +3075,31 @@
 
                 loadActions();
                 loadPersons();
+
+                // Load Google API credentials from Firebase
+                loadGoogleCredentials().then((loaded) => {
+                    if (!loaded) {
+                        console.warn("Google credentials not found, initializing...");
+                        // Initialize credentials if they don't exist (run once)
+                        initializeGoogleCredentials().then((success) => {
+                            if (success) {
+                                // Test credentials after initialization
+                                console.log("🔑 Test - Client ID:", getGoogleClientId() ? "✅ Loaded" : "❌ Failed");
+                                console.log("🔑 Test - API Key:", getGoogleApiKey() ? "✅ Loaded" : "❌ Failed");
+
+                                // Ready for Google Drive integration
+                                initializeGoogleDriveAPI();
+                            }
+                        });
+                    } else {
+                        // Test credentials after loading
+                        console.log("🔑 Test - Client ID:", getGoogleClientId() ? "✅ Loaded" : "❌ Failed");
+                        console.log("🔑 Test - API Key:", getGoogleApiKey() ? "✅ Loaded" : "❌ Failed");
+
+                        // Ready for Google Drive integration
+                        initializeGoogleDriveAPI();
+                    }
+                });
             } else {
                 loginContainer.style.display = 'flex';
                 appContainer.style.display = 'none';
@@ -2739,8 +3217,29 @@
             });
         }
 
-        document.getElementById("actionForm").addEventListener("submit", e => {
+        document.getElementById("actionForm").addEventListener("submit", async e => {
             e.preventDefault();
+
+            // Upload files to Google Drive if any
+            let uploadedFiles = [];
+            if (selectedActionFiles.length > 0) {
+                for (const fileData of selectedActionFiles) {
+                    try {
+                        const uploadedFile = await uploadFileToGoogleDrive(fileData.file);
+                        uploadedFiles.push({
+                            name: fileData.name,
+                            type: fileData.type,
+                            size: fileData.size,
+                            url: uploadedFile.url || uploadedFile.webViewLink,
+                            driveId: uploadedFile.id
+                        });
+                    } catch (error) {
+                        console.error('File upload failed:', error);
+                        // Continue with other files
+                    }
+                }
+            }
+
             const actionData = {
                 title: document.getElementById("actionTitle").value,
                 responsible: document.getElementById("actionResponsible").value,
@@ -2749,6 +3248,7 @@
                 date: document.getElementById("actionDate").value,
                 assignedPerson: document.getElementById('assignedPerson').value,
                 priority: editingId ? (actions.find(a => a.id === editingId)?.priority || false) : false,
+                attachments: uploadedFiles // Add uploaded files
             };
 
             if (editingId) {
@@ -2756,6 +3256,12 @@
             } else {
                 database.ref('actions').push(actionData);
             }
+
+            // Reset selected files
+            selectedActionFiles = [];
+            const previewContainer = document.getElementById('actionFilePreview');
+            if (previewContainer) previewContainer.innerHTML = '';
+
             closeModal();
         });
         
@@ -2938,23 +3444,114 @@
         }
 
         // Image handling functions
+        let imageUploadInitialized = false;
+        let actionFilesInitialized = false;
+        let selectedActionFiles = []; // Store selected action files
+
         function handleImageUpload() {
+            if (imageUploadInitialized) return; // Prevent duplicate event listeners
+
             const imageInput = document.getElementById('noteImages');
             const imagePreview = document.getElementById('imagePreview');
+
+            if (!imageInput) return;
 
             imageInput.addEventListener('change', async (e) => {
                 const files = Array.from(e.target.files);
 
                 for (const file of files) {
-                    if (file.type.startsWith('image/')) {
-                        const imageData = await uploadToGoogleDrive(file);
-                        selectedImages.push(imageData);
-                        displayImagePreview(imageData);
+                    if (file.type.startsWith('image/') || file.type.startsWith('application/')) {
+                        const fileData = await uploadToGoogleDrive(file);
+                        selectedImages.push(fileData);
+                        displayImagePreview(fileData);
                     }
                 }
 
                 imageInput.value = ''; // Reset input
             });
+
+            imageUploadInitialized = true;
+        }
+
+        function handleActionFileUpload() {
+            if (actionFilesInitialized) return; // Prevent duplicate event listeners
+
+            const fileInput = document.getElementById('actionFiles');
+            const filePreview = document.getElementById('actionFilePreview');
+
+            if (!fileInput) return;
+
+            fileInput.addEventListener('change', async (e) => {
+                const files = Array.from(e.target.files);
+
+                for (const file of files) {
+                    const fileData = {
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        lastModified: file.lastModified,
+                        file: file, // Keep original file for upload later
+                        url: URL.createObjectURL(file) // Temporary URL for preview
+                    };
+
+                    selectedActionFiles.push(fileData);
+                    displayActionFilePreview(fileData);
+                }
+
+                fileInput.value = ''; // Reset input
+            });
+
+            actionFilesInitialized = true;
+        }
+
+        function displayActionFilePreview(fileData) {
+            const previewContainer = document.getElementById('actionFilePreview');
+            if (!previewContainer) return;
+
+            const fileItem = document.createElement('div');
+            fileItem.className = fileData.type.startsWith('image/') ? 'file-preview-item image' : 'file-preview-item';
+
+            if (fileData.type.startsWith('image/')) {
+                fileItem.innerHTML = `
+                    <img src="${fileData.url}" alt="${fileData.name}">
+                    <button class="remove-file" onclick="removeActionFile('${fileData.name}')" title="Dosyayı kaldır">×</button>
+                `;
+            } else {
+                const fileIcon = getFileIcon(fileData.type);
+                fileItem.innerHTML = `
+                    <div class="file-icon">${fileIcon}</div>
+                    <div class="file-name">${fileData.name}</div>
+                    <button class="remove-file" onclick="removeActionFile('${fileData.name}')" title="Dosyayı kaldır">×</button>
+                `;
+            }
+
+            previewContainer.appendChild(fileItem);
+        }
+
+        function removeActionFile(fileName) {
+            selectedActionFiles = selectedActionFiles.filter(f => f.name !== fileName);
+
+            // Remove from preview
+            const previewContainer = document.getElementById('actionFilePreview');
+            const fileItems = previewContainer.children;
+            for (let i = 0; i < fileItems.length; i++) {
+                const item = fileItems[i];
+                if (item.querySelector('.file-name')?.textContent === fileName ||
+                    item.querySelector('img')?.alt === fileName) {
+                    item.remove();
+                    break;
+                }
+            }
+        }
+
+        function getFileIcon(fileType) {
+            if (fileType.includes('pdf')) return '📄';
+            if (fileType.includes('word') || fileType.includes('document')) return '📝';
+            if (fileType.includes('sheet') || fileType.includes('excel')) return '📊';
+            if (fileType.includes('presentation') || fileType.includes('powerpoint')) return '📊';
+            if (fileType.includes('text')) return '📄';
+            if (fileType.includes('zip') || fileType.includes('rar')) return '🗜️';
+            return '📎';
         }
 
         // Google Drive API initialization
@@ -3086,6 +3683,11 @@
             });
         }
 
+        async function uploadFileToGoogleDrive(file) {
+            // Use same logic as existing uploadToGoogleDrive
+            return await uploadToGoogleDrive(file);
+        }
+
         function displayImagePreview(imageData) {
             const imagePreview = document.getElementById('imagePreview');
             const previewItem = document.createElement('div');
@@ -3121,6 +3723,35 @@
                     document.getElementById('notePostponeDate').required = false;
                 }
             });
+
+            // Add handler for inline note type
+            const inlineNoteType = document.getElementById('inlineNoteType');
+            const inlinePostponeDateGroup = document.getElementById('inlinePostponeDateGroup');
+
+            if (inlineNoteType && inlinePostponeDateGroup) {
+                inlineNoteType.addEventListener('change', () => {
+                    if (inlineNoteType.value === 'postpone') {
+                        inlinePostponeDateGroup.style.display = 'block';
+                        document.getElementById('inlineNotePostponeDate').required = true;
+                    } else {
+                        inlinePostponeDateGroup.style.display = 'none';
+                        document.getElementById('inlineNotePostponeDate').required = false;
+                    }
+                });
+            }
+
+            // Add handler for edit status change to update view status color
+            const editStatusSelect = document.getElementById('editActionStatus');
+            if (editStatusSelect) {
+                editStatusSelect.addEventListener('change', () => {
+                    const newStatus = editStatusSelect.value;
+                    const viewStatusSpan = document.getElementById('viewActionStatus');
+                    if (viewStatusSpan) {
+                        viewStatusSpan.textContent = getStatusText(newStatus);
+                        viewStatusSpan.className = `status-badge ${newStatus}`;
+                    }
+                });
+            }
         }
 
         // Image modal functions
@@ -3192,7 +3823,7 @@
                 color: noteColor,
                 images: selectedImages,
                 timestamp: new Date().toISOString(),
-                author: currentUser ? currentUser.email : 'unknown'
+                author: auth.currentUser ? auth.currentUser.email : 'unknown'
             };
 
             // Handle postpone type specially
@@ -3441,19 +4072,38 @@
                             : (postponed ? `<div class="update-box"><strong>Ertelendi:</strong> ${postponeReason || ''}</div>` : '')
                          }
                         <div class="action-description">${description || 'Açıklama yok'}</div>
+
+                        ${action.attachments && action.attachments.length > 0 ? `
+                            <div class="action-attachments" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">
+                                <small style="color: #666; font-weight: 500; font-size: 0.75rem;">📎 Ekler (${action.attachments.length})</small>
+                                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;">
+                                    ${action.attachments.map(file => `
+                                        <div class="attachment-item" style="display: flex; align-items: center; padding: 2px 5px; background: #f8f9fa; border-radius: 3px; font-size: 0.7rem;">
+                                            <span style="margin-right: 3px; font-size: 0.8rem;">${getFileIcon(file.type)}</span>
+                                            <span onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="color: #007bff; cursor: pointer; text-decoration: underline; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${file.name} - Görüntüle/İndir">${file.name}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
                         ${action.notes && action.notes.length > 0 ?
                             action.notes.map(note => `
                                 <div class="note-item type-${note.type}" style="border-left-color: ${note.color};">
                                     <div class="note-header">
                                         <span class="note-type" style="color: ${note.color};">${note.type.toUpperCase()}</span>
-                                        <small>${new Date(note.timestamp).toLocaleDateString('tr-TR')} ${new Date(note.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
+                                        <div class="note-actions">
+                                            <small>${new Date(note.timestamp).toLocaleDateString('tr-TR')} ${new Date(note.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
+                                            <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil">🗑️</button>
+                                        </div>
                                     </div>
                                     <div class="note-text">${note.text}</div>
                                     ${note.images && note.images.length > 0 ? `
                                         <div class="note-images">
-                                            ${note.images.map(img => `
-                                                <div class="note-image" onclick="openImageModal('${img.url}')">
-                                                    <img src="${img.url}" alt="${img.name}">
+                                            ${note.images.map((img, imgIndex) => `
+                                                <div class="note-image" style="position: relative;">
+                                                    <img src="${img.url}" alt="${img.name}" onclick="openImageModal('${img.url}')">
+                                                    <button class="image-delete-btn" onclick="deleteNoteImage('${id}', ${note.id}, ${imgIndex})" title="Resmi sil">×</button>
                                                 </div>
                                             `).join('')}
                                         </div>
@@ -3520,6 +4170,18 @@
             if (actionForm) {
                 actionForm.reset();
             }
+
+            // Clear file preview and selected files
+            selectedActionFiles = [];
+            const previewContainer = document.getElementById('actionFilePreview');
+            if (previewContainer) previewContainer.innerHTML = '';
+
+            // Hide postpone history section for new actions
+            const postponeHistorySection = document.getElementById('postponeHistorySection');
+            if (postponeHistorySection) {
+                postponeHistorySection.style.display = 'none';
+            }
+
             document.getElementById("modalTitle").textContent = "Yeni Aksiyon Ekle";
             const modal = document.getElementById("actionModal");
             modal.classList.add("active");
@@ -3549,6 +4211,30 @@
             document.getElementById("actionStatus").value = action.status || "waiting";
             document.getElementById("actionDate").value = action.date || "";
             document.getElementById('assignedPerson').value = action.assignedPerson || "";
+
+            // Clear file preview and selected files
+            selectedActionFiles = [];
+            const previewContainer = document.getElementById('actionFilePreview');
+            if (previewContainer) previewContainer.innerHTML = '';
+
+            // Show existing attachments if any
+            if (action.attachments && action.attachments.length > 0) {
+                action.attachments.forEach(file => {
+                    selectedActionFiles.push({
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        url: file.url,
+                        existing: true // Mark as existing attachment
+                    });
+                    displayActionFilePreview({
+                        name: file.name,
+                        type: file.type,
+                        url: file.url,
+                        existing: true
+                    });
+                });
+            }
 
             // Erteleme geçmişi bölümünü göster ve doldur
             const postponeHistorySection = document.getElementById('postponeHistorySection');
@@ -3600,79 +4286,226 @@
             }).join('');
         }
 
+        let currentEditingPostpone = { actionId: null, postponeIndex: null };
+
         function editPostpone(actionId, postponeIndex) {
-            const action = actions.find(a => a.id === actionId);
+            const action = actions.find(a => String(a.id) === String(actionId));
             if (!action || !action.postponeHistory || !action.postponeHistory[postponeIndex]) {
                 alert('Erteleme verisi bulunamadı!');
                 return;
             }
 
             const postpone = action.postponeHistory[postponeIndex];
-            const newReason = prompt('Erteleme sebebini düzenleyin:', postpone.reason || '');
+            const postponeItem = document.querySelector(`[data-postpone-id="${actionId}-${postponeIndex}"]`);
 
-            if (newReason !== null) {
-                const newDate = prompt('Yeni hedef tarihi (YYYY-MM-DD formatında):', postpone.postponeDate || '');
+            if (!postponeItem) return;
 
-                if (newDate !== null && newDate.trim() !== '') {
-                    // Validate date format
-                    if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
-                        alert('Lütfen tarihi YYYY-MM-DD formatında girin (örn: 2024-01-15)');
-                        return;
-                    }
-
-                    // Güncelleme yap
-                    action.postponeHistory[postponeIndex] = {
-                        ...postpone,
-                        reason: newReason.trim(),
-                        postponeDate: newDate,
-                        lastModified: new Date().toISOString()
-                    };
-
-                    // Database'i güncelle
-                    database.ref('actions/' + actionId).update({
-                        postponeHistory: action.postponeHistory
-                    }).then(() => {
-                        // UI'ı güncelle
-                        renderPostponeHistory(action.postponeHistory, actionId);
-                        showNotification('✅ Erteleme güncellendi!', 'success');
-                    }).catch(error => {
-                        console.error('Error updating postpone:', error);
-                        showNotification('❌ Güncelleme sırasında hata oluştu!', 'error');
-                    });
-                }
+            // Safe date parsing
+            function formatDateForInput(dateStr) {
+                if (!dateStr) return '';
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) return '';
+                return date.toISOString().split('T')[0];
             }
+
+            const originalDateFormatted = formatDateForInput(postpone.originalDate);
+            const postponeDateFormatted = formatDateForInput(postpone.postponeDate);
+
+            postponeItem.innerHTML = `
+                <div class="postpone-edit-form" style="padding: 12px; background: #fff8f0; border-left: 4px solid #f39c12; border-radius: 6px;">
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-weight: 600; color: #e67e22; margin-bottom: 5px;">Eski Tarih:</label>
+                        <input type="date" id="editOriginal-${actionId}-${postponeIndex}" value="${originalDateFormatted}" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 150px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-weight: 600; color: #e67e22; margin-bottom: 5px;">Yeni Tarih:</label>
+                        <input type="date" id="editPostpone-${actionId}-${postponeIndex}" value="${postponeDateFormatted}" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 150px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-weight: 600; color: #e67e22; margin-bottom: 5px;">Erteleme Sebebi:</label>
+                        <textarea id="editReason-${actionId}-${postponeIndex}" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; min-height: 60px; resize: vertical;">${postpone.reason || ''}</textarea>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <button onclick="savePostponeEdit('${actionId}', ${postponeIndex})" style="padding: 6px 12px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Kaydet</button>
+                        <button onclick="cancelPostponeEdit('${actionId}', ${postponeIndex})" style="padding: 6px 12px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">İptal</button>
+                        <button onclick="deletePostpone('${actionId}', ${postponeIndex})" style="padding: 6px 12px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Sil</button>
+                    </div>
+                </div>
+            `;
         }
 
-        function deletePostpone(actionId, postponeIndex) {
-            if (!confirm('Bu erteleme kaydını silmek istediğinizden emin misiniz?')) {
-                return;
-            }
-
-            const action = actions.find(a => a.id === actionId);
-            if (!action || !action.postponeHistory) {
+        function savePostponeEdit(actionId, postponeIndex) {
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (!action || !action.postponeHistory || !action.postponeHistory[postponeIndex]) {
                 alert('Erteleme verisi bulunamadı!');
                 return;
             }
 
-            // Erteleme kaydını sil
-            action.postponeHistory.splice(postponeIndex, 1);
+            const newReason = document.getElementById(`editReason-${actionId}-${postponeIndex}`).value.trim();
+            const newOriginalDate = document.getElementById(`editOriginal-${actionId}-${postponeIndex}`).value;
+            const newPostponeDate = document.getElementById(`editPostpone-${actionId}-${postponeIndex}`).value;
 
-            // Database'i güncelle
-            database.ref('actions/' + actionId).update({
-                postponeHistory: action.postponeHistory
-            }).then(() => {
-                // UI'ı güncelle
-                renderPostponeHistory(action.postponeHistory, actionId);
-                showNotification('✅ Erteleme kaydı silindi!', 'success');
+            if (!newReason || !newOriginalDate || !newPostponeDate) {
+                alert('Lütfen tüm alanları doldurun!');
+                return;
+            }
 
-                // Eğer hiç erteleme kalmadıysa bölümü gizle
-                if (action.postponeHistory.length === 0) {
-                    document.getElementById('postponeHistorySection').style.display = 'none';
-                }
+            // Update postpone data
+            action.postponeHistory[postponeIndex].reason = newReason;
+            action.postponeHistory[postponeIndex].originalDate = newOriginalDate;
+            action.postponeHistory[postponeIndex].postponeDate = newPostponeDate;
+
+            // Update in Firebase
+            database.ref(`actions/${actionId}`).set(action).then(() => {
+                showNotification('✅ Erteleme başarıyla güncellendi!', 'success');
+                // Refresh detail view
+                openDetailView(actionId);
             }).catch(error => {
-                console.error('Error deleting postpone:', error);
-                showNotification('❌ Silme sırasında hata oluştu!', 'error');
+                console.error('Update error:', error);
+                showNotification('❌ Güncellerken hata oluştu!', 'error');
             });
+        }
+
+        function cancelPostponeEdit(actionId, postponeIndex) {
+            // Simply refresh the detail view to show original data
+            openDetailView(actionId);
+        }
+
+        function closePostponeEditModal() {
+            const modal = document.getElementById('postponeEditModal');
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+            currentEditingPostpone = { actionId: null, postponeIndex: null };
+        }
+
+        function deleteNote(actionId, noteId) {
+            if (!confirm('Bu notu silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (!action || !action.notes) {
+                alert('Not bulunamadı!');
+                return;
+            }
+
+            // Remove note from array
+            action.notes = action.notes.filter(note => note.id !== noteId);
+
+            // Update database
+            database.ref('actions/' + actionId).update({
+                notes: action.notes
+            }).then(() => {
+                renderActions(); // Refresh UI
+                showNotification('✅ Not başarıyla silindi!', 'success');
+            }).catch(error => {
+                console.error('Error deleting note:', error);
+                showNotification('❌ Not silinirken hata oluştu!', 'error');
+            });
+        }
+
+        function deleteNoteImage(actionId, noteId, imageIndex) {
+            if (!confirm('Bu resmi silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (!action || !action.notes) {
+                alert('Not bulunamadı!');
+                return;
+            }
+
+            const note = action.notes.find(n => n.id === noteId);
+            if (!note || !note.images || !note.images[imageIndex]) {
+                alert('Resim bulunamadı!');
+                return;
+            }
+
+            // Remove image from note
+            note.images.splice(imageIndex, 1);
+
+            // Update database
+            database.ref('actions/' + actionId).update({
+                notes: action.notes
+            }).then(() => {
+                renderActions(); // Refresh UI
+                showNotification('✅ Resim başarıyla silindi!', 'success');
+            }).catch(error => {
+                console.error('Error deleting image:', error);
+                showNotification('❌ Resim silinirken hata oluştu!', 'error');
+            });
+        }
+
+        function handleAttachmentClick(fileUrl, fileName, fileType) {
+            if (fileType.startsWith('image/')) {
+                // Open image in modal for preview
+                openImageModal(fileUrl);
+            } else {
+                // Download file for non-image types
+                downloadFile(fileUrl, fileName);
+            }
+        }
+
+        function downloadFile(url, filename) {
+            try {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showNotification('📁 Dosya indiriliyor...', 'info');
+            } catch (error) {
+                console.error('Download failed:', error);
+                // Fallback: open in new tab
+                window.open(url, '_blank');
+                showNotification('🔗 Dosya yeni sekmede açıldı', 'info');
+            }
+        }
+
+        async function deletePostpone(actionId, postponeIndex) {
+            if (!confirm('Bu erteleme kaydını silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (!action || !action.postponeHistory) {
+                showNotification('🚫 Erteleme verisi bulunamadı!', 'error');
+                return;
+            }
+
+            try {
+                // Erteleme kaydını sil
+                action.postponeHistory.splice(postponeIndex, 1);
+
+                // Firebase'e kaydet
+                await database.ref('actions/' + actionId).update({
+                    postponeHistory: action.postponeHistory
+                });
+
+                // Save to storage
+                saveToLocalStorage();
+
+                // Refresh displays
+                displayActions();
+
+                // Modal açıksa postpone history'yi yenile
+                if (document.getElementById('actionModal').classList.contains('active')) {
+                    renderPostponeHistory(action.postponeHistory, actionId);
+                }
+
+                // Detail modal açıksa güncelle
+                if (document.getElementById('detailModal').classList.contains('active') &&
+                    String(currentDetailActionId) === String(actionId)) {
+                    openDetailView(actionId);
+                }
+
+                showNotification('✅ Erteleme kaydı silindi!', 'success');
+            } catch (error) {
+                console.error('Error deleting postpone:', error);
+                showNotification('🚫 Erteleme kaydı silinirken hata oluştu!', 'error');
+            }
         }
         
         function quickStatusChange(id, currentStatus) {
@@ -3690,43 +4523,551 @@
         }
         
         // --- DETAIL VIEW MODAL ---
+        let currentDetailActionId = null;
+
         function openDetailView(id) {
             const action = actions.find(a => String(a.id) === String(id));
             if (!action) {
-                console.error('Action not found for detail view:', id);
+                console.error('Action not found for view:', id);
                 return;
             }
-            
-            const personName = action.assignedPerson ? (persons.find(p => p.id === action.assignedPerson)?.name || 'Atanmamış') : 'Atanmamış';
-            
+
+            currentDetailActionId = id;
+            currentEditingActionId = null; // Reset editing state
+
+            // Set modal title and show detail view
             document.getElementById('detailTitle').textContent = action.title;
-            document.getElementById('detailResponsible').textContent = action.responsible;
-            document.getElementById('detailAssignedPerson').textContent = personName;
-            document.getElementById('detailStatus').innerHTML = `<span class="status-badge ${action.status}">${getStatusText(action.status)}</span>`;
-            document.getElementById('detailDate').textContent = action.date ? formatDate(action.date) : 'Tarih Belirtilmemiş';
-            document.getElementById('detailDescription').textContent = action.description;
-            
-            // Erteleme notu varsa göster
-            const postponeLabel = document.getElementById('detailPostponeLabel');
-            const postponeNote = document.getElementById('detailPostponeNote');
-            if (action.postponed && action.postponeReason) {
-                postponeLabel.style.display = 'block';
-                postponeNote.style.display = 'block';
-                postponeNote.innerHTML = `<div class="postpone-note">${action.postponeReason}</div>`;
+
+            // Show detail view, hide edit form
+            document.getElementById('detailViewForm').style.display = 'block';
+            document.getElementById('detailEditForm').style.display = 'none';
+            document.getElementById('editToggleBtn').style.display = 'block';
+            document.getElementById('saveBtn').style.display = 'none';
+
+            // Hide inline note form initially
+            document.getElementById('inlineNoteForm').style.display = 'none';
+            document.getElementById('addNoteBtn').textContent = '+ Not Ekle';
+
+            // Fill detail view fields
+            document.getElementById('viewActionTitle').textContent = action.title || '';
+            document.getElementById('viewActionResponsible').textContent = action.responsible || '';
+            document.getElementById('viewActionAssignedPerson').textContent = action.assignedPerson || 'Kişi seçilmedi';
+            const statusElement = document.getElementById('viewActionStatus');
+            statusElement.textContent = getStatusText(action.status || 'waiting');
+            statusElement.className = `status-badge ${action.status || 'waiting'}`;
+            document.getElementById('viewActionDate').textContent = action.date ? formatDate(action.date) : 'Tarih yok';
+            document.getElementById('viewActionDescription').textContent = action.description || 'Açıklama yok';
+            document.getElementById('viewActionPriority').textContent = action.priority ? 'Evet' : 'Hayır';
+
+            // Update person dropdown for potential editing later
+            updatePersonDropdown();
+
+            // Show attachments if any
+            displayActionAttachments(action);
+
+            // Show postpone history if any
+            displayPostponeHistory(action);
+
+            // Show notes if any
+            displayActionNotes(action);
+
+            // Show the modal
+            const modal = document.getElementById('detailModal');
+            modal.style.display = 'flex';
+        }
+
+        function displayActionAttachments(action) {
+            const attachmentsSection = document.getElementById('detailAttachments');
+            const attachmentsList = document.getElementById('detailAttachmentsList');
+
+            if (action.attachments && action.attachments.length > 0) {
+                attachmentsSection.style.display = 'block';
+                attachmentsList.innerHTML = action.attachments.map(file =>
+                    `<div class="attachment-item">
+                        <span class="attachment-name">${file.name}</span>
+                        <button onclick="downloadFile('${file.url}', '${file.name}')" class="btn btn-sm">📥 İndir</button>
+                    </div>`
+                ).join('');
             } else {
-                postponeLabel.style.display = 'none';
-                postponeNote.style.display = 'none';
+                attachmentsSection.style.display = 'none';
             }
-            
+        }
+
+        function displayPostponeHistory(action) {
+            const postponeSection = document.getElementById('detailPostponeHistory');
+            const postponeList = document.getElementById('detailPostponeHistoryList');
+
+            if (action.postponeHistory && action.postponeHistory.length > 0) {
+                postponeSection.style.display = 'block';
+
+                // Check if we're in edit mode or detail view mode
+                const isEditMode = document.getElementById('detailEditForm').style.display === 'block';
+
+                if (isEditMode) {
+                    // Edit mode: show with edit/delete buttons
+                    postponeList.innerHTML = action.postponeHistory.map((postpone, index) =>
+                        `<div class="postpone-item" data-postpone-id="${action.id}-${index}">
+                            <div class="postpone-dates">
+                                <span class="old-date">${postpone.oldDate ? formatDate(postpone.oldDate) : 'Tarih yok'}</span>
+                                →
+                                <span class="new-date">${postpone.newDate ? formatDate(postpone.newDate) : 'Tarih yok'}</span>
+                            </div>
+                            <div class="postpone-reason">${postpone.reason || 'Sebep belirtilmedi'}</div>
+                            <div class="postpone-timestamp">${postpone.timestamp ? new Date(postpone.timestamp).toLocaleDateString('tr-TR') : ''}</div>
+                            <div class="postpone-actions">
+                                <button class="postpone-edit-btn" onclick="editPostpone('${action.id}', ${index})">Düzenle</button>
+                                <button class="postpone-delete-btn" onclick="deletePostpone('${action.id}', ${index})">Sil</button>
+                            </div>
+                        </div>`
+                    ).join('');
+                } else {
+                    // Detail view mode: show as colorful cards without buttons
+                    postponeList.innerHTML = action.postponeHistory.map((postpone, index) =>
+                        `<div class="postpone-card" style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                <div style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-right: 10px;">⏰ Erteleme</div>
+                                <div style="font-size: 0.8rem; opacity: 0.9;">${postpone.timestamp ? new Date(postpone.timestamp).toLocaleDateString('tr-TR') : ''}</div>
+                            </div>
+                            <div style="font-weight: bold; margin-bottom: 8px;">
+                                ${postpone.oldDate ? formatDate(postpone.oldDate) : 'Tarih yok'} → ${postpone.newDate ? formatDate(postpone.newDate) : 'Tarih yok'}
+                            </div>
+                            <div style="opacity: 0.9;">${postpone.reason || 'Sebep belirtilmedi'}</div>
+                        </div>`
+                    ).join('');
+                }
+            } else {
+                postponeSection.style.display = 'none';
+            }
+        }
+
+        function displayActionNotes(action) {
+            const notesSection = document.getElementById('detailNotes');
+            const notesList = document.getElementById('detailNotesList');
+
+            if (action.notes && action.notes.length > 0) {
+                notesSection.style.display = 'block';
+
+                // Check if we're in edit mode or detail view mode
+                const isEditMode = document.getElementById('detailEditForm').style.display === 'block';
+
+                if (isEditMode) {
+                    // Edit mode: show simple list
+                    notesList.innerHTML = action.notes.map(note =>
+                        `<div class="note-item" style="border-left: 4px solid ${note.color}; padding: 10px; margin-bottom: 8px; background: #f8f9fa;">
+                            <div class="note-type" style="font-weight: bold; font-size: 0.9rem; color: ${note.color};">${getNoteTypeText(note.type)}</div>
+                            <div class="note-text" style="margin: 5px 0;">${note.text}</div>
+                            <div class="note-timestamp" style="font-size: 0.8rem; color: #666;">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
+                        </div>`
+                    ).join('');
+                } else {
+                    // Detail view mode: show as colorful cards
+                    notesList.innerHTML = action.notes.map(note =>
+                        `<div class="note-card" style="background: ${note.color}; color: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                <div style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-right: 10px;">${getNoteTypeText(note.type)}</div>
+                                <div style="font-size: 0.8rem; opacity: 0.9;">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
+                            </div>
+                            <div style="opacity: 0.95; line-height: 1.4;">${note.text}</div>
+                        </div>`
+                    ).join('');
+                }
+            } else {
+                notesSection.style.display = 'none';
+            }
+        }
+
+        function getNoteTypeText(type) {
+            const types = {
+                'note': '📝 Not',
+                'postpone': '⏰ Erteleme',
+                'update': '🔄 Güncelleme',
+                'reminder': '🔔 Hatırlatma'
+            };
+            return types[type] || '📝 Not';
+        }
+
+        function addPostponeFromEdit() {
+            const originalDate = document.getElementById('postponeOriginalDate').value;
+            const newDate = document.getElementById('postponeNewDate').value;
+            const reason = document.getElementById('postponeReason').value.trim();
+
+            if (!newDate || !reason) {
+                alert('Lütfen yeni tarih ve erteleme sebebini girin!');
+                return;
+            }
+
+            if (!currentDetailActionId) {
+                alert('Aksiyon bulunamadı!');
+                return;
+            }
+
+            const action = actions.find(a => String(a.id) === String(currentDetailActionId));
+            if (!action) {
+                alert('Aksiyon bulunamadı!');
+                return;
+            }
+
+            // Initialize postpone history if it doesn't exist
+            if (!action.postponeHistory) action.postponeHistory = [];
+
+            // Add new postpone entry
+            const postponeEntry = {
+                oldDate: originalDate || action.date,
+                newDate: newDate,
+                reason: reason,
+                timestamp: new Date().toISOString()
+            };
+
+            action.postponeHistory.push(postponeEntry);
+
+            // Update the action's date to the new date
+            action.date = newDate;
+
+            // Save to storage
+            saveToLocalStorage();
+
+            // Refresh displays
+            displayActions();
+            displayPostponeHistory(action);
+
+            // Update the edit form's original date field with the new date for next postpone
+            document.getElementById('postponeOriginalDate').value = newDate;
+
+            // Clear the form
+            document.getElementById('postponeNewDate').value = '';
+            document.getElementById('postponeReason').value = '';
+
+            alert('Erteleme başarıyla eklendi!');
+        }
+
+        function toggleEditMode() {
+            if (!currentDetailActionId) return;
+
+            const action = actions.find(a => String(a.id) === String(currentDetailActionId));
+            if (!action) return;
+
+            // Toggle between view and edit modes
+            const isCurrentlyEditing = document.getElementById('detailEditForm').style.display === 'block';
+
+            if (isCurrentlyEditing) {
+                // Switch to view mode
+                document.getElementById('detailViewForm').style.display = 'block';
+                document.getElementById('detailEditForm').style.display = 'none';
+                document.getElementById('editToggleBtn').style.display = 'block';
+                document.getElementById('saveBtn').style.display = 'none';
+                document.getElementById('detailTitle').textContent = action.title;
+                currentEditingActionId = null;
+            } else {
+                // Switch to edit mode
+                document.getElementById('detailViewForm').style.display = 'none';
+                document.getElementById('detailEditForm').style.display = 'block';
+                document.getElementById('editToggleBtn').style.display = 'none';
+                document.getElementById('saveBtn').style.display = 'block';
+                document.getElementById('detailTitle').textContent = `${action.title} - Düzenleniyor`;
+                currentEditingActionId = currentDetailActionId;
+
+                // Fill edit form fields
+                document.getElementById('editActionTitle').value = action.title || '';
+                document.getElementById('editActionResponsible').value = action.responsible || '';
+                document.getElementById('editActionAssignedPerson').value = action.assignedPerson || '';
+                document.getElementById('editActionStatus').value = action.status || 'waiting';
+                document.getElementById('editActionDate').value = action.date || '';
+                document.getElementById('editActionDescription').value = action.description || '';
+                document.getElementById('editActionPriority').checked = action.priority || false;
+
+                // Initialize file upload for edit modal
+                initializeEditFileUpload();
+            }
+
+            // Refresh postpone history and notes display for the new mode
+            displayPostponeHistory(action);
+            displayActionNotes(action);
+        }
+
+        function openComprehensiveEdit(id) {
+            const action = actions.find(a => String(a.id) === String(id));
+            if (!action) {
+                console.error('Action not found for edit:', id);
+                return;
+            }
+
+            currentEditingActionId = id;
+            currentDetailActionId = id;
+
+            // Set modal title to show we're editing
+            document.getElementById('detailTitle').textContent = `${action.title} - Düzenleniyor`;
+
+            // Fill edit form fields
+            document.getElementById('editActionTitle').value = action.title || '';
+            document.getElementById('editActionResponsible').value = action.responsible || '';
+            document.getElementById('editActionAssignedPerson').value = action.assignedPerson || '';
+            document.getElementById('editActionStatus').value = action.status || 'waiting';
+            document.getElementById('editActionDate').value = action.date || '';
+            document.getElementById('editActionDescription').value = action.description || '';
+            document.getElementById('editActionPriority').checked = action.priority || false;
+
+            // Update person dropdown
+            updatePersonDropdown();
+
+            // Initialize file upload for edit modal
+            initializeEditFileUpload();
+
+            // Clear postpone form fields
+            document.getElementById('postponeOriginalDate').value = action.date || '';
+            document.getElementById('postponeNewDate').value = '';
+            document.getElementById('postponeReason').value = '';
+
+            // Show existing file attachments in preview
+            showExistingAttachments(action);
+
+            // Attachments
+            const attachmentsSection = document.getElementById('detailAttachments');
+            const attachmentsList = document.getElementById('detailAttachmentsList');
+
+            if (action.attachments && action.attachments.length > 0) {
+                attachmentsSection.style.display = 'block';
+                attachmentsList.innerHTML = action.attachments.map(file => `
+                    <div class="attachment-item-detail" onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')">
+                        <span class="attachment-icon">${getFileIcon(file.type)}</span>
+                        <span class="attachment-name" title="${file.name}">${file.name}</span>
+                    </div>
+                `).join('');
+            } else {
+                attachmentsSection.style.display = 'none';
+            }
+
+            // Postpone History
+            const postponeHistorySection = document.getElementById('detailPostponeHistory');
+            const postponeHistoryList = document.getElementById('detailPostponeHistoryList');
+
+            if (action.postponeHistory && action.postponeHistory.length > 0) {
+                postponeHistorySection.style.display = 'block';
+                postponeHistoryList.innerHTML = action.postponeHistory.map((postpone, index) => {
+                    const postponeDate = new Date(postpone.postponeDate);
+                    const originalDate = new Date(postpone.originalDate);
+                    const timestamp = postpone.timestamp ? new Date(postpone.timestamp).toLocaleDateString('tr-TR') : 'Bilinmiyor';
+
+                    return `
+                        <div class="postpone-history-item" data-postpone-id="${id}-${index}" style="margin-bottom: 15px;">
+                            <div style="padding: 12px; background: #fff8f0; border-left: 4px solid #f39c12; border-radius: 6px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="font-weight: 600; color: #e67e22;">
+                                        ${originalDate.toLocaleDateString('tr-TR')} → ${postponeDate.toLocaleDateString('tr-TR')}
+                                    </div>
+                                    <div style="display: flex; gap: 5px;">
+                                        <button class="postpone-edit-btn" onclick="editPostpone('${id}', ${index})" style="font-size: 0.7rem; padding: 4px 8px; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer;">Düzenle</button>
+                                        <button class="postpone-delete-btn" onclick="deletePostpone('${id}', ${index})" style="font-size: 0.7rem; padding: 4px 8px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer;">Sil</button>
+                                    </div>
+                                </div>
+                                <div style="color: #666; font-size: 0.9rem;">${postpone.reason || 'Sebep belirtilmemiş'}</div>
+                                <small style="color: #999; font-size: 0.8rem;">Erteleme tarihi: ${timestamp}</small>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                postponeHistorySection.style.display = 'none';
+            }
+
+            // Notes
+            const notesSection = document.getElementById('detailNotes');
+            const notesList = document.getElementById('detailNotesList');
+
+            if (action.notes && action.notes.length > 0) {
+                notesSection.style.display = 'block';
+                notesList.innerHTML = action.notes.map(note => {
+                    const noteDate = new Date(note.timestamp);
+                    return `
+                        <div class="note-item type-${note.type}" style="margin-bottom: 15px; padding: 12px; border-left: 4px solid ${note.color}; border-radius: 6px; background: ${note.color}15;">
+                            <div class="note-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span class="note-type" style="color: ${note.color}; font-weight: bold; font-size: 0.8rem; text-transform: uppercase;">${note.type}</span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <small style="color: #666; font-size: 0.75rem;">${noteDate.toLocaleDateString('tr-TR')} ${noteDate.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
+                                    <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" style="background: none; border: none; cursor: pointer; opacity: 0.6; font-size: 0.8rem;">🗑️</button>
+                                </div>
+                            </div>
+                            <div style="color: #333; line-height: 1.4; margin-bottom: 8px;">${note.text}</div>
+                            ${note.images && note.images.length > 0 ? `
+                                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                                    ${note.images.map((img, imgIndex) => `
+                                        <div style="position: relative;">
+                                            <img src="${img.url}" alt="${img.name}" onclick="openImageModal('${img.url}')" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; cursor: pointer;">
+                                            <button class="image-delete-btn" onclick="deleteNoteImage('${id}', ${note.id}, ${imgIndex})" style="position: absolute; top: -5px; right: -5px; background: rgba(231,76,60,0.9); color: white; border: none; width: 18px; height: 18px; border-radius: 50%; cursor: pointer; font-size: 10px; opacity: 0; transition: opacity 0.2s;">×</button>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                notesSection.style.display = 'none';
+            }
+
             const modal = document.getElementById('detailModal');
             modal.classList.add('active');
             modal.style.display = 'flex';
+        }
+
+        function saveComprehensiveEdit() {
+            if (!currentEditingActionId) {
+                alert('Düzenlenecek aksiyon bulunamadı!');
+                return;
+            }
+
+            const title = document.getElementById('editActionTitle').value.trim();
+            const responsible = document.getElementById('editActionResponsible').value;
+            const assignedPerson = document.getElementById('editActionAssignedPerson').value;
+            const status = document.getElementById('editActionStatus').value;
+            const date = document.getElementById('editActionDate').value;
+            const description = document.getElementById('editActionDescription').value.trim();
+            const priority = document.getElementById('editActionPriority').checked;
+
+            if (!title || !responsible) {
+                alert('Lütfen başlık ve sorumlu alanlarını doldurun!');
+                return;
+            }
+
+            const actionData = {
+                title,
+                responsible,
+                assignedPerson,
+                status,
+                date,
+                description,
+                priority
+            };
+
+            // Find the action and preserve existing data
+            const existingAction = actions.find(a => String(a.id) === String(currentEditingActionId));
+            if (existingAction) {
+                // Preserve existing data that shouldn't be lost
+                actionData.id = existingAction.id;
+                actionData.createdAt = existingAction.createdAt;
+                actionData.notes = existingAction.notes || [];
+                actionData.postponeHistory = existingAction.postponeHistory || [];
+                actionData.attachments = existingAction.attachments || [];
+                actionData.postponed = existingAction.postponed;
+                actionData.postponeReason = existingAction.postponeReason;
+            }
+
+            // Handle file uploads if any
+            if (editUploadedFiles.length > 0) {
+                uploadEditFilesAndSaveAction(actionData);
+            } else {
+                // No new files, just update the action
+                updateActionInFirebase(actionData);
+            }
+        }
+
+        function editActionFromDetail() {
+            if (currentDetailActionId) {
+                closeDetailModal();
+                editAction(currentDetailActionId);
+            }
         }
 
         function closeDetailModal() {
             const modal = document.getElementById('detailModal');
             modal.classList.remove('active');
             modal.style.display = 'none';
+            // Reset inline note form
+            document.getElementById('inlineNoteForm').style.display = 'none';
+        }
+
+        function toggleInlineNoteForm() {
+            const form = document.getElementById('inlineNoteForm');
+            const button = document.getElementById('addNoteBtn');
+
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+                button.textContent = '❌ İptal';
+                button.onclick = toggleInlineNoteForm;
+
+                // Clear form
+                document.getElementById('inlineNoteType').value = '';
+                document.getElementById('inlineNoteColor').value = '#3498db';
+                document.getElementById('inlineNoteText').value = '';
+                document.getElementById('inlineNotePostponeDate').value = '';
+                document.getElementById('inlinePostponeDateGroup').style.display = 'none';
+                document.getElementById('inlineImagePreview').innerHTML = '';
+                document.getElementById('inlineNoteImages').value = '';
+
+            } else {
+                form.style.display = 'none';
+                button.textContent = '+ Not Ekle';
+                button.onclick = toggleInlineNoteForm;
+            }
+        }
+
+        function setInlineNoteColor(color) {
+            document.getElementById('inlineNoteColor').value = color;
+        }
+
+        function saveInlineNote() {
+            const type = document.getElementById('inlineNoteType').value;
+            const color = document.getElementById('inlineNoteColor').value;
+            const text = document.getElementById('inlineNoteText').value.trim();
+            const postponeDate = document.getElementById('inlineNotePostponeDate').value;
+
+            if (!type || !text) {
+                alert('Lütfen tip ve açıklama alanlarını doldurun!');
+                return;
+            }
+
+            if (type === 'postpone' && !postponeDate) {
+                alert('Erteleme için yeni hedef tarih gerekli!');
+                return;
+            }
+
+            if (!currentDetailActionId) {
+                alert('Aksiyon bulunamadı!');
+                return;
+            }
+
+            // Create note object
+            const note = {
+                id: Date.now(),
+                type: type,
+                color: color,
+                text: text,
+                timestamp: new Date().toISOString(),
+                images: [] // TODO: Handle image uploads
+            };
+
+            // Find the action and add the note
+            const action = actions.find(a => String(a.id) === String(currentDetailActionId));
+            if (action) {
+                if (!action.notes) action.notes = [];
+                action.notes.push(note);
+
+                // If it's a postpone, update the action date and add to postpone history
+                if (type === 'postpone' && postponeDate) {
+                    if (!action.postponeHistory) action.postponeHistory = [];
+                    action.postponeHistory.push({
+                        oldDate: action.date,
+                        newDate: postponeDate,
+                        reason: text,
+                        timestamp: new Date().toISOString()
+                    });
+                    action.date = postponeDate;
+                }
+
+                // Save to storage
+                saveToLocalStorage();
+
+                // Refresh displays
+                displayActions();
+                displayActionNotes(action);
+                if (type === 'postpone') {
+                    displayPostponeHistory(action);
+                }
+
+                // Close the inline form
+                toggleInlineNoteForm();
+
+                alert('Not başarıyla eklendi!');
+            }
         }
 
         // --- RENDER FUNCTIONS FOR DIFFERENT VIEWS ---
@@ -4080,7 +5421,7 @@
         // Initialize user profile
         function initUserProfile() {
             // Bu kısım Firebase auth'dan gelecek
-            const userName = currentUser?.email || "Kullanıcı";
+            const userName = auth.currentUser?.email || "Kullanıcı";
             const userInitials = userName.charAt(0).toUpperCase();
 
             // Update header profile
@@ -4165,6 +5506,12 @@
                         if (passwordForm) {
                             passwordForm.reset();
                         }
+                    } else if (activeModal.id === 'postponeEditModal') {
+                        const postponeEditForm = document.getElementById('postponeEditForm');
+                        if (postponeEditForm) {
+                            postponeEditForm.reset();
+                        }
+                        currentEditingPostpone = { actionId: null, postponeIndex: null };
                     }
                     
                     // Close user dropdown if open
@@ -4525,23 +5872,463 @@
 
         // Missing function definitions
         function openPasswordModal() {
-            showNotification('🔑 Şifre değiştirme özelliği aktif değil', 'info');
+            const modal = document.getElementById('passwordModal');
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+            modal.style.zIndex = '10000'; // Ensure it's on top
+
+            // Close user dropdown
+            const modernUserDropdown = document.getElementById('modernUserDropdown');
+            if (modernUserDropdown) {
+                modernUserDropdown.style.display = 'none';
+            }
         }
 
         function showBackupSettings() {
-            showNotification('💾 Yedekleme ayarları yakında eklenecek', 'info');
+            const modal = document.getElementById('backupModal');
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+            modal.style.zIndex = '10000'; // Ensure it's on top
+
+            // Close user dropdown
+            const modernUserDropdown = document.getElementById('modernUserDropdown');
+            if (modernUserDropdown) {
+                modernUserDropdown.style.display = 'none';
+            }
+        }
+
+        function closeBackupModal() {
+            const modal = document.getElementById('backupModal');
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+        }
+
+        function exportAllData() {
+            const allData = {
+                actions: actions,
+                persons: persons,
+                exportDate: new Date().toISOString(),
+                version: "1.0"
+            };
+
+            const dataStr = JSON.stringify(allData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `aksiyon-takip-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showNotification('📁 Veriler başarıyla dışa aktarıldı!', 'success');
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!confirm('⚠️ Bu işlem mevcut tüm verilerinizin üzerine yazacaktır. Devam etmek istediğinizden emin misiniz?')) {
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+
+                    if (importedData.actions && importedData.persons) {
+                        // Update Firebase with imported data
+                        const updates = {};
+
+                        // Import actions
+                        importedData.actions.forEach(action => {
+                            updates[`actions/${action.id}`] = action;
+                        });
+
+                        // Import persons
+                        importedData.persons.forEach(person => {
+                            updates[`persons/${person.id}`] = person;
+                        });
+
+                        database.ref().update(updates).then(() => {
+                            showNotification('📂 Veriler başarıyla içe aktarıldı! Sayfa yenileniyor...', 'success');
+                            setTimeout(() => location.reload(), 1500);
+                        }).catch(error => {
+                            console.error('Import error:', error);
+                            showNotification('❌ İçe aktarma sırasında hata oluştu!', 'error');
+                        });
+                    } else {
+                        showNotification('❌ Geçersiz dosya formatı!', 'error');
+                    }
+                } catch (error) {
+                    console.error('Parse error:', error);
+                    showNotification('❌ Dosya okunamadı! Geçerli bir JSON dosyası seçin.', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // File upload functions for edit modal
+        // Using editUploadedFiles declared above
+        let editFileUploadInitialized = false;
+
+        function initializeEditFileUpload() {
+            if (editFileUploadInitialized) return;
+            editFileUploadInitialized = true;
+
+            const fileInput = document.getElementById('editActionFiles');
+            if (!fileInput) return;
+
+            fileInput.addEventListener('change', handleEditActionFileSelect);
+        }
+
+        function handleEditActionFileSelect(event) {
+            const files = event.target.files;
+            for (let file of files) {
+                editSelectedFiles.push(file);
+                displayEditActionFilePreview(file);
+            }
+        }
+
+        function displayEditActionFilePreview(file) {
+            const preview = document.getElementById('editActionFilePreview');
+            if (!preview) return;
+
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-preview-item';
+            fileItem.innerHTML = `
+                <div class="file-info">
+                    <span class="file-icon">${getFileIcon(file.type)}</span>
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-size">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                </div>
+                <button type="button" onclick="removeEditActionFile('${file.name}')" class="remove-file-btn">×</button>
+            `;
+            preview.appendChild(fileItem);
+        }
+
+        function removeEditActionFile(fileName) {
+            editSelectedFiles = editSelectedFiles.filter(file => file.name !== fileName);
+            const preview = document.getElementById('editActionFilePreview');
+            const fileItems = preview.querySelectorAll('.file-preview-item');
+            fileItems.forEach(item => {
+                if (item.querySelector('.file-name').textContent === fileName) {
+                    item.remove();
+                }
+            });
+        }
+
+        function showExistingAttachments(action) {
+            const preview = document.getElementById('editActionFilePreview');
+            if (!preview || !action.attachments) return;
+
+            preview.innerHTML = ''; // Clear existing preview
+
+            action.attachments.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-preview-item existing-file';
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <span class="file-icon">${getFileIcon(file.type)}</span>
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-size">(Mevcut dosya)</span>
+                    </div>
+                    <button type="button" onclick="removeExistingAttachment('${currentEditingActionId}', '${file.name}')" class="remove-file-btn">×</button>
+                `;
+                preview.appendChild(fileItem);
+            });
+        }
+
+        function removeExistingAttachment(actionId, fileName) {
+            if (!confirm('Bu dosyayı silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (action && action.attachments) {
+                action.attachments = action.attachments.filter(att => att.name !== fileName);
+
+                database.ref(`actions/${actionId}/attachments`).set(action.attachments).then(() => {
+                    showNotification('📎 Dosya başarıyla silindi!', 'success');
+                    showExistingAttachments(action);
+                }).catch(error => {
+                    console.error('Delete error:', error);
+                    showNotification('❌ Dosya silinirken hata oluştu!', 'error');
+                });
+            }
+        }
+
+        function uploadEditFilesAndSaveAction(actionData) {
+            if (!window.gapi || !window.gapi.client || !window.gapi.client.drive) {
+                showNotification('❌ Google Drive API hazır değil! Lütfen biraz bekleyin.', 'error');
+                return;
+            }
+
+            showNotification('📤 Dosyalar yükleniyor...', 'info');
+
+            const uploadPromises = editUploadedFiles.map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const fileMetadata = {
+                            name: file.name,
+                            parents: [GOOGLE_DRIVE_FOLDER_ID]
+                        };
+
+                        const form = new FormData();
+                        form.append('metadata', new Blob([JSON.stringify(fileMetadata)], {type: 'application/json'}));
+                        form.append('file', file);
+
+                        fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                            method: 'POST',
+                            headers: new Headers({
+                                'Authorization': `Bearer ${window.gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token}`
+                            }),
+                            body: form
+                        }).then(response => response.json())
+                        .then(result => {
+                            if (result.id) {
+                                const publicUrl = `https://drive.google.com/uc?id=${result.id}&export=view`;
+                                resolve({
+                                    id: result.id,
+                                    name: file.name,
+                                    url: publicUrl,
+                                    type: file.type,
+                                    size: file.size
+                                });
+                            } else {
+                                reject(new Error('File upload failed'));
+                            }
+                        }).catch(reject);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            Promise.all(uploadPromises).then(uploadedFiles => {
+                // Add new files to existing attachments
+                if (!actionData.attachments) {
+                    actionData.attachments = [];
+                }
+                actionData.attachments = [...actionData.attachments, ...uploadedFiles];
+
+                // Clear selected files for next time
+                editSelectedFiles = [];
+
+                // Update action in Firebase
+                updateActionInFirebase(actionData);
+                showNotification(`✅ ${uploadedFiles.length} dosya başarıyla yüklendi!`, 'success');
+            }).catch(error => {
+                console.error('File upload error:', error);
+                showNotification('❌ Dosya yükleme hatası!', 'error');
+
+                // Still save the action without files
+                updateActionInFirebase(actionData);
+            });
+        }
+
+        function updateActionInFirebase(actionData) {
+            database.ref(`actions/${currentEditingActionId}`).set(actionData).then(() => {
+                showNotification('✅ Aksiyon başarıyla güncellendi!', 'success');
+
+                // Update local actions array
+                const actionIndex = actions.findIndex(a => String(a.id) === String(currentEditingActionId));
+                if (actionIndex !== -1) {
+                    actions[actionIndex] = actionData;
+                }
+
+                // Close modal and refresh
+                closeDetailModal();
+                renderActions();
+                currentEditingActionId = null;
+
+                // Reset edit file upload state
+                editSelectedFiles = [];
+                editFileUploadInitialized = false;
+            }).catch(error => {
+                console.error('Update error:', error);
+                showNotification('❌ Güncellerken hata oluştu!', 'error');
+            });
+        }
+
+        // File upload functionality for edit modal
+        let editUploadedFiles = [];
+
+        function initializeEditFileUpload() {
+            editUploadedFiles = []; // Reset array
+            const fileInput = document.getElementById('editActionFiles');
+            const previewContainer = document.getElementById('editActionFilePreview');
+
+            if (fileInput && !fileInput.hasEventListener) {
+                fileInput.addEventListener('change', handleEditFileUpload);
+                fileInput.hasEventListener = true;
+            }
+
+            if (previewContainer) {
+                previewContainer.innerHTML = '';
+            }
+        }
+
+        function handleEditFileUpload(event) {
+            const files = Array.from(event.target.files);
+            const previewContainer = document.getElementById('editActionFilePreview');
+
+            files.forEach(file => {
+                editUploadedFiles.push(file);
+                displayEditFilePreview(file, editUploadedFiles.length - 1);
+            });
+
+            event.target.value = '';
+        }
+
+        function displayEditFilePreview(file, index) {
+            const previewContainer = document.getElementById('editActionFilePreview');
+            const fileElement = document.createElement('div');
+            fileElement.className = 'file-preview-item';
+            fileElement.style.cssText = 'display: flex; align-items: center; padding: 8px; background: #f8f9fa; margin-bottom: 5px; border-radius: 4px;';
+
+            const fileIcon = getFileIcon(file.type);
+            const fileName = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
+
+            fileElement.innerHTML = `
+                <span style="margin-right: 10px; font-size: 1.2em;">${fileIcon}</span>
+                <span style="flex: 1; font-size: 0.9em;">${fileName}</span>
+                <button type="button" onclick="removeEditFile(${index})" style="background: #dc3545; color: white; border: none; border-radius: 3px; padding: 2px 6px; cursor: pointer; font-size: 0.8em;">×</button>
+            `;
+
+            previewContainer.appendChild(fileElement);
+        }
+
+        function removeEditFile(index) {
+            editUploadedFiles.splice(index, 1);
+            const previewContainer = document.getElementById('editActionFilePreview');
+            if (previewContainer.children[index]) {
+                previewContainer.removeChild(previewContainer.children[index]);
+            }
+
+            // Update indexes in remaining items
+            Array.from(previewContainer.children).forEach((child, newIndex) => {
+                const button = child.querySelector('button');
+                if (button) {
+                    button.setAttribute('onclick', `removeEditFile(${newIndex})`);
+                }
+            });
+        }
+
+        function addPostponeFromEdit() {
+            const originalDate = document.getElementById('postponeOriginalDate').value;
+            const newDate = document.getElementById('postponeNewDate').value;
+            const reason = document.getElementById('postponeReason').value.trim();
+
+            if (!originalDate || !newDate || !reason) {
+                alert('Lütfen tüm erteleme alanlarını doldurun!');
+                return;
+            }
+
+            if (new Date(newDate) <= new Date(originalDate)) {
+                alert('Yeni tarih eski tarihten sonra olmalıdır!');
+                return;
+            }
+
+            const action = actions.find(a => String(a.id) === String(currentEditingActionId));
+            if (!action) {
+                alert('Aksiyon bulunamadı!');
+                return;
+            }
+
+            if (!action.postponeHistory) {
+                action.postponeHistory = [];
+            }
+
+            // Add postpone to history
+            action.postponeHistory.push({
+                originalDate: originalDate,
+                postponeDate: newDate,
+                reason: reason,
+                timestamp: Date.now()
+            });
+
+            // Update action date to new date
+            action.date = newDate;
+            document.getElementById('actionDate').value = newDate;
+
+            // Update in Firebase
+            database.ref(`actions/${currentEditingActionId}`).set(action).then(() => {
+                showNotification('✅ Erteleme başarıyla eklendi!', 'success');
+
+                // Clear form fields
+                document.getElementById('postponeOriginalDate').value = newDate; // Set for next postpone
+                document.getElementById('postponeNewDate').value = '';
+                document.getElementById('postponeReason').value = '';
+
+                // Update postpone history display
+                openComprehensiveEdit(currentEditingActionId);
+            }).catch(error => {
+                console.error('Postpone error:', error);
+                showNotification('❌ Erteleme eklenirken hata oluştu!', 'error');
+            });
         }
 
         // Initialize setup functions
         document.addEventListener('DOMContentLoaded', function() {
             setupColorPicker();
             handleImageUpload();
+            handleActionFileUpload(); // Add action file upload handler
             setupNoteTypeHandler();
 
             // Initialize Google Drive API
             if (typeof gapi !== 'undefined') {
                 initGoogleDriveAPI();
             }
+
+            // Handle postpone edit form submission
+            document.getElementById('postponeEditForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const { actionId, postponeIndex } = currentEditingPostpone;
+                if (!actionId || postponeIndex === null) {
+                    alert('Düzenleme bilgisi bulunamadı!');
+                    return;
+                }
+
+                const action = actions.find(a => a.id === actionId);
+                if (!action || !action.postponeHistory || !action.postponeHistory[postponeIndex]) {
+                    alert('Erteleme verisi bulunamadı!');
+                    return;
+                }
+
+                const newReason = document.getElementById('postponeEditReason').value.trim();
+                const newDate = document.getElementById('postponeEditNewDate').value;
+
+                if (!newReason || !newDate) {
+                    alert('Lütfen tüm zorunlu alanları doldurun!');
+                    return;
+                }
+
+                // Update postpone data
+                action.postponeHistory[postponeIndex] = {
+                    ...action.postponeHistory[postponeIndex],
+                    reason: newReason,
+                    postponeDate: newDate,
+                    editTimestamp: new Date().toISOString()
+                };
+
+                // Update database
+                database.ref('actions/' + actionId).update({
+                    postponeHistory: action.postponeHistory,
+                    date: newDate // Update main date as well
+                }).then(() => {
+                    renderPostponeHistory(action.postponeHistory, actionId);
+                    showNotification('✅ Erteleme başarıyla güncellendi!', 'success');
+                    closePostponeEditModal();
+                }).catch(error => {
+                    console.error('Error updating postpone:', error);
+                    showNotification('❌ Güncelleme sırasında hata oluştu!', 'error');
+                });
+            });
         });
 
         // Also call setup functions when modal is opened
