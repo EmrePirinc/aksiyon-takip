@@ -2450,7 +2450,7 @@
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
-                            <input type="text" id="searchInput" placeholder="Aksiyon ara... (Ctrl+F)" class="search-input-modern">
+                            <input type="text" id="searchInput" placeholder="Kapsamlı arama: başlık, açıklama, notlar, dosya adları..." class="search-input-modern">
                         </div>
                     </div>
 
@@ -3931,8 +3931,24 @@
         });
         
         // --- UI RENDERING ---
+        // Türkçe karakter normalleştirme fonksiyonu
+        function normalizeText(text) {
+            if (!text) return '';
+            return text.toLowerCase()
+                .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
+                .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c');
+        }
+
+        // Gelişmiş arama fonksiyonu
+        function searchInText(text, searchTerm) {
+            if (!text || !searchTerm) return false;
+            const normalizedText = normalizeText(text);
+            const normalizedSearch = normalizeText(searchTerm);
+            return normalizedText.includes(normalizedSearch);
+        }
+
         function getFilteredActions() {
-            const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+            const searchTerm = document.getElementById("searchInput").value.toLowerCase().trim();
             let filteredActions = [...actions]; // Create a copy to avoid modifying original
 
             // Öncelik filtresi
@@ -3950,13 +3966,91 @@
                 filteredActions = filteredActions.filter(a => a.status === currentStatusFilter);
             }
             
-            // Arama filtresi
+            // Kapsamlı arama filtresi
             if (searchTerm) {
-                filteredActions = filteredActions.filter(a => 
-                    (a.title && a.title.toLowerCase().includes(searchTerm)) ||
-                    (a.description && a.description.toLowerCase().includes(searchTerm)) ||
-                    (a.responsible && a.responsible.toLowerCase().includes(searchTerm))
-                );
+                filteredActions = filteredActions.filter(a => {
+                    // Temel alanlar
+                    if (searchInText(a.title, searchTerm) ||
+                        searchInText(a.description, searchTerm) ||
+                        searchInText(a.responsible, searchTerm)) {
+                        return true;
+                    }
+
+                    // Atanan kişi
+                    if (a.assignedPerson) {
+                        const person = persons.find(p => p.id === a.assignedPerson);
+                        if (person && searchInText(person.name, searchTerm)) {
+                            return true;
+                        }
+                    }
+
+                    // Erteleme geçmişi ve notları
+                    if (a.postponeHistory && a.postponeHistory.length > 0) {
+                        const postponeMatch = a.postponeHistory.some(p =>
+                            searchInText(p.reason, searchTerm)
+                        );
+                        if (postponeMatch) return true;
+                    }
+
+                    // Eski erteleme notları (backward compatibility)
+                    if (searchInText(a.postponeReason, searchTerm)) {
+                        return true;
+                    }
+
+                    // Notlar
+                    if (a.notes && a.notes.length > 0) {
+                        const noteMatch = a.notes.some(note =>
+                            searchInText(note.text, searchTerm) ||
+                            searchInText(note.type, searchTerm)
+                        );
+                        if (noteMatch) return true;
+                    }
+
+                    // Dosya ekleri
+                    if (a.attachments && a.attachments.length > 0) {
+                        const attachmentMatch = a.attachments.some(file =>
+                            searchInText(file.name, searchTerm) ||
+                            searchInText(file.type, searchTerm)
+                        );
+                        if (attachmentMatch) return true;
+                    }
+
+                    // Durum arama (Türkçe karşılıkları)
+                    const statusMap = {
+                        'waiting': ['bekliyor', 'beklemede'],
+                        'in-progress': ['devam', 'ediyor', 'devam ediyor', 'progress'],
+                        'completed': ['tamamlandı', 'tamamlanmış', 'bitti', 'completed']
+                    };
+
+                    if (a.status && statusMap[a.status]) {
+                        const statusMatch = statusMap[a.status].some(statusText =>
+                            searchInText(statusText, searchTerm)
+                        );
+                        if (statusMatch) return true;
+                    }
+
+                    // Tarih arama (hem YYYY-MM-DD hem de Türkçe formatında)
+                    if (a.date) {
+                        if (a.date.includes(searchTerm)) return true;
+
+                        // Tarih formatını Türkçe'ye çevir ve ara
+                        try {
+                            const date = new Date(a.date);
+                            const turkishDate = date.toLocaleDateString('tr-TR');
+                            if (searchInText(turkishDate, searchTerm)) return true;
+                        } catch (e) {
+                            // Tarih parse hatası, geç
+                        }
+                    }
+
+                    // Öncelik arama
+                    if (a.priority && ['öncelik', 'öncelikli', 'priority', 'star', 'yıldız'].some(term =>
+                        searchInText(term, searchTerm))) {
+                        return true;
+                    }
+
+                    return false;
+                });
             }
             
             // console.log('Filtered actions:', filteredActions.length, 'Priority filter active:', priorityFilterActive);
@@ -4484,8 +4578,6 @@
                     postponeHistory: action.postponeHistory
                 });
 
-                // Save to storage
-                saveToLocalStorage();
 
                 // Refresh displays
                 displayActions();
@@ -4626,8 +4718,6 @@
                     postponeHistory: action.postponeHistory
                 });
 
-                // Save to storage
-                saveToLocalStorage();
 
                 // Refresh displays
                 displayActions();
@@ -4865,12 +4955,19 @@
             // Update the action's date to the new date
             action.date = newDate;
 
-            // Save to storage
-            saveToLocalStorage();
-
-            // Refresh displays
-            displayActions();
-            displayPostponeHistory(action);
+            // Firebase'e kaydet
+            database.ref('actions/' + currentDetailActionId).update({
+                postponeHistory: action.postponeHistory,
+                date: newDate
+            }).then(() => {
+                showNotification('✅ Erteleme başarıyla eklendi!', 'success');
+                // Refresh displays
+                displayActions();
+                displayPostponeHistory(action);
+            }).catch(error => {
+                console.error('Error updating postpone:', error);
+                showNotification('❌ Erteleme eklenirken hata oluştu!', 'error');
+            });
 
             // Update the edit form's original date field with the new date for next postpone
             document.getElementById('postponeOriginalDate').value = newDate;
@@ -5195,8 +5292,6 @@
                     action.date = postponeDate;
                 }
 
-                // Save to storage
-                saveToLocalStorage();
 
                 // Refresh displays
                 displayActions();
