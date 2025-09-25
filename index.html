@@ -4472,14 +4472,14 @@
             currentEditingPostpone = { actionId: null, postponeIndex: null };
         }
 
-        function deleteNote(actionId, noteId) {
+        function deleteNote(actionId, noteId, noteIndex) {
             if (!confirm('Bu notu silmek istediğinizden emin misiniz?')) {
                 return;
             }
 
             const action = actions.find(a => String(a.id) === String(actionId));
             if (!action || !action.notes) {
-                alert('Not bulunamadı!');
+                showNotification('🚫 Not bulunamadı!', 'error');
                 return;
             }
 
@@ -4490,7 +4490,15 @@
             database.ref('actions/' + actionId).update({
                 notes: action.notes
             }).then(() => {
-                renderActions(); // Refresh UI
+                // Refresh displays
+                renderActions();
+
+                // Detail modal açıksa güncelle
+                if (document.getElementById('detailModal').classList.contains('active') &&
+                    String(currentDetailActionId) === String(actionId)) {
+                    displayActionNotes(action);
+                }
+
                 showNotification('✅ Not başarıyla silindi!', 'success');
             }).catch(error => {
                 console.error('Error deleting note:', error);
@@ -4612,14 +4620,14 @@
             currentEditingPostpone = { actionId: null, postponeIndex: null };
         }
 
-        function deleteNote(actionId, noteId) {
+        function deleteNote(actionId, noteId, noteIndex) {
             if (!confirm('Bu notu silmek istediğinizden emin misiniz?')) {
                 return;
             }
 
             const action = actions.find(a => String(a.id) === String(actionId));
             if (!action || !action.notes) {
-                alert('Not bulunamadı!');
+                showNotification('🚫 Not bulunamadı!', 'error');
                 return;
             }
 
@@ -4630,7 +4638,15 @@
             database.ref('actions/' + actionId).update({
                 notes: action.notes
             }).then(() => {
-                renderActions(); // Refresh UI
+                // Refresh displays
+                renderActions();
+
+                // Detail modal açıksa güncelle
+                if (document.getElementById('detailModal').classList.contains('active') &&
+                    String(currentDetailActionId) === String(actionId)) {
+                    displayActionNotes(action);
+                }
+
                 showNotification('✅ Not başarıyla silindi!', 'success');
             }).catch(error => {
                 console.error('Error deleting note:', error);
@@ -4883,12 +4899,20 @@
                 const isEditMode = document.getElementById('detailEditForm').style.display === 'block';
 
                 if (isEditMode) {
-                    // Edit mode: show simple list
-                    notesList.innerHTML = action.notes.map(note =>
+                    // Edit mode: show simple list with edit/delete buttons
+                    notesList.innerHTML = action.notes.map((note, index) =>
                         `<div class="note-item" style="border-left: 4px solid ${note.color}; padding: 10px; margin-bottom: 8px; background: #f8f9fa;">
-                            <div class="note-type" style="font-weight: bold; font-size: 0.9rem; color: ${note.color};">${getNoteTypeText(note.type)}</div>
-                            <div class="note-text" style="margin: 5px 0;">${note.text}</div>
-                            <div class="note-timestamp" style="font-size: 0.8rem; color: #666;">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div style="flex: 1;">
+                                    <div class="note-type" style="font-weight: bold; font-size: 0.9rem; color: ${note.color};">${getNoteTypeText(note.type)}</div>
+                                    <div class="note-text" style="margin: 5px 0;">${note.text}</div>
+                                    <div class="note-timestamp" style="font-size: 0.8rem; color: #666;">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
+                                </div>
+                                <div class="note-actions" style="display: flex; gap: 5px; margin-left: 10px;">
+                                    <button onclick="editNote('${action.id}', '${note.id}', ${index})" style="padding: 4px 8px; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 0.8rem;" title="Düzenle">✏️</button>
+                                    <button onclick="deleteNote('${action.id}', '${note.id}', ${index})" style="padding: 4px 8px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 0.8rem;" title="Sil">🗑️</button>
+                                </div>
+                            </div>
                         </div>`
                     ).join('');
                 } else {
@@ -6578,6 +6602,46 @@
                 setupNoteTypeHandler();
             }, 100);
         };
+
+        // Note editing function
+        function editNote(actionId, noteId, noteIndex) {
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (!action || !action.notes) {
+                showNotification('🚫 Not bulunamadı!', 'error');
+                return;
+            }
+
+            const note = action.notes.find(n => n.id === noteId);
+            if (!note) {
+                showNotification('🚫 Not bulunamadı!', 'error');
+                return;
+            }
+
+            // Not metnini düzenleme
+            const newText = prompt('Not metnini düzenle:', note.text);
+            if (newText && newText.trim() !== note.text) {
+                note.text = newText.trim();
+
+                // Update database
+                database.ref('actions/' + actionId).update({
+                    notes: action.notes
+                }).then(() => {
+                    // Refresh displays
+                    renderActions();
+
+                    // Detail modal açıksa güncelle
+                    if (document.getElementById('detailModal').classList.contains('active') &&
+                        String(currentDetailActionId) === String(actionId)) {
+                        displayActionNotes(action);
+                    }
+
+                    showNotification('✅ Not başarıyla güncellendi!', 'success');
+                }).catch(error => {
+                    console.error('Error updating note:', error);
+                    showNotification('❌ Not güncellenirken hata oluştu!', 'error');
+                });
+            }
+        }
 
     </script>
 </body>
