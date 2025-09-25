@@ -4463,6 +4463,204 @@
                 showNotification('🔗 Dosya yeni sekmede açıldı', 'info');
             }
         }
+            const postponeDateFormatted = formatDateForInput(postpone.postponeDate);
+
+            postponeItem.innerHTML = `
+                <div class="postpone-edit-form" style="padding: 12px; background: #fff8f0; border-left: 4px solid #f39c12; border-radius: 6px;">
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-weight: 600; color: #e67e22; margin-bottom: 5px;">Eski Tarih:</label>
+                        <input type="date" id="editOriginal-${actionId}-${postponeIndex}" value="${originalDateFormatted}" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 150px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-weight: 600; color: #e67e22; margin-bottom: 5px;">Yeni Tarih:</label>
+                        <input type="date" id="editPostpone-${actionId}-${postponeIndex}" value="${postponeDateFormatted}" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 150px;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-weight: 600; color: #e67e22; margin-bottom: 5px;">Erteleme Sebebi:</label>
+                        <textarea id="editReason-${actionId}-${postponeIndex}" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; min-height: 60px; resize: vertical;">${postpone.reason || ''}</textarea>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <button onclick="savePostponeEdit('${actionId}', ${postponeIndex})" style="padding: 6px 12px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Kaydet</button>
+                        <button onclick="cancelPostponeEdit('${actionId}', ${postponeIndex})" style="padding: 6px 12px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">İptal</button>
+                        <button onclick="deletePostpone('${actionId}', ${postponeIndex})" style="padding: 6px 12px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Sil</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function savePostponeEdit(actionId, postponeIndex) {
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (!action || !action.postponeHistory || !action.postponeHistory[postponeIndex]) {
+                alert('Erteleme verisi bulunamadı!');
+                return;
+            }
+
+            const newReason = document.getElementById(`editReason-${actionId}-${postponeIndex}`).value.trim();
+            const newOriginalDate = document.getElementById(`editOriginal-${actionId}-${postponeIndex}`).value;
+            const newPostponeDate = document.getElementById(`editPostpone-${actionId}-${postponeIndex}`).value;
+
+            if (!newReason || !newOriginalDate || !newPostponeDate) {
+                alert('Lütfen tüm alanları doldurun!');
+                return;
+            }
+
+            // Update postpone data
+            action.postponeHistory[postponeIndex].reason = newReason;
+            action.postponeHistory[postponeIndex].originalDate = newOriginalDate;
+            action.postponeHistory[postponeIndex].postponeDate = newPostponeDate;
+
+            // Update in Firebase
+            database.ref(`actions/${actionId}`).set(action).then(() => {
+                showNotification('✅ Erteleme başarıyla güncellendi!', 'success');
+                // Refresh detail view
+                openDetailView(actionId);
+            }).catch(error => {
+                console.error('Update error:', error);
+                showNotification('❌ Güncellerken hata oluştu!', 'error');
+            });
+        }
+
+        async function deletePostpone(actionId, postponeIndex) {
+            if (!confirm('Bu erteleme kaydını silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (!action || !action.postponeHistory) {
+                showNotification('🚫 Erteleme verisi bulunamadı!', 'error');
+                return;
+            }
+
+            try {
+                // Erteleme kaydını sil
+                action.postponeHistory.splice(postponeIndex, 1);
+
+                // Firebase'e kaydet
+                await database.ref('actions/' + actionId).update({
+                    postponeHistory: action.postponeHistory
+                });
+
+                // Save to storage
+                saveToLocalStorage();
+
+                // Refresh displays
+                displayActions();
+
+                // Modal açıksa postpone history'yi yenile
+                if (document.getElementById('actionModal').classList.contains('active')) {
+                    renderPostponeHistory(action.postponeHistory, actionId);
+                }
+
+                // Detail modal açıksa güncelle
+                if (document.getElementById('detailModal').classList.contains('active') &&
+                    String(currentDetailActionId) === String(actionId)) {
+                    openDetailView(actionId);
+                }
+
+                showNotification('✅ Erteleme kaydı silindi!', 'success');
+            } catch (error) {
+                console.error('Error deleting postpone:', error);
+                showNotification('🚫 Erteleme kaydı silinirken hata oluştu!', 'error');
+            }
+        }
+
+        function cancelPostponeEdit(actionId, postponeIndex) {
+            // Simply refresh the detail view to show original data
+            openDetailView(actionId);
+        }
+
+        function closePostponeEditModal() {
+            const modal = document.getElementById('postponeEditModal');
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+            currentEditingPostpone = { actionId: null, postponeIndex: null };
+        }
+
+        function deleteNote(actionId, noteId) {
+            if (!confirm('Bu notu silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (!action || !action.notes) {
+                alert('Not bulunamadı!');
+                return;
+            }
+
+            // Remove note from array
+            action.notes = action.notes.filter(note => note.id !== noteId);
+
+            // Update database
+            database.ref('actions/' + actionId).update({
+                notes: action.notes
+            }).then(() => {
+                renderActions(); // Refresh UI
+                showNotification('✅ Not başarıyla silindi!', 'success');
+            }).catch(error => {
+                console.error('Error deleting note:', error);
+                showNotification('❌ Not silinirken hata oluştu!', 'error');
+            });
+        }
+
+        function deleteNoteImage(actionId, noteId, imageIndex) {
+            if (!confirm('Bu resmi silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (!action || !action.notes) {
+                alert('Not bulunamadı!');
+                return;
+            }
+
+            const note = action.notes.find(n => n.id === noteId);
+            if (!note || !note.images || !note.images[imageIndex]) {
+                alert('Resim bulunamadı!');
+                return;
+            }
+
+            // Remove image from note
+            note.images.splice(imageIndex, 1);
+
+            // Update database
+            database.ref('actions/' + actionId).update({
+                notes: action.notes
+            }).then(() => {
+                renderActions(); // Refresh UI
+                showNotification('✅ Resim başarıyla silindi!', 'success');
+            }).catch(error => {
+                console.error('Error deleting image:', error);
+                showNotification('❌ Resim silinirken hata oluştu!', 'error');
+            });
+        }
+
+        function handleAttachmentClick(fileUrl, fileName, fileType) {
+            if (fileType.startsWith('image/')) {
+                // Open image in modal for preview
+                openImageModal(fileUrl);
+            } else {
+                // Download file for non-image types
+                downloadFile(fileUrl, fileName);
+            }
+        }
+
+        function downloadFile(url, filename) {
+            try {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showNotification('📁 Dosya indiriliyor...', 'info');
+            } catch (error) {
+                console.error('Download failed:', error);
+                // Fallback: open in new tab
+                window.open(url, '_blank');
+                showNotification('🔗 Dosya yeni sekmede açıldı', 'info');
+            }
+        }
 
         async function deletePostpone(actionId, postponeIndex) {
             if (!confirm('Bu erteleme kaydını silmek istediğinizden emin misiniz?')) {
