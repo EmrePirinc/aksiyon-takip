@@ -6529,6 +6529,62 @@
             closePostponeModal();
         });
 
+        // Function to convert all note types to postpone
+        function convertAllNoteTypesToPostpone() {
+            if (!confirm('Tüm not tiplerini "postpone" ye çevirmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            let updatedCount = 0;
+            const promises = [];
+
+            actions.forEach(action => {
+                if (action.notes && action.notes.length > 0) {
+                    let actionUpdated = false;
+                    action.notes.forEach(note => {
+                        if (note.type && note.type !== 'postpone') {
+                            console.log(`Converting note type "${note.type}" to "postpone" for action: ${action.title}`);
+                            note.type = 'postpone';
+                            actionUpdated = true;
+                        }
+                    });
+
+                    if (actionUpdated) {
+                        updatedCount++;
+                        // Update this action in Firebase
+                        const promise = database.ref('actions/' + action.id + '/notes').set(action.notes);
+                        promises.push(promise);
+                    }
+                }
+            });
+
+            if (promises.length > 0) {
+                Promise.all(promises)
+                    .then(() => {
+                        showNotification(`✅ ${updatedCount} aksiyon güncellendi! Tüm not tipleri "postpone" ye çevrildi.`, 'success');
+                        console.log(`Successfully converted note types in ${updatedCount} actions`);
+                    })
+                    .catch(error => {
+                        console.error('Error updating note types:', error);
+                        showNotification('❌ Not tiplerini güncellerken hata oluştu!', 'error');
+                    });
+            } else {
+                showNotification('ℹ️ Güncellenecek not tipi bulunamadı.', 'info');
+            }
+        }
+
+        // Auto-run the conversion when page loads (one-time operation)
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // Wait a bit for actions to load, then run conversion
+                setTimeout(() => {
+                    if (actions.length > 0) {
+                        convertAllNoteTypesToPostpone();
+                    }
+                }, 3000);
+            }
+        });
+
     </script>
 </body>
 </html>
