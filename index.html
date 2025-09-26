@@ -1374,6 +1374,8 @@
             flex-direction: column;
             padding: var(--space-5);
             cursor: pointer;
+            max-height: 350px;
+            overflow-y: auto;
         }
         .action-card:hover {
             transform: translateY(-4px);
@@ -1448,6 +1450,8 @@
         .action-body {
             flex: 1; /* Makes body grow */
             margin-bottom: var(--space-4);
+            max-height: 200px;
+            overflow-y: auto;
         }
         .update-box {
             background: var(--postponed-bg);
@@ -4174,11 +4178,17 @@
                     <div class="action-body" onclick="openDetailView('${id}')" style="cursor: pointer;">
                          ${action.postponeHistory && action.postponeHistory.length > 0 ?
                             action.postponeHistory.map((postpone, index) => {
-                                const postponeDate = new Date(postpone.postponeDate);
-                                const originalDate = new Date(postpone.originalDate);
-                                return `<div class="update-box" style="margin-bottom: 5px;"><strong>Erteleme ${index + 1}:</strong> ${postpone.reason || 'Sebep belirtilmemiş'} <br><small style="color: #666;">${originalDate.toLocaleDateString('tr-TR')} → ${postponeDate.toLocaleDateString('tr-TR')}</small></div>`;
+                                const postponeDate = new Date(postpone.postponeDate || postpone.newDate);
+                                const originalDate = new Date(postpone.originalDate || postpone.oldDate);
+                                return `<div style="margin-bottom: 4px; padding: 6px 8px; background: #f39c1215; border-left: 3px solid #f39c12; border-radius: 4px; font-size: 0.85rem;">
+                                    <strong style="color: #f39c12;">Erteleme ${index + 1}:</strong>
+                                    <span style="color: #333;">${(postpone.reason || 'Sebep belirtilmemiş').length > 40 ? (postpone.reason || 'Sebep belirtilmemiş').substring(0, 40) + '...' : (postpone.reason || 'Sebep belirtilmemiş')}</span>
+                                </div>`;
                             }).join('')
-                            : (postponed ? `<div class="update-box"><strong>Ertelendi:</strong> ${postponeReason || ''}</div>` : '')
+                            : (postponed ? `<div style="margin-bottom: 4px; padding: 6px 8px; background: #f39c1215; border-left: 3px solid #f39c12; border-radius: 4px; font-size: 0.85rem;">
+                                <strong style="color: #f39c12;">Ertelendi:</strong>
+                                <span style="color: #333;">${(postponeReason || '').length > 40 ? (postponeReason || '').substring(0, 40) + '...' : (postponeReason || '')}</span>
+                            </div>` : '')
                          }
                         <div class="action-description">${description || 'Açıklama yok'}</div>
 
@@ -4198,21 +4208,10 @@
 
                         ${action.notes && action.notes.length > 0 ?
                             action.notes.map(note => `
-                                <div class="update-box" style="margin-bottom: 5px; position: relative;">
-                                    <strong>${getNoteTypeText(note.type)}:</strong> ${note.text}
-                                    <br><small style="color: #666;">${new Date(note.timestamp).toLocaleDateString('tr-TR')} ${new Date(note.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
-                                    <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil" style="position: absolute; top: 8px; right: 8px; background: none; border: none; cursor: pointer; opacity: 0.6; font-size: 0.8rem;">🗑️</button>
-                                </div>
-                                    ${note.images && note.images.length > 0 ? `
-                                        <div class="note-images">
-                                            ${note.images.map((img, imgIndex) => `
-                                                <div class="note-image" style="position: relative;">
-                                                    <img src="${img.url}" alt="${img.name}" onclick="openImageModal('${img.url}')">
-                                                    <button class="image-delete-btn" onclick="deleteNoteImage('${id}', ${note.id}, ${imgIndex})" title="Resmi sil">×</button>
-                                                </div>
-                                            `).join('')}
-                                        </div>
-                                    ` : ''}
+                                <div style="margin-bottom: 4px; padding: 6px 8px; background: ${note.color}15; border-left: 3px solid ${note.color}; border-radius: 4px; font-size: 0.85rem; position: relative;">
+                                    <strong style="color: ${note.color};">${getNoteTypeText(note.type)}:</strong>
+                                    <span style="color: #333;">${note.text.length > 50 ? note.text.substring(0, 50) + '...' : note.text}</span>
+                                    <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil" style="position: absolute; top: 4px; right: 4px; background: none; border: none; cursor: pointer; opacity: 0.6; font-size: 0.7rem;">🗑️</button>
                                 </div>
                             `).join('')
                             : ''
