@@ -4169,15 +4169,15 @@
 
                         ${action.notes && action.notes.length > 0 ?
                             action.notes.map(note => `
-                                <div class="note-item type-${note.type}" style="border-left-color: ${note.color};">
-                                    <div class="note-header">
-                                        <span class="note-type" style="color: ${note.color};">${note.type.toUpperCase()}</span>
-                                        <div class="note-actions">
-                                            <small>${new Date(note.timestamp).toLocaleDateString('tr-TR')} ${new Date(note.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
-                                            <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil">🗑️</button>
+                                <div class="note-item type-${note.type}" style="margin-bottom: 8px; padding: 10px; border-left: 4px solid ${note.color}; border-radius: 6px; background: ${note.color}15;">
+                                    <div class="note-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                        <span class="note-type" style="color: ${note.color}; font-weight: bold; font-size: 0.85rem;">${getNoteTypeText(note.type)}</span>
+                                        <div class="note-actions" style="display: flex; align-items: center; gap: 8px;">
+                                            <small style="color: #666; font-size: 0.75rem;">${new Date(note.timestamp).toLocaleDateString('tr-TR')} ${new Date(note.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
+                                            <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil" style="background: none; border: none; cursor: pointer; opacity: 0.6; font-size: 0.8rem;">🗑️</button>
                                         </div>
                                     </div>
-                                    <div class="note-text">${note.text}</div>
+                                    <div class="note-text" style="color: #333; line-height: 1.4; font-size: 0.9rem;">${note.text}</div>
                                     ${note.images && note.images.length > 0 ? `
                                         <div class="note-images">
                                             ${note.images.map((img, imgIndex) => `
@@ -4868,14 +4868,15 @@
                             </div>`;
                         } else {
                             const postpone = item.data;
-                            return `<div class="postpone-card" style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            return `<div class="note-card" style="background: #f39c12; color: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                 <div style="display: flex; align-items: center; margin-bottom: 8px;">
                                     <div style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-right: 10px;">⏰ Erteleme</div>
                                     <div style="font-size: 0.8rem; opacity: 0.9;">${postpone.timestamp ? new Date(postpone.timestamp).toLocaleDateString('tr-TR') : ''}</div>
                                 </div>
-                                <div style="opacity: 0.95; line-height: 1.4; margin-bottom: 8px;">${postpone.reason || 'Sebep belirtilmedi'}</div>
-                                <div style="font-size: 0.85rem; opacity: 0.8;">
-                                    ${postpone.oldDate ? formatDate(postpone.oldDate) : 'Tarih yok'} → ${postpone.newDate ? formatDate(postpone.newDate) : 'Tarih yok'}
+                                <div style="opacity: 0.95; line-height: 1.4;">${postpone.reason || 'Sebep belirtilmedi'}
+                                    <br><small style="opacity: 0.8; font-size: 0.85rem;">
+                                        ${postpone.oldDate ? formatDate(postpone.oldDate) : 'Tarih yok'} → ${postpone.newDate ? formatDate(postpone.newDate) : 'Tarih yok'}
+                                    </small>
                                 </div>
                             </div>`;
                         }
@@ -5064,7 +5065,7 @@
                     return `
                         <div class="note-item type-${note.type}" style="margin-bottom: 15px; padding: 12px; border-left: 4px solid ${note.color}; border-radius: 6px; background: ${note.color}15;">
                             <div class="note-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <span class="note-type" style="color: ${note.color}; font-weight: bold; font-size: 0.8rem; text-transform: uppercase;">${note.type}</span>
+                                <span class="note-type" style="color: ${note.color}; font-weight: bold; font-size: 0.8rem;">${getNoteTypeText(note.type)}</span>
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <small style="color: #666; font-size: 0.75rem;">${noteDate.toLocaleDateString('tr-TR')} ${noteDate.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
                                     <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" style="background: none; border: none; cursor: pointer; opacity: 0.6; font-size: 0.8rem;">🗑️</button>
