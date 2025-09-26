@@ -4169,15 +4169,11 @@
 
                         ${action.notes && action.notes.length > 0 ?
                             action.notes.map(note => `
-                                <div class="note-item type-${note.type}" style="margin-bottom: 8px; padding: 10px; border-left: 4px solid ${note.color}; border-radius: 6px; background: ${note.color}15;">
-                                    <div class="note-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                        <span class="note-type" style="color: ${note.color}; font-weight: bold; font-size: 0.85rem;">${getNoteTypeText(note.type)}</span>
-                                        <div class="note-actions" style="display: flex; align-items: center; gap: 8px;">
-                                            <small style="color: #666; font-size: 0.75rem;">${new Date(note.timestamp).toLocaleDateString('tr-TR')} ${new Date(note.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
-                                            <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil" style="background: none; border: none; cursor: pointer; opacity: 0.6; font-size: 0.8rem;">🗑️</button>
-                                        </div>
-                                    </div>
-                                    <div class="note-text" style="color: #333; line-height: 1.4; font-size: 0.9rem;">${note.text}</div>
+                                <div class="update-box" style="margin-bottom: 5px; position: relative;">
+                                    <strong>${getNoteTypeText(note.type)}:</strong> ${note.text}
+                                    <br><small style="color: #666;">${new Date(note.timestamp).toLocaleDateString('tr-TR')} ${new Date(note.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
+                                    <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil" style="position: absolute; top: 8px; right: 8px; background: none; border: none; cursor: pointer; opacity: 0.6; font-size: 0.8rem;">🗑️</button>
+                                </div>
                                     ${note.images && note.images.length > 0 ? `
                                         <div class="note-images">
                                             ${note.images.map((img, imgIndex) => `
@@ -4824,17 +4820,12 @@
                     notesList.innerHTML = allItems.map(item => {
                         if (item.type === 'note') {
                             const note = item.data;
-                            return `<div class="note-item" style="border-left: 4px solid ${note.color}; padding: 10px; margin-bottom: 8px; background: #f8f9fa;">
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                    <div style="flex: 1;">
-                                        <div class="note-type" style="font-weight: bold; font-size: 0.9rem; color: ${note.color};">${getNoteTypeText(note.type)}</div>
-                                        <div class="note-text" style="margin: 5px 0;">${note.text}</div>
-                                        <div class="note-timestamp" style="font-size: 0.8rem; color: #666;">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
-                                    </div>
-                                    <div class="note-actions" style="display: flex; gap: 5px; margin-left: 10px;">
-                                        <button class="postpone-edit-btn" onclick="editNote('${action.id}', '${note.id}', ${action.notes.indexOf(note)})">Düzenle</button>
-                                        <button class="postpone-delete-btn" onclick="deleteNote('${action.id}', '${note.id}', ${action.notes.indexOf(note)})">Sil</button>
-                                    </div>
+                            return `<div class="update-box" style="margin-bottom: 5px; position: relative;">
+                                <strong>${getNoteTypeText(note.type)}:</strong> ${note.text}
+                                <br><small style="color: #666;">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</small>
+                                <div class="note-actions" style="position: absolute; top: 8px; right: 8px; display: flex; gap: 5px;">
+                                    <button class="postpone-edit-btn" onclick="editNote('${action.id}', '${note.id}', ${action.notes.indexOf(note)})">Düzenle</button>
+                                    <button class="postpone-delete-btn" onclick="deleteNote('${action.id}', '${note.id}', ${action.notes.indexOf(note)})">Sil</button>
                                 </div>
                             </div>`;
                         } else {
@@ -5051,21 +5042,16 @@
                 notesList.innerHTML = action.notes.map(note => {
                     const noteDate = new Date(note.timestamp);
                     return `
-                        <div class="note-item type-${note.type}" style="margin-bottom: 15px; padding: 12px; border-left: 4px solid ${note.color}; border-radius: 6px; background: ${note.color}15;">
-                            <div class="note-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <span class="note-type" style="color: ${note.color}; font-weight: bold; font-size: 0.8rem;">${getNoteTypeText(note.type)}</span>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <small style="color: #666; font-size: 0.75rem;">${noteDate.toLocaleDateString('tr-TR')} ${noteDate.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
-                                    <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" style="background: none; border: none; cursor: pointer; opacity: 0.6; font-size: 0.8rem;">🗑️</button>
-                                </div>
-                            </div>
-                            <div style="color: #333; line-height: 1.4; margin-bottom: 8px;">${note.text}</div>
+                        <div class="update-box" style="margin-bottom: 5px; position: relative;">
+                            <strong>${getNoteTypeText(note.type)}:</strong> ${note.text}
+                            <br><small style="color: #666;">${noteDate.toLocaleDateString('tr-TR')} ${noteDate.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
+                            <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" style="position: absolute; top: 8px; right: 8px; background: none; border: none; cursor: pointer; opacity: 0.6; font-size: 0.8rem;">🗑️</button>
                             ${note.images && note.images.length > 0 ? `
-                                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
                                     ${note.images.map((img, imgIndex) => `
                                         <div style="position: relative;">
-                                            <img src="${img.url}" alt="${img.name}" onclick="openImageModal('${img.url}')" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; cursor: pointer;">
-                                            <button class="image-delete-btn" onclick="deleteNoteImage('${id}', ${note.id}, ${imgIndex})" style="position: absolute; top: -5px; right: -5px; background: rgba(231,76,60,0.9); color: white; border: none; width: 18px; height: 18px; border-radius: 50%; cursor: pointer; font-size: 10px; opacity: 0; transition: opacity 0.2s;">×</button>
+                                            <img src="${img.url}" alt="${img.name}" onclick="openImageModal('${img.url}')" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; cursor: pointer;">
+                                            <button class="image-delete-btn" onclick="deleteNoteImage('${id}', ${note.id}, ${imgIndex})" style="position: absolute; top: -5px; right: -5px; background: rgba(231,76,60,0.9); color: white; border: none; width: 16px; height: 16px; border-radius: 50%; cursor: pointer; font-size: 10px; opacity: 0; transition: opacity 0.2s;">×</button>
                                         </div>
                                     `).join('')}
                                 </div>
