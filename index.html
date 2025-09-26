@@ -4146,28 +4146,22 @@
                         ` : ''}
 
                         ${action.notes && action.notes.length > 0 ?
-                            action.notes.map(note => `
-                                <div class="note-item type-${note.type}" style="border-left-color: ${note.color};">
-                                    <div class="note-header">
-                                        <span class="note-type" style="color: ${note.color};">${note.type.toUpperCase()}</span>
-                                        <div class="note-actions">
-                                            <small>${new Date(note.timestamp).toLocaleDateString('tr-TR')} ${new Date(note.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})}</small>
-                                            <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil">🗑️</button>
-                                        </div>
-                                    </div>
-                                    <div class="note-text">${note.text}</div>
-                                    ${note.images && note.images.length > 0 ? `
-                                        <div class="note-images">
-                                            ${note.images.map((img, imgIndex) => `
-                                                <div class="note-image" style="position: relative;">
-                                                    <img src="${img.url}" alt="${img.name}" onclick="openImageModal('${img.url}')">
-                                                    <button class="image-delete-btn" onclick="deleteNoteImage('${id}', ${note.id}, ${imgIndex})" title="Resmi sil">×</button>
-                                                </div>
-                                            `).join('')}
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            `).join('')
+                            action.notes.map(note => {
+                                const typeNames = {
+                                    'postpone': 'Erteleme',
+                                    'note': 'Not',
+                                    'update': 'Güncelleme',
+                                    'reminder': 'Hatırlatma'
+                                };
+                                const typeName = typeNames[note.type] || note.type;
+                                const noteDate = new Date(note.timestamp).toLocaleDateString('tr-TR');
+                                return `<div class="update-box" style="margin-bottom: 5px;">
+                                    <strong>${typeName}:</strong> ${note.text}
+                                    <br><small style="color: #666;">${noteDate}
+                                    <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil" style="margin-left: 10px; background: none; border: none; cursor: pointer;">🗑️</button>
+                                    </small>
+                                </div>`;
+                            }).join('')
                             : ''
                         }
                     </div>
