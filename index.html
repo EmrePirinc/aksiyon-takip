@@ -6529,21 +6529,28 @@
             closePostponeModal();
         });
 
-        // Function to convert all note types to postpone
+        // Function to convert all note types to postpone - Enhanced version
         function convertAllNoteTypesToPostpone() {
-            if (!confirm('Tüm not tiplerini "postpone" ye çevirmek istediğinizden emin misiniz?')) {
-                return;
-            }
+            console.log('=== Starting Note Type Conversion ===');
 
+            let totalFound = 0;
             let updatedCount = 0;
             const promises = [];
 
             actions.forEach(action => {
+                console.log(`Checking action: ${action.title}`);
+
+                // Check notes array
                 if (action.notes && action.notes.length > 0) {
+                    console.log(`  Found ${action.notes.length} notes`);
                     let actionUpdated = false;
+
                     action.notes.forEach(note => {
+                        totalFound++;
+                        console.log(`    Note type: "${note.type}", text: "${note.text?.substring(0, 30)}..."`);
+
                         if (note.type && note.type !== 'postpone') {
-                            console.log(`Converting note type "${note.type}" to "postpone" for action: ${action.title}`);
+                            console.log(`    -> Converting "${note.type}" to "postpone"`);
                             note.type = 'postpone';
                             actionUpdated = true;
                         }
@@ -6551,25 +6558,34 @@
 
                     if (actionUpdated) {
                         updatedCount++;
-                        // Update this action in Firebase
+                        console.log(`  -> Updating action in Firebase`);
                         const promise = database.ref('actions/' + action.id + '/notes').set(action.notes);
                         promises.push(promise);
                     }
+                } else {
+                    console.log(`  No notes found`);
                 }
             });
+
+            console.log(`=== Summary ===`);
+            console.log(`Total notes found: ${totalFound}`);
+            console.log(`Actions to update: ${updatedCount}`);
 
             if (promises.length > 0) {
                 Promise.all(promises)
                     .then(() => {
-                        showNotification(`✅ ${updatedCount} aksiyon güncellendi! Tüm not tipleri "postpone" ye çevrildi.`, 'success');
-                        console.log(`Successfully converted note types in ${updatedCount} actions`);
+                        const message = `✅ ${updatedCount} aksiyon güncellendi! Toplam ${totalFound} not kontrol edildi.`;
+                        showNotification(message, 'success');
+                        console.log('✅ Conversion completed successfully');
                     })
                     .catch(error => {
-                        console.error('Error updating note types:', error);
+                        console.error('❌ Error updating note types:', error);
                         showNotification('❌ Not tiplerini güncellerken hata oluştu!', 'error');
                     });
             } else {
-                showNotification('ℹ️ Güncellenecek not tipi bulunamadı.', 'info');
+                const message = `ℹ️ Güncellenecek not tipi bulunamadı. Toplam ${totalFound} not kontrol edildi.`;
+                showNotification(message, 'info');
+                console.log('ℹ️ No notes needed conversion');
             }
         }
 
