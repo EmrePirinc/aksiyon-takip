@@ -1518,6 +1518,14 @@
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
             transform: scale(1.05);
         }
+        .action-btn.postpone {
+            color: var(--postponed);
+        }
+        .action-btn.postpone:hover {
+            background: var(--postponed-bg);
+            color: var(--postponed);
+            border-color: var(--postponed-light);
+        }
         
         .action-btn.priority-active:hover {
             background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
@@ -2882,6 +2890,35 @@
         </div>
     </div>
 
+    <!-- Postpone Modal -->
+    <div class="modal" id="postponeModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>⏰ Görevi Ertele</h2></div>
+            <form id="postponeForm">
+                <div class="form-group">
+                    <label for="postponeReason">Erteleme Sebebi *</label>
+                    <textarea id="postponeReason" required placeholder="Erteleme sebebini açıklayın..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="postponeDate">Yeni Hedef Tarih *</label>
+                    <input type="date" id="postponeDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="postponePriority">Öncelik Durumu</label>
+                    <select id="postponePriority">
+                        <option value="normal">Normal</option>
+                        <option value="high">Yüksek Öncelik</option>
+                        <option value="urgent">Acil</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="modal-btn cancel" onclick="closePostponeModal()">İptal</button>
+                    <button type="submit" class="modal-btn save">⏰ Ertele</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Image Modal -->
     <div id="imageModal" class="image-modal" onclick="closeImageModal()" style="display: none;">
         <img id="modalImage" src="" alt="">
@@ -3005,6 +3042,7 @@
         let persons = [];
         let editingId = null;
         let postponingId = null;
+        let currentPostponeId = null;
         let currentStatusFilter = 'all';
         let currentTeamFilter = 'all';
         let priorityFilterActive = false;
@@ -4108,6 +4146,7 @@
                         <div class="action-buttons">
                             <button class="action-btn" data-action="edit" data-action-id="${id}" title="Düzenle">${ICONS.edit}</button>
                             <button class="action-btn ${priority ? 'priority-active' : ''}" data-action="priority" data-action-id="${id}" title="Öncelik">${ICONS.priority}</button>
+                            <button class="action-btn postpone" onclick="postponeAction('${id}')" title="Görevi ertele">${ICONS.postpone}</button>
                             <button class="action-btn" data-action="add-note" data-action-id="${id}" title="Aksiyon Ekle">${ICONS.add}</button>
                             <button class="action-btn" data-action="delete" data-action-id="${id}" title="Sil">${ICONS.delete}</button>
                         </div>
@@ -6248,6 +6287,58 @@
                 setupNoteTypeHandler();
             }, 100);
         };
+
+        // Postpone Action Functions
+        function postponeAction(id) {
+            const action = actions.find(a => a.id === id);
+            if (!action) {
+                showNotification('⚠️ Aksiyon bulunamadı!', 'warning');
+                return;
+            }
+
+            currentPostponeId = id;
+            document.getElementById('postponeModal').classList.add('active');
+
+            // Minimum tarihi bugün yap
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('postponeDate').min = today;
+
+            // Modal'a aksiyon bilgisini ekle
+            const modalHeader = document.querySelector('#postponeModal .modal-header h2');
+            modalHeader.innerHTML = `⏰ Görevi Ertele: "${action.title}"`;
+        }
+
+        function closePostponeModal() {
+            document.getElementById('postponeModal').classList.remove('active');
+            document.getElementById('postponeForm').reset();
+            currentPostponeId = null;
+        }
+
+        // Postpone form submit handler
+        document.getElementById('postponeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!currentPostponeId) return;
+
+            const postponeData = {
+                postponed: true,
+                postponeReason: document.getElementById('postponeReason').value,
+                postponeDate: document.getElementById('postponeDate').value,
+                postponePriority: document.getElementById('postponePriority').value,
+                originalDate: actions.find(a => a.id === currentPostponeId)?.date,
+                postponedAt: new Date().toISOString()
+            };
+
+            // Aksiyonu güncelle
+            database.ref('actions/' + currentPostponeId).update({
+                ...postponeData,
+                date: postponeData.postponeDate,
+                status: 'waiting' // Ertelenen aksiyonları bekliyor durumuna al
+            });
+
+            showNotification('⏰ Aksiyon ertelendi', 'warning');
+            closePostponeModal();
+        });
 
     </script>
 </body>
