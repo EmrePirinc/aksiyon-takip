@@ -2320,7 +2320,7 @@
                                     <span>Yedekleme</span>
                                 </button>
                                 <div class="dropdown-divider-clean"></div>
-                                <button class="dropdown-item-clean logout-clean" onclick="logout()">
+                                <button class="dropdown-item-clean logout-clean" onclick="signOut()">
                                     <div class="dropdown-icon">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -2450,7 +2450,7 @@
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
-                            <input type="text" id="searchInput" placeholder="Aksiyon ara... (Ctrl+F)" class="search-input-modern">
+                            <input type="text" id="searchInput" placeholder="Kapsamlı arama: başlık, açıklama, notlar, dosya adları..." class="search-input-modern">
                         </div>
                     </div>
 
@@ -3917,8 +3917,24 @@
         });
         
         // --- UI RENDERING ---
+        // Türkçe karakter normalleştirme fonksiyonu
+        function normalizeText(text) {
+            if (!text) return '';
+            return text.toLowerCase()
+                .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
+                .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c');
+        }
+
+        // Gelişmiş arama fonksiyonu
+        function searchInText(text, searchTerm) {
+            if (!text || !searchTerm) return false;
+            const normalizedText = normalizeText(text);
+            const normalizedSearch = normalizeText(searchTerm);
+            return normalizedText.includes(normalizedSearch);
+        }
+
         function getFilteredActions() {
-            const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+            const searchTerm = document.getElementById("searchInput").value.toLowerCase().trim();
             let filteredActions = [...actions]; // Create a copy to avoid modifying original
 
             // Öncelik filtresi
@@ -3936,13 +3952,91 @@
                 filteredActions = filteredActions.filter(a => a.status === currentStatusFilter);
             }
             
-            // Arama filtresi
+            // Kapsamlı arama filtresi
             if (searchTerm) {
-                filteredActions = filteredActions.filter(a => 
-                    (a.title && a.title.toLowerCase().includes(searchTerm)) ||
-                    (a.description && a.description.toLowerCase().includes(searchTerm)) ||
-                    (a.responsible && a.responsible.toLowerCase().includes(searchTerm))
-                );
+                filteredActions = filteredActions.filter(a => {
+                    // Temel alanlar
+                    if (searchInText(a.title, searchTerm) ||
+                        searchInText(a.description, searchTerm) ||
+                        searchInText(a.responsible, searchTerm)) {
+                        return true;
+                    }
+
+                    // Atanan kişi
+                    if (a.assignedPerson) {
+                        const person = persons.find(p => p.id === a.assignedPerson);
+                        if (person && searchInText(person.name, searchTerm)) {
+                            return true;
+                        }
+                    }
+
+                    // Erteleme geçmişi ve notları
+                    if (a.postponeHistory && a.postponeHistory.length > 0) {
+                        const postponeMatch = a.postponeHistory.some(p =>
+                            searchInText(p.reason, searchTerm)
+                        );
+                        if (postponeMatch) return true;
+                    }
+
+                    // Eski erteleme notları (backward compatibility)
+                    if (searchInText(a.postponeReason, searchTerm)) {
+                        return true;
+                    }
+
+                    // Notlar
+                    if (a.notes && a.notes.length > 0) {
+                        const noteMatch = a.notes.some(note =>
+                            searchInText(note.text, searchTerm) ||
+                            searchInText(note.type, searchTerm)
+                        );
+                        if (noteMatch) return true;
+                    }
+
+                    // Dosya ekleri
+                    if (a.attachments && a.attachments.length > 0) {
+                        const attachmentMatch = a.attachments.some(file =>
+                            searchInText(file.name, searchTerm) ||
+                            searchInText(file.type, searchTerm)
+                        );
+                        if (attachmentMatch) return true;
+                    }
+
+                    // Durum arama (Türkçe karşılıkları)
+                    const statusMap = {
+                        'waiting': ['bekliyor', 'beklemede'],
+                        'in-progress': ['devam', 'ediyor', 'devam ediyor', 'progress'],
+                        'completed': ['tamamlandı', 'tamamlanmış', 'bitti', 'completed']
+                    };
+
+                    if (a.status && statusMap[a.status]) {
+                        const statusMatch = statusMap[a.status].some(statusText =>
+                            searchInText(statusText, searchTerm)
+                        );
+                        if (statusMatch) return true;
+                    }
+
+                    // Tarih arama (hem YYYY-MM-DD hem de Türkçe formatında)
+                    if (a.date) {
+                        if (a.date.includes(searchTerm)) return true;
+
+                        // Tarih formatını Türkçe'ye çevir ve ara
+                        try {
+                            const date = new Date(a.date);
+                            const turkishDate = date.toLocaleDateString('tr-TR');
+                            if (searchInText(turkishDate, searchTerm)) return true;
+                        } catch (e) {
+                            // Tarih parse hatası, geç
+                        }
+                    }
+
+                    // Öncelik arama
+                    if (a.priority && ['öncelik', 'öncelikli', 'priority', 'star', 'yıldız'].some(term =>
+                        searchInText(term, searchTerm))) {
+                        return true;
+                    }
+
+                    return false;
+                });
             }
             
             // console.log('Filtered actions:', filteredActions.length, 'Priority filter active:', priorityFilterActive);
@@ -4319,14 +4413,14 @@
             currentEditingPostpone = { actionId: null, postponeIndex: null };
         }
 
-        function deleteNote(actionId, noteId) {
+        function deleteNote(actionId, noteId, noteIndex) {
             if (!confirm('Bu notu silmek istediğinizden emin misiniz?')) {
                 return;
             }
 
             const action = actions.find(a => String(a.id) === String(actionId));
             if (!action || !action.notes) {
-                alert('Not bulunamadı!');
+                showNotification('🚫 Not bulunamadı!', 'error');
                 return;
             }
 
@@ -4337,7 +4431,15 @@
             database.ref('actions/' + actionId).update({
                 notes: action.notes
             }).then(() => {
-                renderActions(); // Refresh UI
+                // Refresh displays
+                renderActions();
+
+                // Detail modal açıksa güncelle
+                if (document.getElementById('detailModal').classList.contains('active') &&
+                    String(currentDetailActionId) === String(actionId)) {
+                    displayActionNotes(action);
+                }
+
                 showNotification('✅ Not başarıyla silindi!', 'success');
             }).catch(error => {
                 console.error('Error deleting note:', error);
@@ -4405,27 +4507,193 @@
             }
         }
 
-        function deletePostpone(actionId, postponeIndex) {
+        async function deletePostpone(actionId, postponeIndex) {
             if (!confirm('Bu erteleme kaydını silmek istediğinizden emin misiniz?')) {
                 return;
             }
 
             const action = actions.find(a => String(a.id) === String(actionId));
             if (!action || !action.postponeHistory) {
-                alert('Erteleme verisi bulunamadı!');
+                showNotification('🚫 Erteleme verisi bulunamadı!', 'error');
                 return;
             }
 
-            // Erteleme kaydını sil
-            action.postponeHistory.splice(postponeIndex, 1);
+            try {
+                // Erteleme kaydını sil
+                action.postponeHistory.splice(postponeIndex, 1);
 
-            // Save to storage
-            saveToLocalStorage();
+                // Firebase'e kaydet
+                await database.ref('actions/' + actionId).update({
+                    postponeHistory: action.postponeHistory
+                });
 
-            // Refresh displays
-            displayActions();
+                // Refresh displays
+                displayActions();
 
-            alert('✅ Erteleme kaydı silindi!');
+                // Modal açıksa postpone history'yi yenile
+                if (document.getElementById('actionModal').classList.contains('active')) {
+                    displayActionNotes(action);
+                }
+
+                // Detail modal açıksa güncelle
+                if (document.getElementById('detailModal').classList.contains('active') &&
+                    String(currentDetailActionId) === String(actionId)) {
+                    openDetailView(actionId);
+                }
+
+                showNotification('✅ Erteleme kaydı silindi!', 'success');
+            } catch (error) {
+                console.error('Error deleting postpone:', error);
+                showNotification('🚫 Erteleme kaydı silinirken hata oluştu!', 'error');
+            }
+        }
+
+        function cancelPostponeEdit(actionId, postponeIndex) {
+            // Simply refresh the detail view to show original data
+            openDetailView(actionId);
+        }
+
+        function closePostponeEditModal() {
+            const modal = document.getElementById('postponeEditModal');
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+            currentEditingPostpone = { actionId: null, postponeIndex: null };
+        }
+
+        function deleteNote(actionId, noteId, noteIndex) {
+            if (!confirm('Bu notu silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (!action || !action.notes) {
+                showNotification('🚫 Not bulunamadı!', 'error');
+                return;
+            }
+
+            // Remove note from array
+            action.notes = action.notes.filter(note => note.id !== noteId);
+
+            // Update database
+            database.ref('actions/' + actionId).update({
+                notes: action.notes
+            }).then(() => {
+                // Refresh displays
+                renderActions();
+
+                // Detail modal açıksa güncelle
+                if (document.getElementById('detailModal').classList.contains('active') &&
+                    String(currentDetailActionId) === String(actionId)) {
+                    displayActionNotes(action);
+                }
+
+                showNotification('✅ Not başarıyla silindi!', 'success');
+            }).catch(error => {
+                console.error('Error deleting note:', error);
+                showNotification('❌ Not silinirken hata oluştu!', 'error');
+            });
+        }
+
+        function deleteNoteImage(actionId, noteId, imageIndex) {
+            if (!confirm('Bu resmi silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (!action || !action.notes) {
+                alert('Not bulunamadı!');
+                return;
+            }
+
+            const note = action.notes.find(n => n.id === noteId);
+            if (!note || !note.images || !note.images[imageIndex]) {
+                alert('Resim bulunamadı!');
+                return;
+            }
+
+            // Remove image from note
+            note.images.splice(imageIndex, 1);
+
+            // Update database
+            database.ref('actions/' + actionId).update({
+                notes: action.notes
+            }).then(() => {
+                renderActions(); // Refresh UI
+                showNotification('✅ Resim başarıyla silindi!', 'success');
+            }).catch(error => {
+                console.error('Error deleting image:', error);
+                showNotification('❌ Resim silinirken hata oluştu!', 'error');
+            });
+        }
+
+        function handleAttachmentClick(fileUrl, fileName, fileType) {
+            if (fileType.startsWith('image/')) {
+                // Open image in modal for preview
+                openImageModal(fileUrl);
+            } else {
+                // Download file for non-image types
+                downloadFile(fileUrl, fileName);
+            }
+        }
+
+        function downloadFile(url, filename) {
+            try {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showNotification('📁 Dosya indiriliyor...', 'info');
+            } catch (error) {
+                console.error('Download failed:', error);
+                // Fallback: open in new tab
+                window.open(url, '_blank');
+                showNotification('🔗 Dosya yeni sekmede açıldı', 'info');
+            }
+        }
+
+        async function deletePostpone(actionId, postponeIndex) {
+            if (!confirm('Bu erteleme kaydını silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (!action || !action.postponeHistory) {
+                showNotification('🚫 Erteleme verisi bulunamadı!', 'error');
+                return;
+            }
+
+            try {
+                // Erteleme kaydını sil
+                action.postponeHistory.splice(postponeIndex, 1);
+
+                // Firebase'e kaydet
+                await database.ref('actions/' + actionId).update({
+                    postponeHistory: action.postponeHistory
+                });
+
+
+                // Refresh displays
+                displayActions();
+
+                // Modal açıksa postpone history'yi yenile
+                if (document.getElementById('actionModal').classList.contains('active')) {
+                    displayActionNotes(action);
+                }
+
+                // Detail modal açıksa güncelle
+                if (document.getElementById('detailModal').classList.contains('active') &&
+                    String(currentDetailActionId) === String(actionId)) {
+                    openDetailView(actionId);
+                }
+
+                showNotification('✅ Erteleme kaydı silindi!', 'success');
+            } catch (error) {
+                console.error('Error deleting postpone:', error);
+                showNotification('🚫 Erteleme kaydı silinirken hata oluştu!', 'error');
+            }
         }
         
         function quickStatusChange(id, currentStatus) {
@@ -4666,11 +4934,19 @@
             // Update the action's date to the new date
             action.date = newDate;
 
-            // Save to storage
-            saveToLocalStorage();
-
-            // Refresh displays
-            displayActions();
+            // Firebase'e kaydet
+            database.ref('actions/' + currentDetailActionId).update({
+                postponeHistory: action.postponeHistory,
+                date: newDate
+            }).then(() => {
+                showNotification('✅ Erteleme başarıyla eklendi!', 'success');
+                // Refresh displays
+                displayActions();
+                displayActionNotes(action);
+            }).catch(error => {
+                console.error('Error updating postpone:', error);
+                showNotification('❌ Erteleme eklenirken hata oluştu!', 'error');
+            });
 
             // Update the edit form's original date field with the new date for next postpone
             document.getElementById('postponeOriginalDate').value = newDate;
@@ -4962,8 +5238,6 @@
                     action.date = postponeDate;
                 }
 
-                // Save to storage
-                saveToLocalStorage();
 
                 // Refresh displays
                 displayActions();
@@ -6248,6 +6522,46 @@
                 setupNoteTypeHandler();
             }, 100);
         };
+
+        // Note editing function
+        function editNote(actionId, noteId, noteIndex) {
+            const action = actions.find(a => String(a.id) === String(actionId));
+            if (!action || !action.notes) {
+                showNotification('🚫 Not bulunamadı!', 'error');
+                return;
+            }
+
+            const note = action.notes.find(n => n.id === noteId);
+            if (!note) {
+                showNotification('🚫 Not bulunamadı!', 'error');
+                return;
+            }
+
+            // Not metnini düzenleme
+            const newText = prompt('Not metnini düzenle:', note.text);
+            if (newText && newText.trim() !== note.text) {
+                note.text = newText.trim();
+
+                // Update database
+                database.ref('actions/' + actionId).update({
+                    notes: action.notes
+                }).then(() => {
+                    // Refresh displays
+                    renderActions();
+
+                    // Detail modal açıksa güncelle
+                    if (document.getElementById('detailModal').classList.contains('active') &&
+                        String(currentDetailActionId) === String(actionId)) {
+                        displayActionNotes(action);
+                    }
+
+                    showNotification('✅ Not başarıyla güncellendi!', 'success');
+                }).catch(error => {
+                    console.error('Error updating note:', error);
+                    showNotification('❌ Not güncellenirken hata oluştu!', 'error');
+                });
+            }
+        }
 
     </script>
 </body>
