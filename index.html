@@ -4839,15 +4839,10 @@
                             </div>`;
                         } else {
                             const postpone = item.data;
-                            return `<div class="postpone-item" data-postpone-id="${action.id}-${item.index}">
-                                <div class="postpone-dates">
-                                    <span class="old-date">${postpone.oldDate ? formatDate(postpone.oldDate) : 'Tarih yok'}</span>
-                                    →
-                                    <span class="new-date">${postpone.newDate ? formatDate(postpone.newDate) : 'Tarih yok'}</span>
-                                </div>
-                                <div class="postpone-reason">${postpone.reason || 'Sebep belirtilmedi'}</div>
-                                <div class="postpone-timestamp">${postpone.timestamp ? new Date(postpone.timestamp).toLocaleDateString('tr-TR') : ''}</div>
-                                <div class="postpone-actions">
+                            return `<div class="update-box" style="margin-bottom: 8px; position: relative;">
+                                <strong>Erteleme ${item.index + 1}:</strong> ${postpone.reason || 'Sebep belirtilmedi'}
+                                <br><small style="color: #666;">${postpone.oldDate ? formatDate(postpone.oldDate) : 'Tarih yok'} → ${postpone.newDate ? formatDate(postpone.newDate) : 'Tarih yok'}</small>
+                                <div class="postpone-actions" style="position: absolute; top: 8px; right: 8px; display: flex; gap: 5px;">
                                     <button class="postpone-edit-btn" onclick="editPostpone('${action.id}', ${item.index})">Düzenle</button>
                                     <button class="postpone-delete-btn" onclick="deletePostpone('${action.id}', ${item.index})">Sil</button>
                                 </div>
@@ -4868,16 +4863,9 @@
                             </div>`;
                         } else {
                             const postpone = item.data;
-                            return `<div class="note-card" style="background: #f39c12; color: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                                    <div style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-right: 10px;">⏰ Erteleme</div>
-                                    <div style="font-size: 0.8rem; opacity: 0.9;">${postpone.timestamp ? new Date(postpone.timestamp).toLocaleDateString('tr-TR') : ''}</div>
-                                </div>
-                                <div style="opacity: 0.95; line-height: 1.4;">${postpone.reason || 'Sebep belirtilmedi'}
-                                    <br><small style="opacity: 0.8; font-size: 0.85rem;">
-                                        ${postpone.oldDate ? formatDate(postpone.oldDate) : 'Tarih yok'} → ${postpone.newDate ? formatDate(postpone.newDate) : 'Tarih yok'}
-                                    </small>
-                                </div>
+                            return `<div class="update-box" style="margin-bottom: 8px;">
+                                <strong>Erteleme ${item.index + 1}:</strong> ${postpone.reason || 'Sebep belirtilmedi'}
+                                <br><small style="color: #666;">${postpone.oldDate ? formatDate(postpone.oldDate) : 'Tarih yok'} → ${postpone.newDate ? formatDate(postpone.newDate) : 'Tarih yok'}</small>
                             </div>`;
                         }
                     }).join('');
