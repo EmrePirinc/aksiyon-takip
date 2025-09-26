@@ -4121,14 +4121,6 @@
                     </div>
 
                     <div class="action-body" onclick="openDetailView('${id}')" style="cursor: pointer;">
-                         ${action.postponeHistory && action.postponeHistory.length > 0 ?
-                            action.postponeHistory.map((postpone, index) => {
-                                const postponeDate = new Date(postpone.postponeDate);
-                                const originalDate = new Date(postpone.originalDate);
-                                return `<div class="update-box" style="margin-bottom: 5px;"><strong>Erteleme ${index + 1}:</strong> ${postpone.reason || 'Sebep belirtilmemiş'} <br><small style="color: #666;">${originalDate.toLocaleDateString('tr-TR')} → ${postponeDate.toLocaleDateString('tr-TR')}</small></div>`;
-                            }).join('')
-                            : (postponed ? `<div class="update-box"><strong>Ertelendi:</strong> ${postponeReason || ''}</div>` : '')
-                         }
                         <div class="action-description">${description || 'Açıklama yok'}</div>
 
                         ${action.attachments && action.attachments.length > 0 ? `
