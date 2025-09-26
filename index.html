@@ -2925,6 +2925,25 @@
                         <option value="urgent">Acil</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label for="postponeColor">Renk</label>
+                    <div class="color-picker">
+                        <input type="color" id="postponeColor" value="#7c3aed">
+                        <div class="color-presets">
+                            <button type="button" class="color-preset" data-color="#7c3aed" style="background: #7c3aed"></button>
+                            <button type="button" class="color-preset" data-color="#f39c12" style="background: #f39c12"></button>
+                            <button type="button" class="color-preset" data-color="#e74c3c" style="background: #e74c3c"></button>
+                            <button type="button" class="color-preset" data-color="#2ecc71" style="background: #2ecc71"></button>
+                            <button type="button" class="color-preset" data-color="#9b59b6" style="background: #9b59b6"></button>
+                            <button type="button" class="color-preset" data-color="#95a5a6" style="background: #95a5a6"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="postponeImages">Resim Ekle</label>
+                    <input type="file" id="postponeImages" multiple accept="image/*">
+                    <div id="postponeImagePreview" class="image-preview"></div>
+                </div>
                 <div class="modal-buttons">
                     <button type="button" class="modal-btn cancel" onclick="closePostponeModal()">İptal</button>
                     <button type="submit" class="modal-btn save">⏰ Ertele</button>
@@ -3432,6 +3451,7 @@
         // --- ADD NOTE/ACTION LOGIC ---
         let currentActionId = null;
         let selectedImages = [];
+        let selectedPostponeImages = [];
 
         function openAddNoteModal(id) {
             currentActionId = id;
@@ -6370,7 +6390,12 @@
             }
 
             currentPostponeId = id;
-            document.getElementById('postponeModal').classList.add('active');
+            selectedPostponeImages = [];
+
+            // Reset form
+            document.getElementById('postponeForm').reset();
+            document.getElementById('postponeColor').value = '#7c3aed';
+            document.getElementById('postponeImagePreview').innerHTML = '';
 
             // Minimum tarihi bugün yap
             const today = new Date().toISOString().split('T')[0];
@@ -6379,12 +6404,87 @@
             // Modal'a aksiyon bilgisini ekle
             const modalHeader = document.querySelector('#postponeModal .modal-header h2');
             modalHeader.innerHTML = `⏰ Görevi Ertele: "${action.title}"`;
+
+            document.getElementById('postponeModal').classList.add('active');
+
+            // Setup postpone modal functions
+            setTimeout(() => {
+                setupPostponeColorPicker();
+                handlePostponeImageUpload();
+            }, 100);
         }
 
         function closePostponeModal() {
             document.getElementById('postponeModal').classList.remove('active');
             document.getElementById('postponeForm').reset();
             currentPostponeId = null;
+            selectedPostponeImages = [];
+        }
+
+        // Postpone color picker setup
+        function setupPostponeColorPicker() {
+            const colorInput = document.getElementById('postponeColor');
+            const colorPresets = document.querySelectorAll('#postponeModal .color-preset');
+
+            colorPresets.forEach(preset => {
+                preset.addEventListener('click', () => {
+                    const color = preset.getAttribute('data-color');
+                    colorInput.value = color;
+                    colorPresets.forEach(p => p.classList.remove('selected'));
+                    preset.classList.add('selected');
+                });
+            });
+        }
+
+        // Postpone image upload handling
+        let postponeImageUploadInitialized = false;
+
+        function handlePostponeImageUpload() {
+            if (postponeImageUploadInitialized) return;
+
+            const imageInput = document.getElementById('postponeImages');
+            const imagePreview = document.getElementById('postponeImagePreview');
+
+            if (!imageInput) return;
+
+            imageInput.addEventListener('change', async (e) => {
+                const files = Array.from(e.target.files);
+
+                for (const file of files) {
+                    if (file.type.startsWith('image/') || file.type.startsWith('application/')) {
+                        const fileData = await uploadToGoogleDrive(file);
+                        selectedPostponeImages.push(fileData);
+                        displayPostponeImagePreview(fileData);
+                    }
+                }
+
+                imageInput.value = '';
+            });
+
+            postponeImageUploadInitialized = true;
+        }
+
+        function displayPostponeImagePreview(fileData) {
+            const imagePreview = document.getElementById('postponeImagePreview');
+            const previewItem = document.createElement('div');
+            previewItem.className = 'preview-item';
+            previewItem.innerHTML = `
+                <img src="${fileData.url}" alt="${fileData.name}" onclick="openImageModal('${fileData.url}')">
+                <button type="button" class="remove-preview" onclick="removePostponeImage('${fileData.id}')" title="Kaldır">×</button>
+            `;
+            imagePreview.appendChild(previewItem);
+        }
+
+        function removePostponeImage(imageId) {
+            selectedPostponeImages = selectedPostponeImages.filter(img => img.id !== imageId);
+            const imagePreview = document.getElementById('postponeImagePreview');
+            const previewItems = imagePreview.querySelectorAll('.preview-item');
+            previewItems.forEach(item => {
+                const img = item.querySelector('img');
+                if (img && selectedPostponeImages.find(i => i.url === img.src) === undefined) {
+                    item.remove();
+                }
+            });
         }
 
         // Postpone form submit handler
@@ -6399,14 +6499,30 @@
                 postponeDate: document.getElementById('postponeDate').value,
                 postponePriority: document.getElementById('postponePriority').value,
                 originalDate: actions.find(a => a.id === currentPostponeId)?.date,
-                postponedAt: new Date().toISOString()
+                postponedAt: new Date().toISOString(),
+                postponeColor: document.getElementById('postponeColor').value,
+                postponeImages: selectedPostponeImages
             };
 
-            // Aksiyonu güncelle
+            // Mevcut notes dizisini koru ve erteleme notunu ekle
+            const currentAction = actions.find(a => a.id === currentPostponeId);
+            const existingNotes = currentAction?.notes || [];
+
+            const postponeNote = {
+                id: Date.now(),
+                type: 'postpone',
+                text: postponeData.postponeReason,
+                color: postponeData.postponeColor,
+                timestamp: new Date().toISOString(),
+                images: selectedPostponeImages
+            };
+
+            // Aksiyonu güncelle - mevcut verileri koru
             database.ref('actions/' + currentPostponeId).update({
                 ...postponeData,
                 date: postponeData.postponeDate,
-                status: 'waiting' // Ertelenen aksiyonları bekliyor durumuna al
+                status: 'waiting', // Ertelenen aksiyonları bekliyor durumuna al
+                notes: [...existingNotes, postponeNote] // Mevcut notları koru ve yeni notu ekle
             });
 
             showNotification('⏰ Aksiyon ertelendi', 'warning');
