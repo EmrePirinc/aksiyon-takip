@@ -2542,7 +2542,7 @@
                 <div class="form-group"><label for="actionTitle">Başlık *</label><input type="text" id="actionTitle" required></div>
                 <div class="form-group">
                     <label for="actionResponsible">Sorumlu *</label>
-                    <select id="actionResponsible" required>
+                    <select id="actionResponsible" required style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; font-size: 14px; background: white;">
                         <option value="">Seçiniz...</option>
                         <option value="Anadolu Bakır">Anadolu Bakır</option>
                         <option value="AIFTEAM">AIFTEAM</option>
@@ -2551,10 +2551,10 @@
                 </div>
                 <div class="form-group">
                     <label for="assignedPerson">Atanan Kişi</label>
-                    <select id="assignedPerson"><option value="">Kişi seçiniz...</option></select>
+                    <select id="assignedPerson" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; font-size: 14px; background: white;"><option value="">Kişi seçiniz...</option></select>
                 </div>
                 <div class="form-group"><label for="actionDescription">Açıklama *</label><textarea id="actionDescription" rows="4" required></textarea></div>
-                <div class="form-group"><label for="actionStatus">Durum *</label><select id="actionStatus" required><option value="waiting">Bekliyor</option><option value="in-progress">Devam Ediyor</option><option value="completed">Tamamlandı</option></select></div>
+                <div class="form-group"><label for="actionStatus">Durum *</label><select id="actionStatus" required style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; font-size: 14px; background: white;"><option value="waiting">Bekliyor</option><option value="in-progress">Devam Ediyor</option><option value="completed">Tamamlandı</option></select></div>
                 <div class="form-group"><label for="actionDate">Hedef Tarih</label><input type="date" id="actionDate"></div>
 
                 <!-- Dosya Yükleme Bölümü -->
@@ -2632,7 +2632,7 @@
             <form id="addNoteForm">
                 <div class="form-group">
                     <label for="noteType">Tip *</label>
-                    <select id="noteType" required>
+                    <select id="noteType" required style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; font-size: 14px; background: white;">
                         <option value="">Tip Seç</option>
                         <option value="postpone">Erteleme</option>
                         <option value="note">Not</option>
@@ -2740,7 +2740,7 @@
                 </div>
                 <div class="form-group">
                     <label for="editActionResponsible">Sorumlu *</label>
-                    <select id="editActionResponsible" required>
+                    <select id="editActionResponsible" required style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; font-size: 14px; background: white;">
                         <option value="">Sorumlu Seç</option>
                         <option value="Anadolu Bakır">Anadolu Bakır</option>
                         <option value="AIFTEAM">AIFTEAM</option>
@@ -2748,13 +2748,13 @@
                 </div>
                 <div class="form-group">
                     <label for="editActionAssignedPerson">Atanan Kişi</label>
-                    <select id="editActionAssignedPerson">
+                    <select id="editActionAssignedPerson" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; font-size: 14px; background: white;">
                         <option value="">Kişi seçilmedi</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="editActionStatus">Durum *</label>
-                    <select id="editActionStatus" required>
+                    <select id="editActionStatus" required style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; font-size: 14px; background: white;">
                         <option value="waiting">Bekliyor</option>
                         <option value="in-progress">Devam Ediyor</option>
                         <option value="completed">Tamamlandı</option>
@@ -2805,7 +2805,7 @@
                 <h3 style="margin-bottom: 15px; color: #495057;">📝 Not Ekle</h3>
                 <div class="form-group">
                     <label for="inlineNoteType">Tip *</label>
-                    <select id="inlineNoteType" required>
+                    <select id="inlineNoteType" required style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; font-size: 14px; background: white;">
                         <option value="">Tip Seç</option>
                         <option value="postpone">Erteleme</option>
                         <option value="note">Not</option>
@@ -4200,7 +4200,6 @@
                             <span>${date ? formatDate(date) : "Tarih Yok"}</span>
                         </div>
                         <div class="action-buttons">
-                            <button class="action-btn" data-action="edit" data-action-id="${id}" title="Düzenle">${ICONS.edit}</button>
                             <button class="action-btn ${priority ? 'priority-active' : ''}" data-action="priority" data-action-id="${id}" title="Öncelik">${ICONS.priority}</button>
                             <button class="action-btn" data-action="add-note" data-action-id="${id}" title="Aksiyon Ekle">${ICONS.add}</button>
                             <button class="action-btn" data-action="delete" data-action-id="${id}" title="Sil">${ICONS.delete}</button>
@@ -4833,8 +4832,8 @@
                                         <div class="note-timestamp" style="font-size: 0.8rem; color: #666;">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
                                     </div>
                                     <div class="note-actions" style="display: flex; gap: 5px; margin-left: 10px;">
-                                        <button onclick="editNote('${action.id}', '${note.id}', ${action.notes.indexOf(note)})" style="padding: 4px 8px; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 0.8rem;" title="Düzenle">✏️</button>
-                                        <button onclick="deleteNote('${action.id}', '${note.id}', ${action.notes.indexOf(note)})" style="padding: 4px 8px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 0.8rem;" title="Sil">🗑️</button>
+                                        <button class="postpone-edit-btn" onclick="editNote('${action.id}', '${note.id}', ${action.notes.indexOf(note)})">Düzenle</button>
+                                        <button class="postpone-delete-btn" onclick="deleteNote('${action.id}', '${note.id}', ${action.notes.indexOf(note)})">Sil</button>
                                     </div>
                                 </div>
                             </div>`;
@@ -5276,7 +5275,6 @@
                         <div class="status"><span class="status-badge ${action.status}" onclick="event.stopPropagation(); quickStatusChange('${action.id}', '${action.status}')">${getStatusText(action.status)}</span></div>
                         <div class="date" onclick="openDetailView('${action.id}')" style="cursor: pointer;">${action.date ? formatDate(action.date) : '-'}</div>
                         <div class="actions action-buttons">
-                           <button class="action-btn" data-action="edit" data-action-id="${action.id}" title="Düzenle">${ICONS.edit}</button>
                            <button class="action-btn ${action.priority ? 'priority-active' : ''}" data-action="priority" data-action-id="${action.id}" title="Öncelik">${ICONS.priority}</button>
                            <button class="action-btn" data-action="delete" data-action-id="${action.id}" title="Sil">${ICONS.delete}</button>
                         </div>
@@ -5638,9 +5636,6 @@
                 const id = button.dataset.actionId;
 
                 switch(action) {
-                    case 'edit':
-                        editAction(id);
-                        break;
                     case 'priority':
                         togglePriority(id);
                         break;
