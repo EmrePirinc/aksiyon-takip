@@ -3203,52 +3203,71 @@
             });
         }
 
+        // Unified Action Form Handler
         document.getElementById("actionForm").addEventListener("submit", async e => {
             e.preventDefault();
 
-            // Upload files to Google Drive if any
-            let uploadedFiles = [];
-            if (selectedActionFiles.length > 0) {
-                for (const fileData of selectedActionFiles) {
-                    try {
-                        const uploadedFile = await uploadFileToGoogleDrive(fileData.file);
-                        uploadedFiles.push({
-                            name: fileData.name,
-                            type: fileData.type,
-                            size: fileData.size,
-                            url: uploadedFile.url || uploadedFile.webViewLink,
-                            driveId: uploadedFile.id
-                        });
-                    } catch (error) {
-                        console.error('File upload failed:', error);
-                        // Continue with other files
+            try {
+                // Upload files to Google Drive if any
+                let uploadedFiles = [];
+                if (selectedActionFiles && selectedActionFiles.length > 0) {
+                    for (const fileData of selectedActionFiles) {
+                        try {
+                            const uploadedFile = await uploadFileToGoogleDrive(fileData.file);
+                            uploadedFiles.push({
+                                name: fileData.name,
+                                type: fileData.type,
+                                size: fileData.size,
+                                url: uploadedFile.url || uploadedFile.webViewLink,
+                                driveId: uploadedFile.id
+                            });
+                        } catch (error) {
+                            console.error('File upload failed:', error);
+                            showNotification(`⚠️ Dosya yüklenemedi: ${fileData.name}`, 'warning');
+                        }
                     }
                 }
+
+                const actionData = {
+                    title: document.getElementById("actionTitle").value.trim(),
+                    responsible: document.getElementById("actionResponsible").value.trim(),
+                    description: document.getElementById("actionDescription").value.trim(),
+                    status: document.getElementById("actionStatus").value,
+                    date: document.getElementById("actionDate").value,
+                    assignedPerson: document.getElementById('assignedPerson').value,
+                    priority: editingId ? (actions.find(a => a.id === editingId)?.priority || false) : false,
+                    attachments: uploadedFiles,
+                    createdAt: editingId ? (actions.find(a => a.id === editingId)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                // Validation
+                if (!actionData.title || !actionData.responsible || !actionData.date) {
+                    showNotification('🚫 Başlık, sorumlu ve tarih alanları zorunludur!', 'error');
+                    return;
+                }
+
+                if (editingId) {
+                    // Update existing action
+                    await database.ref('actions/' + editingId).update(actionData);
+                    showNotification('✅ Aksiyon başarıyla güncellendi!', 'success');
+                } else {
+                    // Create new action
+                    await database.ref('actions').push(actionData);
+                    showNotification('✅ Yeni aksiyon başarıyla eklendi!', 'success');
+                }
+
+                // Reset form and files
+                selectedActionFiles = [];
+                const previewContainer = document.getElementById('actionFilePreview');
+                if (previewContainer) previewContainer.innerHTML = '';
+
+                closeModal();
+
+            } catch (error) {
+                console.error('Action save error:', error);
+                showNotification('❌ Aksiyon kaydedilirken hata oluştu!', 'error');
             }
-
-            const actionData = {
-                title: document.getElementById("actionTitle").value,
-                responsible: document.getElementById("actionResponsible").value,
-                description: document.getElementById("actionDescription").value,
-                status: document.getElementById("actionStatus").value,
-                date: document.getElementById("actionDate").value,
-                assignedPerson: document.getElementById('assignedPerson').value,
-                priority: editingId ? (actions.find(a => a.id === editingId)?.priority || false) : false,
-                attachments: uploadedFiles // Add uploaded files
-            };
-
-            if (editingId) {
-                database.ref('actions/' + editingId).update(actionData);
-            } else {
-                database.ref('actions').push(actionData);
-            }
-
-            // Reset selected files
-            selectedActionFiles = [];
-            const previewContainer = document.getElementById('actionFilePreview');
-            if (previewContainer) previewContainer.innerHTML = '';
-
-            closeModal();
         });
         
         function deleteAction(id) {
@@ -3790,80 +3809,90 @@
             }
         }
 
+        // Unified Note Form Handler
         document.getElementById("addNoteForm").addEventListener("submit", async e => {
             e.preventDefault();
-            if (!currentActionId) return;
 
-            const noteType = document.getElementById('noteType').value;
-            const noteText = document.getElementById('noteText').value;
-            const noteColor = document.getElementById('noteColor').value;
-            const currentAction = actions.find(a => a.id === currentActionId);
+            if (!currentActionId) {
+                showNotification('🚫 Aksiyon seçilmemiş!', 'error');
+                return;
+            }
 
-            if (!currentAction) return;
+            try {
+                const noteType = document.getElementById('noteType').value;
+                const noteText = document.getElementById('noteText').value.trim();
+                const noteColor = document.getElementById('noteColor').value;
+                const currentAction = actions.find(a => a.id === currentActionId);
 
-            // Create note object
-            const noteData = {
-                id: Date.now(),
-                type: noteType,
-                text: noteText,
-                color: noteColor,
-                images: selectedImages,
-                timestamp: new Date().toISOString(),
-                author: auth.currentUser ? auth.currentUser.email : 'unknown'
-            };
-
-            // Handle postpone type specially
-            if (noteType === 'postpone') {
-                const newDate = document.getElementById('notePostponeDate').value;
-                if (!newDate) {
-                    showNotification('🚫 Erteleme için yeni tarih gerekli!', 'error');
+                if (!currentAction) {
+                    showNotification('🚫 Aksiyon bulunamadı!', 'error');
                     return;
                 }
 
-                // Handle postpone history
-                const postponeHistory = currentAction.postponeHistory || [];
+                // Validation
+                if (!noteText) {
+                    showNotification('🚫 Not metni boş olamaz!', 'error');
+                    return;
+                }
 
-                if (currentAction.postponed && currentAction.postponeReason && currentAction.originalDate) {
+                // Create note object with unified format
+                const noteData = {
+                    id: Date.now(),
+                    type: noteType,
+                    text: noteText,
+                    color: noteColor,
+                    images: selectedImages || [],
+                    timestamp: new Date().toISOString(),
+                    author: auth.currentUser ? auth.currentUser.email : 'unknown'
+                };
+
+                // Handle postpone type specially
+                if (noteType === 'postpone') {
+                    const newDate = document.getElementById('notePostponeDate').value;
+                    if (!newDate) {
+                        showNotification('🚫 Erteleme için yeni tarih gerekli!', 'error');
+                        return;
+                    }
+
+                    // Update action's postpone data
+                    const postponeHistory = currentAction.postponeHistory || [];
+
                     postponeHistory.push({
-                        reason: currentAction.postponeReason,
-                        originalDate: currentAction.originalDate,
-                        postponeDate: currentAction.date,
+                        reason: noteText,
+                        oldDate: currentAction.originalDate || currentAction.date,
+                        newDate: newDate,
                         timestamp: new Date().toISOString()
                     });
-                } else if (currentAction.postponed && currentAction.postponeReason) {
-                    postponeHistory.push({
-                        reason: currentAction.postponeReason,
-                        originalDate: currentAction.date,
-                        postponeDate: currentAction.date,
-                        timestamp: new Date().toISOString()
+
+                    // Update action with postpone data
+                    await database.ref('actions/' + currentActionId).update({
+                        date: newDate,
+                        postponed: true,
+                        postponeReason: noteText,
+                        originalDate: currentAction.originalDate || currentAction.date,
+                        postponeHistory: postponeHistory,
+                        updatedAt: new Date().toISOString()
                     });
                 }
 
-                postponeHistory.push({
-                    reason: noteText,
-                    originalDate: currentAction.originalDate || currentAction.date,
-                    postponeDate: newDate,
-                    timestamp: new Date().toISOString()
-                });
+                // Add note to action's notes array
+                const actionNotes = currentAction.notes || [];
+                actionNotes.push(noteData);
 
-                // Update action with postpone data
-                await database.ref('actions/' + currentActionId).update({
-                    date: newDate,
-                    postponed: true,
-                    postponeReason: noteText,
-                    originalDate: currentAction.originalDate || currentAction.date,
-                    postponeHistory: postponeHistory
-                });
+                await database.ref('actions/' + currentActionId + '/notes').set(actionNotes);
+                await database.ref('actions/' + currentActionId + '/updatedAt').set(new Date().toISOString());
+
+                showNotification(`✅ ${getNoteTypeText(noteType)} başarıyla eklendi!`, 'success');
+
+                // Reset selected images
+                selectedImages = [];
+
+                closeAddNoteModal();
+
+            } catch (error) {
+                console.error('Note save error:', error);
+                showNotification('❌ Not kaydedilirken hata oluştu!', 'error');
             }
-
-            // Add note to action's notes array
-            const actionNotes = currentAction.notes || [];
-            actionNotes.push(noteData);
-
-            await database.ref('actions/' + currentActionId + '/notes').set(actionNotes);
-
-            showNotification(`✅ ${noteType.charAt(0).toUpperCase() + noteType.slice(1)} eklendi!`, 'success');
-            closeAddNoteModal();
         });
 
         document.getElementById("passwordForm").addEventListener("submit", e => {
@@ -4876,66 +4905,7 @@
             return types[type] || '📝 Not';
         }
 
-        function addPostponeFromEdit() {
-            const originalDate = document.getElementById('postponeOriginalDate').value;
-            const newDate = document.getElementById('postponeNewDate').value;
-            const reason = document.getElementById('postponeReason').value.trim();
-
-            if (!newDate || !reason) {
-                alert('Lütfen yeni tarih ve erteleme sebebini girin!');
-                return;
-            }
-
-            if (!currentDetailActionId) {
-                alert('Aksiyon bulunamadı!');
-                return;
-            }
-
-            const action = actions.find(a => String(a.id) === String(currentDetailActionId));
-            if (!action) {
-                alert('Aksiyon bulunamadı!');
-                return;
-            }
-
-            // Initialize postpone history if it doesn't exist
-            if (!action.postponeHistory) action.postponeHistory = [];
-
-            // Add new postpone entry
-            const postponeEntry = {
-                oldDate: originalDate || action.date,
-                newDate: newDate,
-                reason: reason,
-                timestamp: new Date().toISOString()
-            };
-
-            action.postponeHistory.push(postponeEntry);
-
-            // Update the action's date to the new date
-            action.date = newDate;
-
-            // Firebase'e kaydet
-            database.ref('actions/' + currentDetailActionId).update({
-                postponeHistory: action.postponeHistory,
-                date: newDate
-            }).then(() => {
-                showNotification('✅ Erteleme başarıyla eklendi!', 'success');
-                // Refresh displays
-                displayActions();
-                displayActionNotes(action);
-            }).catch(error => {
-                console.error('Error updating postpone:', error);
-                showNotification('❌ Erteleme eklenirken hata oluştu!', 'error');
-            });
-
-            // Update the edit form's original date field with the new date for next postpone
-            document.getElementById('postponeOriginalDate').value = newDate;
-
-            // Clear the form
-            document.getElementById('postponeNewDate').value = '';
-            document.getElementById('postponeReason').value = '';
-
-            alert('Erteleme başarıyla eklendi!');
-        }
+        // Add postpone from edit function removed
 
         function toggleEditMode() {
             if (!currentDetailActionId) return;
@@ -5421,23 +5391,83 @@
             `).join('');
         }
         
-        document.getElementById('addPersonForm').addEventListener('submit', (e) => {
+        // Unified Person Form Handler
+        document.getElementById('addPersonForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = document.getElementById('personName').value;
-            const team = document.getElementById('personTeam').value;
-            if (name && team) {
-                database.ref('persons').push({ name, team });
-                if (e.target) {
-                    e.target.reset();
+
+            try {
+                const personName = document.getElementById('personName').value.trim();
+                const personTeam = document.getElementById('personTeam').value.trim();
+
+                // Validation
+                if (!personName || !personTeam) {
+                    showNotification('🚫 İsim ve takım alanları zorunludur!', 'error');
+                    return;
                 }
+
+                // Check for duplicate names
+                const existingPerson = persons.find(p => p.name.toLowerCase() === personName.toLowerCase());
+                if (existingPerson) {
+                    showNotification('🚫 Bu isimde bir kişi zaten var!', 'warning');
+                    return;
+                }
+
+                const personData = {
+                    name: personName,
+                    team: personTeam,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                await database.ref('persons').push(personData);
+                showNotification('✅ Kişi başarıyla eklendi!', 'success');
+
+                // Reset form
+                e.target.reset();
+
+            } catch (error) {
+                console.error('Person save error:', error);
+                showNotification('❌ Kişi kaydedilirken hata oluştu!', 'error');
             }
         });
 
+        // Enhanced Person Delete Function
         function deletePerson(id) {
-            if (confirm("Bu kişiyi silmek istediğinizden emin misiniz?")) {
+            if (!id) {
+                showNotification('🚫 Geçersiz kişi ID!', 'error');
+                return;
+            }
+
+            const person = persons.find(p => p.id === id);
+            if (!person) {
+                showNotification('🚫 Kişi bulunamadı!', 'error');
+                return;
+            }
+
+            // Check if person is assigned to any actions
+            const assignedActions = actions.filter(a => a.assignedPerson === id);
+
+            if (assignedActions.length > 0) {
+                const confirmMessage = `${person.name} kişisi ${assignedActions.length} aksiyona atanmış. Silmek istediğinizden emin misiniz?`;
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+            } else {
+                if (!confirm(`${person.name} kişisini silmek istediğinizden emin misiniz?`)) {
+                    return;
+                }
+            }
+
+            try {
                 database.ref('persons/' + id).remove();
+                showNotification('✅ Kişi başarıyla silindi!', 'success');
+            } catch (error) {
+                console.error('Person delete error:', error);
+                showNotification('❌ Kişi silinirken hata oluştu!', 'error');
             }
         }
+
+        // Duplicate deletePerson function removed
 
         // --- Event Listeners for filters ---
         function togglePriorityFilter() {
@@ -6370,59 +6400,7 @@
             });
         }
 
-        function addPostponeFromEdit() {
-            const originalDate = document.getElementById('postponeOriginalDate').value;
-            const newDate = document.getElementById('postponeNewDate').value;
-            const reason = document.getElementById('postponeReason').value.trim();
-
-            if (!originalDate || !newDate || !reason) {
-                alert('Lütfen tüm erteleme alanlarını doldurun!');
-                return;
-            }
-
-            if (new Date(newDate) <= new Date(originalDate)) {
-                alert('Yeni tarih eski tarihten sonra olmalıdır!');
-                return;
-            }
-
-            const action = actions.find(a => String(a.id) === String(currentEditingActionId));
-            if (!action) {
-                alert('Aksiyon bulunamadı!');
-                return;
-            }
-
-            if (!action.postponeHistory) {
-                action.postponeHistory = [];
-            }
-
-            // Add postpone to history
-            action.postponeHistory.push({
-                originalDate: originalDate,
-                postponeDate: newDate,
-                reason: reason,
-                timestamp: Date.now()
-            });
-
-            // Update action date to new date
-            action.date = newDate;
-            document.getElementById('actionDate').value = newDate;
-
-            // Update in Firebase
-            database.ref(`actions/${currentEditingActionId}`).set(action).then(() => {
-                showNotification('✅ Erteleme başarıyla eklendi!', 'success');
-
-                // Clear form fields
-                document.getElementById('postponeOriginalDate').value = newDate; // Set for next postpone
-                document.getElementById('postponeNewDate').value = '';
-                document.getElementById('postponeReason').value = '';
-
-                // Update postpone history display
-                openComprehensiveEdit(currentEditingActionId);
-            }).catch(error => {
-                console.error('Postpone error:', error);
-                showNotification('❌ Erteleme eklenirken hata oluştu!', 'error');
-            });
-        }
+        // Add postpone from edit function removed (duplicate)
 
         // Initialize setup functions
         document.addEventListener('DOMContentLoaded', function() {
@@ -6436,50 +6414,138 @@
                 initGoogleDriveAPI();
             }
 
-            // Handle postpone edit form submission
-            document.getElementById('postponeEditForm').addEventListener('submit', function(e) {
+            // Unified Postpone Edit Form Handler
+            document.getElementById('postponeEditForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
 
-                const { actionId, postponeIndex } = currentEditingPostpone;
-                if (!actionId || postponeIndex === null) {
-                    alert('Düzenleme bilgisi bulunamadı!');
+                const { actionId, postponeIndex } = currentEditingPostpone || {};
+
+                if (!actionId || postponeIndex === null || postponeIndex === undefined) {
+                    showNotification('🚫 Düzenleme bilgisi bulunamadı!', 'error');
                     return;
                 }
 
-                const action = actions.find(a => a.id === actionId);
-                if (!action || !action.postponeHistory || !action.postponeHistory[postponeIndex]) {
-                    alert('Erteleme verisi bulunamadı!');
-                    return;
-                }
+                try {
+                    const action = actions.find(a => a.id === actionId);
+                    if (!action || !action.postponeHistory || !action.postponeHistory[postponeIndex]) {
+                        showNotification('🚫 Erteleme verisi bulunamadı!', 'error');
+                        return;
+                    }
 
-                const newReason = document.getElementById('postponeEditReason').value.trim();
-                const newDate = document.getElementById('postponeEditNewDate').value;
+                    const newReason = document.getElementById('postponeEditReason').value.trim();
+                    const newDate = document.getElementById('postponeEditNewDate').value;
 
-                if (!newReason || !newDate) {
-                    alert('Lütfen tüm zorunlu alanları doldurun!');
-                    return;
-                }
+                    // Validation
+                    if (!newReason || !newDate) {
+                        showNotification('🚫 Sebep ve yeni tarih alanları zorunludur!', 'error');
+                        return;
+                    }
 
-                // Update postpone data
-                action.postponeHistory[postponeIndex] = {
-                    ...action.postponeHistory[postponeIndex],
-                    reason: newReason,
-                    postponeDate: newDate,
-                    editTimestamp: new Date().toISOString()
-                };
+                    // Update postpone data with unified format
+                    action.postponeHistory[postponeIndex] = {
+                        ...action.postponeHistory[postponeIndex],
+                        reason: newReason,
+                        newDate: newDate,
+                        postponeDate: newDate, // For backward compatibility
+                        editTimestamp: new Date().toISOString(),
+                        editedBy: auth.currentUser ? auth.currentUser.email : 'unknown'
+                    };
 
-                // Update database
-                database.ref('actions/' + actionId).update({
-                    postponeHistory: action.postponeHistory,
-                    date: newDate // Update main date as well
-                }).then(() => {
+                    // Update database with enhanced error handling
+                    await database.ref('actions/' + actionId).update({
+                        postponeHistory: action.postponeHistory,
+                        date: newDate,
+                        updatedAt: new Date().toISOString()
+                    });
+
                     showNotification('✅ Erteleme başarıyla güncellendi!', 'success');
                     closePostponeEditModal();
-                }).catch(error => {
-                    console.error('Error updating postpone:', error);
-                    showNotification('❌ Güncelleme sırasında hata oluştu!', 'error');
-                });
+
+                    // Refresh UI
+                    renderActions();
+
+                } catch (error) {
+                    console.error('Postpone update error:', error);
+                    showNotification('❌ Erteleme güncellenirken hata oluştu!', 'error');
+                }
             });
+
+            // Unified Postpone Add Functionality
+            window.addPostponeFromEdit = async function() {
+                const originalDate = document.getElementById('postponeOriginalDate')?.value;
+                const newDate = document.getElementById('postponeNewDate')?.value;
+                const reason = document.getElementById('postponeReason')?.value?.trim();
+
+                if (!newDate || !reason) {
+                    showNotification('🚫 Yeni tarih ve erteleme sebebi gereklidir!', 'error');
+                    return;
+                }
+
+                const actionId = currentDetailActionId || currentEditingActionId;
+                if (!actionId) {
+                    showNotification('🚫 Aksiyon bulunamadı!', 'error');
+                    return;
+                }
+
+                try {
+                    const action = actions.find(a => String(a.id) === String(actionId));
+                    if (!action) {
+                        showNotification('🚫 Aksiyon bulunamadı!', 'error');
+                        return;
+                    }
+
+                    // Initialize postpone history if it doesn't exist
+                    if (!action.postponeHistory) action.postponeHistory = [];
+
+                    // Create postpone entry with unified format
+                    const postponeEntry = {
+                        oldDate: originalDate || action.date,
+                        newDate: newDate,
+                        postponeDate: newDate, // For backward compatibility
+                        reason: reason,
+                        timestamp: new Date().toISOString(),
+                        createdBy: auth.currentUser ? auth.currentUser.email : 'unknown'
+                    };
+
+                    action.postponeHistory.push(postponeEntry);
+
+                    // Update the action's date to the new date
+                    action.date = newDate;
+
+                    // Update Firebase with error handling
+                    await database.ref('actions/' + actionId).update({
+                        postponeHistory: action.postponeHistory,
+                        date: newDate,
+                        postponed: true,
+                        postponeReason: reason,
+                        originalDate: action.originalDate || originalDate || action.date,
+                        updatedAt: new Date().toISOString()
+                    });
+
+                    showNotification('✅ Erteleme başarıyla eklendi!', 'success');
+
+                    // Clear form fields
+                    if (document.getElementById('postponeOriginalDate')) {
+                        document.getElementById('postponeOriginalDate').value = newDate;
+                    }
+                    if (document.getElementById('postponeNewDate')) {
+                        document.getElementById('postponeNewDate').value = '';
+                    }
+                    if (document.getElementById('postponeReason')) {
+                        document.getElementById('postponeReason').value = '';
+                    }
+
+                    // Refresh displays
+                    renderActions();
+                    if (typeof displayActionNotes === 'function') {
+                        displayActionNotes(action);
+                    }
+
+                } catch (error) {
+                    console.error('Add postpone error:', error);
+                    showNotification('❌ Erteleme eklenirken hata oluştu!', 'error');
+                }
+            };
         });
 
         // Also call setup functions when modal is opened
