@@ -6573,17 +6573,10 @@
             }
         }
 
-        // Auto-run the conversion when page loads (one-time operation)
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // Wait a bit for actions to load, then run conversion
-                setTimeout(() => {
-                    if (actions.length > 0) {
-                        convertAllNoteTypesToPostpone();
-                    }
-                }, 3000);
-            }
-        });
+        // Make the function globally accessible for manual execution
+        window.convertAllNoteTypesToPostpone = convertAllNoteTypesToPostpone;
+
+        // Console command: Call convertAllNoteTypesToPostpone() to run manually
 
     </script>
 </body>
