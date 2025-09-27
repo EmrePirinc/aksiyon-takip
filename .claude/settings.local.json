@@ -6,7 +6,9 @@
       "Bash(git push:*)",
       "Bash(git pull:*)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(start chrome:*)",
+      "Read(//c/Users/M-Rey/Downloads/**)"
     ],
     "deny": [],
     "ask": []
