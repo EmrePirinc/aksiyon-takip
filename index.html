@@ -2205,12 +2205,67 @@
             align-items: center;
             justify-content: center;
             z-index: 10000;
+            overflow: hidden;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+        }
+
+        .image-container:active {
+            cursor: grabbing;
         }
 
         .image-modal img {
             max-width: 90%;
             max-height: 90%;
             border-radius: var(--border-radius);
+            transition: transform 0.3s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
         }
 
         .image-modal .close-modal {
@@ -2697,9 +2752,11 @@
                     <input type="date" id="notePostponeDate">
                 </div>
                 <div class="form-group">
-                    <label for="noteImages">Resim Ekle</label>
-                    <input type="file" id="noteImages" multiple accept="image/*">
-                    <div id="imagePreview" class="image-preview"></div>
+                    <label for="noteFiles">Dosya Ekle (Resim, PDF, Word, Excel)</label>
+                    <input type="file" id="noteFiles" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" style="margin-bottom: 10px;">
+                    <div id="noteFilePreview" class="file-preview-container">
+                        <!-- Yüklenen dosyalar buraya gelecek -->
+                    </div>
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="btn modal-btn cancel" onclick="closeAddNoteModal()">İptal</button>
@@ -2948,7 +3005,6 @@
 
             <div class="modal-buttons" style="margin-top: 30px;">
                 <button type="button" class="btn modal-btn cancel" onclick="closeDetailModal()">Kapat</button>
-                <button type="button" class="btn btn-success" id="addNoteBtn" onclick="toggleInlineNoteForm()" style="margin-left: 10px;">+ Not Ekle</button>
             </div>
         </div>
     </div>
@@ -3032,7 +3088,14 @@
 
     <!-- Image Modal -->
     <div id="imageModal" class="image-modal" onclick="closeImageModal()" style="display: none;">
-        <img id="modalImage" src="" alt="">
+        <div class="image-container" onclick="event.stopPropagation()">
+            <img id="modalImage" src="" alt="" draggable="false">
+            <div class="zoom-controls">
+                <button class="zoom-btn" onclick="zoomIn()">+</button>
+                <button class="zoom-btn" onclick="resetZoom()">⌂</button>
+                <button class="zoom-btn" onclick="zoomOut()">−</button>
+            </div>
+        </div>
         <button class="close-modal" onclick="closeImageModal()">×</button>
     </div>
 
@@ -3528,19 +3591,19 @@
         // --- POSTPONE ACTION LOGIC ---
         // --- ADD NOTE/ACTION LOGIC ---
         let currentActionId = null;
-        let selectedImages = [];
+        let selectedNoteFiles = [];
         let selectedPostponeImages = [];
 
         function openAddNoteModal(id) {
             currentActionId = id;
-            selectedImages = [];
+            selectedNoteFiles = [];
 
             // Reset form
             const form = document.getElementById('addNoteForm');
             if (form) {
                 form.reset();
                 document.getElementById('noteColor').value = '#3498db';
-                document.getElementById('imagePreview').innerHTML = '';
+                document.getElementById('noteFilePreview').innerHTML = '';
                 document.getElementById('postponeDateGroup').style.display = 'none';
             }
 
@@ -3554,6 +3617,10 @@
             const modal = document.getElementById('addNoteModal');
             modal.classList.add('active');
             modal.style.display = 'flex';
+
+            // Initialize upload handler
+            noteFileUploadInitialized = false; // Reset to allow re-initialization
+            handleNoteFileUpload();
         }
 
         function closeAddNoteModal() {
@@ -3561,7 +3628,7 @@
             modal.classList.remove('active');
             modal.style.display = 'none';
             currentActionId = null;
-            selectedImages = [];
+            selectedNoteFiles = [];
         }
 
         // Color picker functionality
@@ -3579,35 +3646,9 @@
             });
         }
 
-        // Image handling functions
-        let imageUploadInitialized = false;
+        // File handling functions
         let actionFilesInitialized = false;
         let selectedActionFiles = []; // Store selected action files
-
-        function handleImageUpload() {
-            if (imageUploadInitialized) return; // Prevent duplicate event listeners
-
-            const imageInput = document.getElementById('noteImages');
-            const imagePreview = document.getElementById('imagePreview');
-
-            if (!imageInput) return;
-
-            imageInput.addEventListener('change', async (e) => {
-                const files = Array.from(e.target.files);
-
-                for (const file of files) {
-                    if (file.type.startsWith('image/') || file.type.startsWith('application/')) {
-                        const fileData = await uploadToGoogleDrive(file);
-                        selectedImages.push(fileData);
-                        displayImagePreview(fileData);
-                    }
-                }
-
-                imageInput.value = ''; // Reset input
-            });
-
-            imageUploadInitialized = true;
-        }
 
         function handleActionFileUpload() {
             if (actionFilesInitialized) return; // Prevent duplicate event listeners
@@ -3649,8 +3690,15 @@
 
             if (fileData.type.startsWith('image/')) {
                 fileItem.innerHTML = `
-                    <img src="${fileData.url}" alt="${fileData.name}">
-                    <button class="remove-file" onclick="removeActionFile('${fileData.name}')" title="Dosyayı kaldır">×</button>
+                    <div style="position: relative; display: flex; flex-direction: column; padding: 12px; background: white; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 8px; max-width: 280px;">
+                        <div onclick="handleAttachmentClick('${fileData.url}', '${fileData.name}', '${fileData.type}')" style="cursor: pointer; margin-bottom: 8px;">
+                            <img src="${fileData.url}" alt="${fileData.name}" style="width: 100%; max-width: 260px; height: auto; max-height: 150px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;">
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 12px; color: #374151; word-break: break-word;" title="${fileData.name}">${fileData.name}</span>
+                            <button class="remove-file" onclick="removeActionFile('${fileData.name}')" style="padding: 4px 6px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; font-size: 12px; color: #dc2626; cursor: pointer; margin-left: 8px;" title="Dosyayı kaldır">×</button>
+                        </div>
+                    </div>
                 `;
             } else {
                 const fileIcon = getFileIcon(fileData.type);
@@ -3688,6 +3736,86 @@
             if (fileType.includes('text')) return '📄';
             if (fileType.includes('zip') || fileType.includes('rar')) return '🗜️';
             return '📎';
+        }
+
+        // Note file upload handler (same as action file upload)
+        let noteFileUploadInitialized = false;
+
+        function handleNoteFileUpload() {
+            if (noteFileUploadInitialized) return;
+
+            const fileInput = document.getElementById('noteFiles');
+            const filePreview = document.getElementById('noteFilePreview');
+
+            if (!fileInput) return;
+
+            fileInput.addEventListener('change', async (e) => {
+                const files = Array.from(e.target.files);
+
+                for (const file of files) {
+                    const fileData = {
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        lastModified: file.lastModified,
+                        file: file,
+                        url: URL.createObjectURL(file)
+                    };
+
+                    selectedNoteFiles.push(fileData);
+                    displayNoteFilePreview(fileData);
+                }
+
+                fileInput.value = '';
+            });
+
+            noteFileUploadInitialized = true;
+        }
+
+        function displayNoteFilePreview(fileData) {
+            const previewContainer = document.getElementById('noteFilePreview');
+            if (!previewContainer) return;
+
+            const fileItem = document.createElement('div');
+            fileItem.className = fileData.type.startsWith('image/') ? 'file-preview-item image' : 'file-preview-item';
+
+            if (fileData.type.startsWith('image/')) {
+                fileItem.innerHTML = `
+                    <div style="position: relative; display: flex; flex-direction: column; padding: 12px; background: white; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 8px; max-width: 280px;">
+                        <div onclick="handleAttachmentClick('${fileData.url}', '${fileData.name}', '${fileData.type}')" style="cursor: pointer; margin-bottom: 8px;">
+                            <img src="${fileData.url}" alt="${fileData.name}" style="width: 100%; max-width: 260px; height: auto; max-height: 150px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;">
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 12px; color: #374151; word-break: break-word;" title="${fileData.name}">${fileData.name}</span>
+                            <button onclick="removeNoteFile('${fileData.name}')" style="padding: 4px 6px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; font-size: 12px; color: #dc2626; cursor: pointer; margin-left: 8px;" title="Dosyayı kaldır">×</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const fileIcon = getFileIcon(fileData.type);
+                fileItem.innerHTML = `
+                    <div class="file-icon">${fileIcon}</div>
+                    <div class="file-name">${fileData.name}</div>
+                    <button onclick="removeNoteFile('${fileData.name}')" title="Dosyayı kaldır">×</button>
+                `;
+            }
+
+            previewContainer.appendChild(fileItem);
+        }
+
+        function removeNoteFile(fileName) {
+            selectedNoteFiles = selectedNoteFiles.filter(f => f.name !== fileName);
+
+            // Remove from preview
+            const previewContainer = document.getElementById('noteFilePreview');
+            const fileItems = previewContainer.children;
+            for (let i = 0; i < fileItems.length; i++) {
+                const item = fileItems[i];
+                if (item.querySelector('div div').textContent === fileName) {
+                    item.remove();
+                    break;
+                }
+            }
         }
 
         // Google Drive API initialization
@@ -3812,6 +3940,7 @@
                         id: Date.now() + Math.random(),
                         name: file.name,
                         url: e.target.result,
+                        type: file.type,
                         driveId: null
                     });
                 };
@@ -3824,26 +3953,6 @@
             return await uploadToGoogleDrive(file);
         }
 
-        function displayImagePreview(imageData) {
-            const imagePreview = document.getElementById('imagePreview');
-            const previewItem = document.createElement('div');
-            previewItem.className = 'image-preview-item';
-            previewItem.innerHTML = `
-                <img src="${imageData.url}" alt="${imageData.name}">
-                <button type="button" class="remove-image" onclick="removeImagePreview('${imageData.id}')">×</button>
-            `;
-            imagePreview.appendChild(previewItem);
-        }
-
-        function removeImagePreview(imageId) {
-            selectedImages = selectedImages.filter(img => img.id !== imageId);
-            const previewItems = document.querySelectorAll('.image-preview-item');
-            previewItems.forEach(item => {
-                if (item.querySelector('button').getAttribute('onclick').includes(imageId)) {
-                    item.remove();
-                }
-            });
-        }
 
         // Note type change handler
         function setupNoteTypeHandler() {
@@ -3890,7 +3999,14 @@
             }
         }
 
-        // Image modal functions
+        // Image modal functions with zoom
+        let currentZoom = 1;
+        let currentX = 0;
+        let currentY = 0;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+
         function openImageModal(imageUrl) {
             const modal = document.getElementById('imageModal');
             const modalImage = document.getElementById('modalImage');
@@ -3898,8 +4014,17 @@
             modalImage.src = imageUrl;
             modal.style.display = 'flex';
 
+            // Reset zoom and position
+            currentZoom = 1;
+            currentX = 0;
+            currentY = 0;
+            updateImageTransform();
+
             // Prevent body scroll
             document.body.style.overflow = 'hidden';
+
+            // Add event listeners for image interaction
+            addImageEventListeners();
         }
 
         function closeImageModal() {
@@ -3908,6 +4033,133 @@
 
             // Restore body scroll
             document.body.style.overflow = 'auto';
+
+            // Remove event listeners
+            removeImageEventListeners();
+        }
+
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom * 1.5, 5);
+            updateImageTransform();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom / 1.5, 0.5);
+            updateImageTransform();
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            currentX = 0;
+            currentY = 0;
+            updateImageTransform();
+        }
+
+        function updateImageTransform() {
+            const modalImage = document.getElementById('modalImage');
+            modalImage.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentZoom})`;
+        }
+
+        function addImageEventListeners() {
+            const modalImage = document.getElementById('modalImage');
+            const imageContainer = document.querySelector('.image-container');
+
+            // Mouse wheel zoom
+            imageContainer.addEventListener('wheel', handleWheel, { passive: false });
+
+            // Mouse drag
+            imageContainer.addEventListener('mousedown', handleMouseDown);
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+
+            // Touch events for mobile
+            imageContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+            imageContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+            imageContainer.addEventListener('touchend', handleTouchEnd);
+        }
+
+        function removeImageEventListeners() {
+            const imageContainer = document.querySelector('.image-container');
+            if (imageContainer) {
+                imageContainer.removeEventListener('wheel', handleWheel);
+                imageContainer.removeEventListener('mousedown', handleMouseDown);
+                imageContainer.removeEventListener('touchstart', handleTouchStart);
+                imageContainer.removeEventListener('touchmove', handleTouchMove);
+                imageContainer.removeEventListener('touchend', handleTouchEnd);
+            }
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        }
+
+        function handleWheel(e) {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 1.1 : 0.9;
+            currentZoom = Math.min(Math.max(currentZoom * delta, 0.5), 5);
+            updateImageTransform();
+        }
+
+        function handleMouseDown(e) {
+            if (currentZoom > 1) {
+                isDragging = true;
+                startX = e.clientX - currentX;
+                startY = e.clientY - currentY;
+                e.preventDefault();
+            }
+        }
+
+        function handleMouseMove(e) {
+            if (isDragging && currentZoom > 1) {
+                currentX = e.clientX - startX;
+                currentY = e.clientY - startY;
+                updateImageTransform();
+            }
+        }
+
+        function handleMouseUp() {
+            isDragging = false;
+        }
+
+        // Touch events for mobile
+        let lastTouch = null;
+        let lastDistance = 0;
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            if (e.touches.length === 1 && currentZoom > 1) {
+                isDragging = true;
+                startX = e.touches[0].clientX - currentX;
+                startY = e.touches[0].clientY - currentY;
+            } else if (e.touches.length === 2) {
+                lastDistance = getDistance(e.touches[0], e.touches[1]);
+            }
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (e.touches.length === 1 && isDragging && currentZoom > 1) {
+                currentX = e.touches[0].clientX - startX;
+                currentY = e.touches[0].clientY - startY;
+                updateImageTransform();
+            } else if (e.touches.length === 2) {
+                const distance = getDistance(e.touches[0], e.touches[1]);
+                if (lastDistance > 0) {
+                    const scale = distance / lastDistance;
+                    currentZoom = Math.min(Math.max(currentZoom * scale, 0.5), 5);
+                    updateImageTransform();
+                }
+                lastDistance = distance;
+            }
+        }
+
+        function handleTouchEnd() {
+            isDragging = false;
+            lastDistance = 0;
+        }
+
+        function getDistance(touch1, touch2) {
+            const dx = touch1.clientX - touch2.clientX;
+            const dy = touch1.clientY - touch2.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
         }
 
         // Close modal with escape key
@@ -3951,13 +4203,33 @@
 
             if (!currentAction) return;
 
+            // Upload note files to Google Drive if any
+            let uploadedNoteFiles = [];
+            if (selectedNoteFiles.length > 0) {
+                for (const fileData of selectedNoteFiles) {
+                    try {
+                        const uploadedFile = await uploadFileToGoogleDrive(fileData.file);
+                        uploadedNoteFiles.push({
+                            name: fileData.name,
+                            type: fileData.type,
+                            size: fileData.size,
+                            url: uploadedFile.url || uploadedFile.webViewLink,
+                            driveId: uploadedFile.id
+                        });
+                    } catch (error) {
+                        console.error('File upload failed:', error);
+                        // Continue with other files
+                    }
+                }
+            }
+
             // Create note object
             const noteData = {
                 id: Date.now(),
                 type: noteType,
                 text: noteText,
                 color: noteColor,
-                images: selectedImages,
+                attachments: uploadedNoteFiles,
                 timestamp: new Date().toISOString(),
                 author: auth.currentUser ? auth.currentUser.email : 'unknown'
             };
@@ -4205,12 +4477,23 @@
                             <div class="action-attachments" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">
                                 <small style="color: #666; font-weight: 500; font-size: 0.75rem;">📎 Ekler (${action.attachments.length})</small>
                                 <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;">
-                                    ${action.attachments.map(file => `
-                                        <div class="attachment-item" style="display: flex; align-items: center; padding: 2px 5px; background: #f8f9fa; border-radius: 3px; font-size: 0.7rem;">
-                                            <span style="margin-right: 3px; font-size: 0.8rem;">${getFileIcon(file.type)}</span>
-                                            <span onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="color: #007bff; cursor: pointer; text-decoration: underline; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${file.name} - Görüntüle/İndir">${file.name}</span>
-                                        </div>
-                                    `).join('')}
+                                    ${action.attachments.map(file => {
+                                        if (file.type && file.type.startsWith('image/')) {
+                                            return `
+                                                <div class="attachment-item image-attachment" onclick="event.stopPropagation(); handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="cursor: pointer; border-radius: 6px; overflow: hidden; position: relative; width: 50px; height: 50px; margin: 2px;" title="${file.name} - Görüntüle">
+                                                    <img src="${file.url}" alt="${file.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                                                    <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: white; font-size: 0.6rem; text-align: center; padding: 2px 0; border-radius: 0 0 4px 4px;">📷</div>
+                                                </div>
+                                            `;
+                                        } else {
+                                            return `
+                                                <div class="attachment-item" style="display: flex; align-items: center; padding: 2px 5px; background: #f8f9fa; border-radius: 3px; font-size: 0.7rem;">
+                                                    <span style="margin-right: 3px; font-size: 0.8rem;">${getFileIcon(file.type)}</span>
+                                                    <span onclick="event.stopPropagation(); handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="color: #007bff; cursor: pointer; text-decoration: underline; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${file.name} - Görüntüle/İndir">${file.name}</span>
+                                                </div>
+                                            `;
+                                        }
+                                    }).join('')}
                                 </div>
                             </div>
                         ` : ''}
@@ -4232,6 +4515,30 @@
                                 return `<div class="update-box" style="margin-bottom: 8px; border-left: 3px solid ${borderColor}; background: ${softBg}; color: ${textColor}; padding: 12px; border-radius: 8px; border: 1px solid ${getSoftColor(note.color, 0.2)};">
                                     <strong style="color: ${note.color}; font-weight: 600;">${typeName}:</strong>
                                     <span style="color: ${textColor}; margin-left: 6px; line-height: 1.4;">${note.text}</span>
+                                    ${note.attachments && note.attachments.length > 0 ? `
+                                        <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid ${getSoftColor(note.color, 0.3)};">
+                                            <small style="color: #6b7280; font-size: 0.7rem; margin-bottom: 4px; display: block;">📎 Ekli Dosyalar (${note.attachments.length})</small>
+                                            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                                ${note.attachments.map(file => {
+                                                    if (file.type && file.type.startsWith('image/')) {
+                                                        return `
+                                                            <div onclick="event.stopPropagation(); handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="cursor: pointer; border-radius: 4px; overflow: hidden; position: relative; width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.5);" title="${file.name} - Görüntüle">
+                                                                <img src="${file.url}" alt="${file.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; font-size: 0.5rem; text-align: center; padding: 1px 0;">📷</div>
+                                                            </div>
+                                                        `;
+                                                    } else {
+                                                        return `
+                                                            <div onclick="event.stopPropagation(); handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="display: flex; align-items: center; padding: 2px 4px; background: rgba(255,255,255,0.6); border-radius: 3px; font-size: 0.65rem; cursor: pointer; border: 1px solid rgba(0,0,0,0.1);" title="${file.name} - Görüntüle/İndir">
+                                                                <span style="margin-right: 2px; font-size: 0.7rem;">${getFileIcon(file.type)}</span>
+                                                                <span style="max-width: 50px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</span>
+                                                            </div>
+                                                        `;
+                                                    }
+                                                }).join('')}
+                                            </div>
+                                        </div>
+                                    ` : ''}
                                     <br><small style="color: #6b7280; margin-top: 6px; display: inline-block; font-size: 0.75rem;">${noteDate}
                                     <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil" style="margin-left: 10px; background: rgba(107, 114, 128, 0.1); color: #6b7280; border: 1px solid rgba(107, 114, 128, 0.2); border-radius: 4px; padding: 3px 6px; cursor: pointer; font-size: 11px; transition: all 0.2s;">🗑️</button>
                                     </small>
@@ -4508,6 +4815,12 @@
                 notes: action.notes
             }).then(() => {
                 renderActions(); // Refresh UI
+
+                // If detail modal is open for this action, refresh notes display
+                if (currentDetailActionId === actionId) {
+                    displayActionNotes(action);
+                }
+
                 showNotification('✅ Not başarıyla silindi!', 'success');
             }).catch(error => {
                 console.error('Error deleting note:', error);
@@ -4603,6 +4916,11 @@
             const nextStatus = statuses[(statuses.indexOf(currentStatus) + 1) % statuses.length];
             database.ref('actions/' + id).update({ status: nextStatus });
         }
+
+        function saveToLocalStorage() {
+            // Firebase kullanıldığı için bu fonksiyon gerekmiyor
+            // Eski kodla uyumluluk için boş bırakıldı
+        }
         
         function updatePersonDropdown() {
             const dropdown = document.getElementById('assignedPerson');
@@ -4636,7 +4954,6 @@
 
             // Hide inline note form initially
             document.getElementById('inlineNoteForm').style.display = 'none';
-            document.getElementById('addNoteBtn').textContent = '+ Not Ekle';
 
             // Fill detail view fields
             document.getElementById('viewActionTitle').textContent = action.title || '';
@@ -4675,8 +4992,33 @@
                 // Check if we're in edit mode
                 const isEditMode = document.getElementById('detailEditForm').style.display === 'block';
 
-                attachmentsList.innerHTML = action.attachments.map((file, index) =>
-                    `<div class="attachment-item" style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: white; border: 1px solid #e9ecef; border-radius: 6px; margin-bottom: 8px;">
+                attachmentsList.innerHTML = action.attachments.map((file, index) => {
+                    if (file.type && file.type.startsWith('image/')) {
+                        return `<div class="attachment-item image-attachment-detail" style="display: flex; flex-direction: column; padding: 12px; background: white; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 8px; max-width: 300px;">
+                            <div onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="cursor: pointer; margin-bottom: 8px;">
+                                <img src="${file.url}" alt="${file.name}" style="width: 100%; max-width: 280px; height: auto; max-height: 200px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;">
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <span class="attachment-name" style="font-size: 14px; color: #374151; word-break: break-word;" title="${file.name}">${file.name}</span>
+                                <div style="display: flex; gap: 6px;">
+                                    <button onclick="downloadFile('${file.url}', '${file.name}')" style="padding: 6px 12px; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px; color: #374151; cursor: pointer; transition: background-color 0.2s;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="7,10 12,15 17,10"/>
+                                            <line x1="12" y1="15" x2="12" y2="3"/>
+                                        </svg>
+                                    </button>
+                                    ${isEditMode ? `<button onclick="deleteAttachment('${action.id}', ${index})" style="padding: 6px 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; font-size: 12px; color: #dc2626; cursor: pointer; transition: background-color 0.2s;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3,6 5,6 21,6"/>
+                                            <path d="m19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2,2h4a2,2,0,0,1,2,2v2"/>
+                                        </svg>
+                                    </button>` : ''}
+                                </div>
+                            </div>
+                        </div>`;
+                    } else {
+                        return `<div class="attachment-item" style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: white; border: 1px solid #e9ecef; border-radius: 6px; margin-bottom: 8px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #6b7280;">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -4702,8 +5044,9 @@
                                 </svg>
                             </button>` : ''}
                         </div>
-                    </div>`
-                ).join('');
+                    </div>`;
+                    }
+                }).join('');
             } else {
                 attachmentsSection.style.display = 'none';
             }
@@ -4785,6 +5128,15 @@
                         <textarea id="editNoteText-${actionId}-${noteIndex}" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; resize: vertical; min-height: 70px; line-height: 1.4; background: white;">${originalText}</textarea>
                     </div>
 
+                    <!-- File Upload Section -->
+                    <div>
+                        <label style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;">Dosya Ekle</label>
+                        <input type="file" id="editNoteFiles-${actionId}-${noteIndex}" multiple accept="*/*" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; background: white;">
+                        <div id="editNoteFilePreview-${actionId}-${noteIndex}" class="file-preview-container" style="display: none;">
+                            <!-- Hidden preview container - files shown in attachments section below -->
+                        </div>
+                    </div>
+
                     <!-- Action Buttons -->
                     <div style="display: flex; gap: 8px; justify-content: flex-end;">
                         <button onclick="cancelNoteEdit('${actionId}', ${noteIndex})" style="padding: 8px 16px; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; cursor: pointer; transition: background-color 0.2s;">
@@ -4803,6 +5155,9 @@
                     </div>
                 </div>
             `;
+
+            // Initialize file upload functionality
+            setupEditNoteFileUpload(actionId, noteIndex);
 
             // Focus on textarea
             const textarea = noteTextElement.querySelector('textarea');
@@ -4845,10 +5200,22 @@
                 return;
             }
 
+            // Collect files from preview container
+            const previewContainer = document.getElementById(`editNoteFilePreview-${actionId}-${noteIndex}`);
+            const fileItems = previewContainer ? previewContainer.querySelectorAll('.file-preview-item') : [];
+
+            const files = Array.from(fileItems).map(item => ({
+                name: item.dataset.fileName || '',
+                url: item.dataset.fileUrl || '',
+                type: item.dataset.fileType || '',
+                isExisting: item.dataset.isExisting === 'true'
+            })).filter(file => file.name && file.url); // Only include valid files
+
             // Update note with all new values
             action.notes[noteIndex].type = newType;
             action.notes[noteIndex].color = newColor;
             action.notes[noteIndex].text = newText;
+            action.notes[noteIndex].attachments = files; // Use 'attachments' to match display function
             action.notes[noteIndex].editedAt = new Date().toISOString();
 
             // Update in Firebase
@@ -4866,6 +5233,167 @@
             if (action) {
                 displayActionNotes(action); // Refresh display to original state
             }
+        }
+
+        // File upload functionality for edit note
+        function setupEditNoteFileUpload(actionId, noteIndex) {
+            const fileInput = document.getElementById(`editNoteFiles-${actionId}-${noteIndex}`);
+            if (!fileInput) return;
+
+            fileInput.addEventListener('change', async (e) => {
+                const files = Array.from(e.target.files);
+                const action = actions.find(a => a.id === actionId);
+
+                if (!action || !action.notes || !action.notes[noteIndex]) {
+                    showNotification('❌ Not bulunamadı!', 'error');
+                    return;
+                }
+
+                for (const file of files) {
+                    try {
+                        const fileData = await uploadToGoogleDrive(file);
+                        if (fileData && fileData.url) {
+                            // Add to note attachments
+                            if (!action.notes[noteIndex].attachments) {
+                                action.notes[noteIndex].attachments = [];
+                            }
+                            action.notes[noteIndex].attachments.push(fileData);
+
+                            // Update in Firebase
+                            await database.ref(`actions/${actionId}/notes/${noteIndex}/attachments`).set(action.notes[noteIndex].attachments);
+
+                            // Show success notification
+                            showNotification(`✅ ${file.name} başarıyla eklendi!`, 'success');
+
+                            // Refresh the notes display to show new attachment
+                            displayActionNotes(action);
+                        } else {
+                            showNotification(`❌ ${file.name} yüklenemedi!`, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error uploading file:', error);
+                        showNotification(`❌ ${file.name} yüklenirken hata oluştu!`, 'error');
+                    }
+                }
+
+                fileInput.value = ''; // Reset input
+            });
+        }
+
+        // Display file preview in edit note section
+        function displayEditNoteFilePreview(actionId, noteIndex, fileData, isExisting = true) {
+            const previewContainer = document.getElementById(`editNoteFilePreview-${actionId}-${noteIndex}`);
+            if (!previewContainer) return;
+
+            // Check for duplicates by name and url
+            const existingItems = previewContainer.querySelectorAll('.file-preview-item');
+            for (let item of existingItems) {
+                if (item.dataset.fileName === fileData.name) {
+                    console.log('Duplicate file name detected, skipping:', fileData.name);
+                    return; // Skip if same name found
+                }
+            }
+
+            const fileItem = document.createElement('div');
+            const fileType = fileData.type || '';
+            fileItem.className = fileType.startsWith('image/') ? 'file-preview-item image' : 'file-preview-item';
+            fileItem.dataset.fileName = fileData.name;
+            fileItem.dataset.fileUrl = fileData.url;
+            fileItem.dataset.fileType = fileType;
+            fileItem.dataset.isExisting = isExisting;
+
+            if (fileType.startsWith('image/')) {
+                fileItem.innerHTML = `
+                    <div style="position: relative; display: flex; flex-direction: column; padding: 12px; background: white; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 8px; max-width: 280px;">
+                        <div onclick="handleAttachmentClick('${fileData.url}', '${fileData.name}', '${fileType}')" style="cursor: pointer; margin-bottom: 8px;">
+                            <img src="${fileData.url}" alt="${fileData.name}" style="width: 100%; max-width: 260px; height: auto; max-height: 150px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;">
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 12px; color: #374151; word-break: break-word;" title="${fileData.name}">${fileData.name}</span>
+                            <button class="remove-file-btn" data-action-id="${actionId}" data-note-index="${noteIndex}" data-file-name="${fileData.name}"
+                                    style="padding: 4px 6px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; font-size: 12px; color: #dc2626; cursor: pointer; margin-left: 8px;"
+                                    onclick="removeEditNoteFile('${actionId}', '${noteIndex}', '${fileData.name}', this)" title="Dosyayı kaldır">×</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const fileIcon = getFileIcon(fileType);
+                fileItem.innerHTML = `
+                    <div style="position: relative; display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 8px;">
+                        <div onclick="handleAttachmentClick('${fileData.url}', '${fileData.name}', '${fileType}')" style="cursor: pointer; flex: 1; display: flex; align-items: center;">
+                            <span style="font-size: 24px; margin-right: 12px;">${fileIcon}</span>
+                            <span style="font-size: 12px; color: #374151; word-break: break-word;" title="${fileData.name}">${fileData.name}</span>
+                        </div>
+                        <button class="remove-file-btn" data-action-id="${actionId}" data-note-index="${noteIndex}" data-file-name="${fileData.name}"
+                                style="padding: 4px 6px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; font-size: 12px; color: #dc2626; cursor: pointer; margin-left: 8px;"
+                                onclick="removeEditNoteFile('${actionId}', '${noteIndex}', '${fileData.name}', this)" title="Dosyayı kaldır">×</button>
+                    </div>
+                `;
+            }
+
+            // Add event listener for remove button
+            const removeBtn = fileItem.querySelector('.remove-file-btn');
+            if (removeBtn) {
+                removeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const actionId = removeBtn.dataset.actionId;
+                    const noteIndex = parseInt(removeBtn.dataset.noteIndex);
+                    const fileName = removeBtn.dataset.fileName;
+                    removeEditNoteFile(actionId, noteIndex, fileName);
+                });
+            }
+
+            previewContainer.appendChild(fileItem);
+        }
+
+        // Display existing files in edit note section
+        function displayEditNoteExistingFiles(actionId, noteIndex, files) {
+            if (!files || !Array.isArray(files)) return;
+
+            files.forEach(file => {
+                displayEditNoteFilePreview(actionId, noteIndex, file, true);
+            });
+        }
+
+        // Remove file from edit note preview and update database
+        function removeEditNoteFile(actionId, noteIndex, fileName) {
+            console.log('removeEditNoteFile called:', { actionId, noteIndex, fileName });
+
+            // Find the action
+            const action = actions.find(a => a.id === actionId);
+            if (!action || !action.notes || !action.notes[noteIndex]) {
+                console.error('Action or note not found:', { actionId, noteIndex });
+                showNotification('❌ Not bulunamadı!', 'error');
+                return;
+            }
+
+            // Remove file from note attachments
+            if (action.notes[noteIndex].attachments) {
+                action.notes[noteIndex].attachments = action.notes[noteIndex].attachments.filter(file => file.name !== fileName);
+            }
+
+            // Update in Firebase
+            database.ref(`actions/${actionId}/notes/${noteIndex}/attachments`).set(action.notes[noteIndex].attachments || []).then(() => {
+                showNotification('📎 Dosya başarıyla silindi!', 'success');
+
+                // Remove from preview container if it exists
+                const previewContainer = document.getElementById(`editNoteFilePreview-${actionId}-${noteIndex}`);
+                if (previewContainer) {
+                    const fileItems = previewContainer.querySelectorAll('.file-preview-item');
+                    fileItems.forEach(item => {
+                        if (item.dataset.fileName === fileName) {
+                            item.remove();
+                        }
+                    });
+                }
+
+                // Refresh the notes display to update the attachments count and view
+                displayActionNotes(action);
+            }).catch(error => {
+                console.error('Error removing file:', error);
+                showNotification('❌ Dosya silinirken hata oluştu!', 'error');
+            });
         }
 
         // Helper function to determine if a color is light or dark
@@ -4960,6 +5488,36 @@
                                 </div>
                             </div>
                             <div class="note-text" id="noteText-${action.id}-${index}" style="margin: 8px 0; line-height: 1.5; color: #374151;">${note.text}</div>
+                            ${note.attachments && note.attachments.length > 0 ? `
+                                <div style="margin: 8px 0;">
+                                    <div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 6px;">📎 Ekli Dosyalar (${note.attachments.length})</div>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                        ${note.attachments.map((file, fileIndex) => {
+                                            if (file.type && file.type.startsWith('image/')) {
+                                                return `
+                                                    <div style="position: relative; max-width: 120px; border: 1px solid #ddd; border-radius: 6px; overflow: hidden;">
+                                                        <div onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="cursor: pointer;">
+                                                            <img src="${file.url}" alt="${file.name}" style="width: 100%; height: 80px; object-fit: cover;">
+                                                            <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: white; font-size: 0.6rem; text-align: center; padding: 2px 0;">📷</div>
+                                                        </div>
+                                                        <button onclick="removeEditNoteFile('${action.id}', ${index}, '${file.name}')" style="position: absolute; top: 2px; right: 2px; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;">×</button>
+                                                    </div>
+                                                `;
+                                            } else {
+                                                return `
+                                                    <div style="display: flex; align-items: center; padding: 6px 10px; background: rgba(255,255,255,0.8); border-radius: 6px; font-size: 0.75rem; border: 1px solid rgba(0,0,0,0.15); min-width: 100px; position: relative;">
+                                                        <span onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="display: flex; align-items: center; cursor: pointer; flex: 1;">
+                                                            <span style="margin-right: 6px; font-size: 1rem;">${getFileIcon(file.type)}</span>
+                                                            <span style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${file.name}">${file.name}</span>
+                                                        </span>
+                                                        <button onclick="removeEditNoteFile('${action.id}', ${index}, '${file.name}')" style="background: rgba(220, 38, 38, 0.7); color: white; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 4px;">×</button>
+                                                    </div>
+                                                `;
+                                            }
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
                             <div class="note-timestamp" style="font-size: 0.75rem; color: #6b7280;">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
                         </div>`;
                     }).join('');
@@ -4976,6 +5534,30 @@
                                 <div style="font-size: 0.8rem; color: #6b7280;">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
                             </div>
                             <div style="line-height: 1.5; color: ${textColor}; font-size: 0.95rem;">${note.text}</div>
+                            ${note.attachments && note.attachments.length > 0 ? `
+                                <div style="margin: 10px 0;">
+                                    <div style="font-size: 0.8rem; color: #6b7280; margin-bottom: 8px;">📎 Ekli Dosyalar (${note.attachments.length})</div>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                        ${note.attachments.map(file => {
+                                            if (file.type && file.type.startsWith('image/')) {
+                                                return `
+                                                    <div onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="cursor: pointer; border-radius: 8px; overflow: hidden; position: relative; max-width: 140px; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                                        <img src="${file.url}" alt="${file.name}" style="width: 100%; height: 90px; object-fit: cover;">
+                                                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; font-size: 0.65rem; text-align: center; padding: 3px 0; font-weight: 500;">📷 ${file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name}</div>
+                                                    </div>
+                                                `;
+                                            } else {
+                                                return `
+                                                    <div onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="display: flex; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.9); border-radius: 8px; font-size: 0.8rem; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); min-width: 120px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+                                                        <span style="margin-right: 8px; font-size: 1.1rem;">${getFileIcon(file.type)}</span>
+                                                        <span style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${file.name}">${file.name}</span>
+                                                    </div>
+                                                `;
+                                            }
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
                         </div>`;
                     }).join('');
                 }
@@ -5132,12 +5714,30 @@
 
             if (action.attachments && action.attachments.length > 0) {
                 attachmentsSection.style.display = 'block';
-                attachmentsList.innerHTML = action.attachments.map(file => `
-                    <div class="attachment-item-detail" onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')">
-                        <span class="attachment-icon">${getFileIcon(file.type)}</span>
-                        <span class="attachment-name" title="${file.name}">${file.name}</span>
-                    </div>
-                `).join('');
+                attachmentsList.innerHTML = action.attachments.map(file => {
+                    if (file.type && file.type.startsWith('image/')) {
+                        return `
+                            <div class="attachment-item-detail image-attachment-detail" style="display: flex; flex-direction: column; padding: 12px; background: white; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 8px; max-width: 300px;">
+                                <div onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="cursor: pointer; margin-bottom: 8px;">
+                                    <img src="${file.url}" alt="${file.name}" style="width: 100%; max-width: 280px; height: auto; max-height: 200px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;">
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span class="attachment-name" style="font-size: 14px; color: #374151; word-break: break-word;" title="${file.name}">${file.name}</span>
+                                    <button onclick="event.stopPropagation(); downloadFile('${file.url}', '${file.name}')" style="padding: 6px 8px; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px; color: #374151; cursor: pointer; margin-left: 8px;" title="İndir">
+                                        📥
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        return `
+                            <div class="attachment-item-detail" onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')">
+                                <span class="attachment-icon">${getFileIcon(file.type)}</span>
+                                <span class="attachment-name" title="${file.name}">${file.name}</span>
+                            </div>
+                        `;
+                    }
+                }).join('');
             } else {
                 attachmentsSection.style.display = 'none';
             }
@@ -5242,6 +5842,32 @@
         }
 
         function closeDetailModal() {
+            // Check if in edit mode
+            const detailEditForm = document.getElementById('detailEditForm');
+            const isInEditMode = detailEditForm && detailEditForm.style.display === 'block';
+
+            if (isInEditMode) {
+                // Check for changes before closing
+                if (hasUnsavedChanges()) {
+                    const shouldSave = confirm('Düzenleme modundasınız ve kaydedilmemiş değişiklikleriniz var. Kaydetmek istiyor musunuz?');
+
+                    if (shouldSave) {
+                        // Save changes first
+                        saveDetailChanges();
+                        return; // Exit early, modal will close after save
+                    } else {
+                        // User chose not to save, ask for confirmation
+                        const shouldClose = confirm('Değişiklikler kaydedilmeyecek. Yine de çıkmak istiyor musunuz?');
+                        if (!shouldClose) {
+                            return; // Don't close modal
+                        }
+                    }
+                }
+
+                // Exit edit mode first
+                toggleEditMode();
+            }
+
             const modal = document.getElementById('detailModal');
             modal.classList.remove('active');
             modal.style.display = 'none';
@@ -5249,14 +5875,42 @@
             document.getElementById('inlineNoteForm').style.display = 'none';
         }
 
+        // Function to check if there are unsaved changes
+        function hasUnsavedChanges() {
+            const action = actions.find(a => a.id === currentDetailActionId);
+            if (!action) return false;
+
+            // Get current form values
+            const titleInput = document.getElementById('editActionTitle');
+            const responsibleInput = document.getElementById('editActionResponsible');
+            const statusSelect = document.getElementById('editActionStatus');
+            const prioritySelect = document.getElementById('editActionPriority');
+            const descriptionTextarea = document.getElementById('editActionDescription');
+            const dueDateInput = document.getElementById('editActionDueDate');
+            const tagsInput = document.getElementById('editActionTags');
+
+            if (!titleInput || !responsibleInput || !statusSelect || !prioritySelect ||
+                !descriptionTextarea || !dueDateInput || !tagsInput) {
+                return false;
+            }
+
+            // Compare with original values
+            return (
+                titleInput.value.trim() !== (action.title || '') ||
+                responsibleInput.value.trim() !== (action.responsible || '') ||
+                statusSelect.value !== (action.status || 'pending') ||
+                prioritySelect.value !== (action.priority || 'medium') ||
+                descriptionTextarea.value.trim() !== (action.description || '') ||
+                dueDateInput.value !== (action.dueDate || '') ||
+                tagsInput.value.trim() !== (action.tags ? action.tags.join(', ') : '')
+            );
+        }
+
         function toggleInlineNoteForm() {
             const form = document.getElementById('inlineNoteForm');
-            const button = document.getElementById('addNoteBtn');
 
             if (form.style.display === 'none' || form.style.display === '') {
                 form.style.display = 'block';
-                button.textContent = '❌ İptal';
-                button.onclick = toggleInlineNoteForm;
 
                 // Clear form
                 document.getElementById('inlineNoteType').value = '';
@@ -5269,8 +5923,6 @@
 
             } else {
                 form.style.display = 'none';
-                button.textContent = '+ Not Ekle';
-                button.onclick = toggleInlineNoteForm;
             }
         }
 
@@ -5327,19 +5979,26 @@
                     action.date = postponeDate;
                 }
 
-                // Save to storage
-                saveToLocalStorage();
+                // Save to Firebase
+                database.ref('actions/' + currentDetailActionId).update({
+                    notes: action.notes,
+                    ...(type === 'postpone' && postponeDate ? {
+                        date: action.date,
+                        postponeHistory: action.postponeHistory
+                    } : {})
+                }).then(() => {
+                    // Refresh displays
+                    renderActions();
+                    displayActionNotes(action);
 
-                // Refresh displays
-                displayActions();
-                displayActionNotes(action);
-                if (type === 'postpone') {
-                                    }
+                    // Close the inline form
+                    toggleInlineNoteForm();
 
-                // Close the inline form
-                toggleInlineNoteForm();
-
-                alert('Not başarıyla eklendi!');
+                    showNotification('✅ Not başarıyla eklendi!', 'success');
+                }).catch(error => {
+                    console.error('Error saving note:', error);
+                    showNotification('❌ Not kaydedilirken hata oluştu!', 'error');
+                });
             }
         }
 
@@ -5359,9 +6018,32 @@
             const items = data.map(action => {
                 const personName = action.assignedPerson ? (persons.find(p => p.id === action.assignedPerson)?.name || '-') : '-';
                 const teamType = getTeamType(action.responsible);
+                // Check for note attachments
+                const noteAttachments = [];
+                if (action.notes && action.notes.length > 0) {
+                    action.notes.forEach(note => {
+                        if (note.attachments && note.attachments.length > 0) {
+                            noteAttachments.push(...note.attachments);
+                        }
+                    });
+                }
+
+                const attachmentIndicator = noteAttachments.length > 0 ?
+                    `<div style="margin-top: 2px; font-size: 0.7rem; color: #6b7280;">
+                        📎 ${noteAttachments.length} dosya
+                        ${noteAttachments.filter(f => f.type && f.type.startsWith('image/')).slice(0, 3).map(img =>
+                            `<span onclick="event.stopPropagation(); handleAttachmentClick('${img.url}', '${img.name}', '${img.type}')" style="display: inline-block; width: 16px; height: 16px; margin-left: 4px; border-radius: 2px; overflow: hidden; vertical-align: middle; cursor: pointer;" title="${img.name}">
+                                <img src="${img.url}" style="width: 100%; height: 100%; object-fit: cover;">
+                            </span>`
+                        ).join('')}
+                    </div>` : '';
+
                 return `
                     <div class="list-item" style="border-left: 5px solid var(--${teamType});">
-                        <div class="title" onclick="openDetailView('${action.id}')" style="cursor: pointer;">${action.priority ? '⭐ ' : ''}${action.title}</div>
+                        <div class="title" onclick="openDetailView('${action.id}')" style="cursor: pointer;">
+                            ${action.priority ? '⭐ ' : ''}${action.title}
+                            ${attachmentIndicator}
+                        </div>
                         <div class="responsible" onclick="openDetailView('${action.id}')" style="cursor: pointer;">${action.responsible}</div>
                         <div class="person" onclick="openDetailView('${action.id}')" style="cursor: pointer;">${personName}</div>
                         <div class="status"><span class="status-badge ${action.status}" onclick="event.stopPropagation(); quickStatusChange('${action.id}', '${action.status}')">${getStatusText(action.status)}</span></div>
@@ -5429,7 +6111,13 @@
                 html += `<div class="calendar-day">
                     <div class="day-number">${day}</div>
                     <div class="day-actions">
-                        ${actionsForDay.map(action => `<div class="day-action-item ${getTeamType(action.responsible)}" onclick="event.stopPropagation(); event.preventDefault(); openDetailView('${action.id}')" title="${action.title}">${action.title}</div>`).join('')}
+                        ${actionsForDay.map(action => {
+                            // Check for note attachments
+                            const hasNoteAttachments = action.notes && action.notes.some(note => note.attachments && note.attachments.length > 0);
+                            return `<div class="day-action-item ${getTeamType(action.responsible)}" onclick="event.stopPropagation(); event.preventDefault(); openDetailView('${action.id}')" title="${action.title}">
+                                ${hasNoteAttachments ? '📎 ' : ''}${action.title}
+                            </div>`;
+                        }).join('')}
                     </div>
                 </div>`;
             }
@@ -5781,6 +6469,11 @@
                             postponeEditForm.reset();
                         }
                         currentEditingPostpone = { actionId: null, postponeIndex: null };
+                    } else if (activeModal.id === 'detailModal') {
+                        // Prevent default modal closing behavior and use our custom close function
+                        e.preventDefault();
+                        closeDetailModal();
+                        return; // Exit early since closeDetailModal handles cleanup
                     }
                     
                     // Close user dropdown if open
@@ -6267,15 +6960,33 @@
             if (!preview) return;
 
             const fileItem = document.createElement('div');
-            fileItem.className = 'file-preview-item';
-            fileItem.innerHTML = `
-                <div class="file-info">
-                    <span class="file-icon">${getFileIcon(file.type)}</span>
-                    <span class="file-name">${file.name}</span>
-                    <span class="file-size">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
-                </div>
-                <button type="button" onclick="removeEditActionFile('${file.name}')" class="remove-file-btn">×</button>
-            `;
+            const fileURL = URL.createObjectURL(file);
+
+            if (file.type.startsWith('image/')) {
+                fileItem.className = 'file-preview-item image';
+                fileItem.innerHTML = `
+                    <div style="position: relative; display: flex; flex-direction: column; padding: 12px; background: white; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 8px; max-width: 280px;">
+                        <div onclick="handleAttachmentClick('${fileURL}', '${file.name}', '${file.type}')" style="cursor: pointer; margin-bottom: 8px;">
+                            <img src="${fileURL}" alt="${file.name}" style="width: 100%; max-width: 260px; height: auto; max-height: 150px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;">
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 12px; color: #374151; word-break: break-word;" title="${file.name}">${file.name}</span>
+                            <button type="button" onclick="removeEditActionFile('${file.name}')" style="padding: 4px 6px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; font-size: 12px; color: #dc2626; cursor: pointer; margin-left: 8px;">×</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                fileItem.className = 'file-preview-item';
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <span class="file-icon">${getFileIcon(file.type)}</span>
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-size">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                    </div>
+                    <button type="button" onclick="removeEditActionFile('${file.name}')" class="remove-file-btn">×</button>
+                `;
+            }
+
             preview.appendChild(fileItem);
         }
 
@@ -6544,7 +7255,6 @@
         // Initialize setup functions
         document.addEventListener('DOMContentLoaded', function() {
             setupColorPicker();
-            handleImageUpload();
             handleActionFileUpload(); // Add action file upload handler
             setupNoteTypeHandler();
 
