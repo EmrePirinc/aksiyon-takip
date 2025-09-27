@@ -4740,26 +4740,60 @@
 
             if (!noteTextElement) return;
 
-            // Save original text for cancel functionality
+            // Save original values for cancel functionality
             const originalText = note.text;
+            const originalType = note.type;
+            const originalColor = note.color;
 
-            // Replace text with textarea
+            // Replace text with comprehensive edit form
             noteTextElement.innerHTML = `
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <textarea style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; resize: vertical; min-height: 60px; line-height: 1.4;">${originalText}</textarea>
-                    <div style="display: flex; gap: 6px;">
-                        <button onclick="saveNoteEdit('${actionId}', ${noteIndex})" style="padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
-                                <polyline points="20,6 9,17 4,12"/>
-                            </svg>
-                            Kaydet
-                        </button>
-                        <button onclick="cancelNoteEdit('${actionId}', ${noteIndex}, '${originalText.replace(/'/g, "\\'")}', this)" style="padding: 6px 12px; background: #6b7280; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                <div style="display: flex; flex-direction: column; gap: 12px; background: #f8f9fa; padding: 16px; border-radius: 6px; border: 1px solid #e9ecef;">
+                    <!-- Type Selection -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;">Tip</label>
+                            <select id="editNoteType-${actionId}-${noteIndex}" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; background: white;">
+                                <option value="postpone" ${originalType === 'postpone' ? 'selected' : ''}>Erteleme</option>
+                                <option value="note" ${originalType === 'note' ? 'selected' : ''}>Not</option>
+                                <option value="update" ${originalType === 'update' ? 'selected' : ''}>Güncelleme</option>
+                                <option value="reminder" ${originalType === 'reminder' ? 'selected' : ''}>Hatırlatma</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;">Renk</label>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <input type="color" id="editNoteColor-${actionId}-${noteIndex}" value="${originalColor}" style="width: 40px; height: 32px; border: 1px solid #d1d5db; border-radius: 4px; padding: 0; cursor: pointer;">
+                                <div style="display: flex; gap: 2px;">
+                                    <button type="button" onclick="setEditNoteColor('${actionId}', ${noteIndex}, '#3498db')" style="width: 24px; height: 24px; background: #3498db; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;"></button>
+                                    <button type="button" onclick="setEditNoteColor('${actionId}', ${noteIndex}, '#e74c3c')" style="width: 24px; height: 24px; background: #e74c3c; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;"></button>
+                                    <button type="button" onclick="setEditNoteColor('${actionId}', ${noteIndex}, '#f39c12')" style="width: 24px; height: 24px; background: #f39c12; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;"></button>
+                                    <button type="button" onclick="setEditNoteColor('${actionId}', ${noteIndex}, '#2ecc71')" style="width: 24px; height: 24px; background: #2ecc71; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;"></button>
+                                    <button type="button" onclick="setEditNoteColor('${actionId}', ${noteIndex}, '#9b59b6')" style="width: 24px; height: 24px; background: #9b59b6; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Text Area -->
+                    <div>
+                        <label style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;">Açıklama</label>
+                        <textarea id="editNoteText-${actionId}-${noteIndex}" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; resize: vertical; min-height: 70px; line-height: 1.4; background: white;">${originalText}</textarea>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <button onclick="cancelNoteEdit('${actionId}', ${noteIndex})" style="padding: 8px 16px; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; cursor: pointer; transition: background-color 0.2s;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
                                 <line x1="18" y1="6" x2="6" y2="18"/>
                                 <line x1="6" y1="6" x2="18" y2="18"/>
                             </svg>
                             İptal
+                        </button>
+                        <button onclick="saveNoteEdit('${actionId}', ${noteIndex})" style="padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 4px; font-size: 13px; cursor: pointer; transition: background-color 0.2s;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                                <polyline points="20,6 9,17 4,12"/>
+                            </svg>
+                            Kaydet
                         </button>
                     </div>
                 </div>
@@ -4773,6 +4807,13 @@
             }
         }
 
+        function setEditNoteColor(actionId, noteIndex, color) {
+            const colorInput = document.getElementById(`editNoteColor-${actionId}-${noteIndex}`);
+            if (colorInput) {
+                colorInput.value = color;
+            }
+        }
+
         function saveNoteEdit(actionId, noteIndex) {
             const action = actions.find(a => a.id === actionId);
             if (!action || !action.notes || !action.notes[noteIndex]) {
@@ -4780,18 +4821,28 @@
                 return;
             }
 
-            const noteTextElement = document.getElementById(`noteText-${actionId}-${noteIndex}`);
-            const textarea = noteTextElement.querySelector('textarea');
+            // Get form elements
+            const typeSelect = document.getElementById(`editNoteType-${actionId}-${noteIndex}`);
+            const colorInput = document.getElementById(`editNoteColor-${actionId}-${noteIndex}`);
+            const textarea = document.getElementById(`editNoteText-${actionId}-${noteIndex}`);
 
-            if (!textarea) return;
+            if (!typeSelect || !colorInput || !textarea) {
+                showNotification('❌ Form elemanları bulunamadı!', 'error');
+                return;
+            }
 
+            const newType = typeSelect.value;
+            const newColor = colorInput.value;
             const newText = textarea.value.trim();
+
             if (!newText) {
                 showNotification('❌ Not metni boş olamaz!', 'error');
                 return;
             }
 
-            // Update note text
+            // Update note with all new values
+            action.notes[noteIndex].type = newType;
+            action.notes[noteIndex].color = newColor;
             action.notes[noteIndex].text = newText;
             action.notes[noteIndex].editedAt = new Date().toISOString();
 
@@ -4805,10 +4856,10 @@
             });
         }
 
-        function cancelNoteEdit(actionId, noteIndex, originalText, buttonElement) {
-            const noteTextElement = document.getElementById(`noteText-${actionId}-${noteIndex}`);
-            if (noteTextElement) {
-                noteTextElement.innerHTML = originalText;
+        function cancelNoteEdit(actionId, noteIndex) {
+            const action = actions.find(a => a.id === actionId);
+            if (action) {
+                displayActionNotes(action); // Refresh display to original state
             }
         }
 
