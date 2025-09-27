@@ -4225,10 +4225,14 @@
                                 };
                                 const typeName = typeNames[note.type] || note.type;
                                 const noteDate = new Date(note.timestamp).toLocaleDateString('tr-TR');
-                                return `<div class="update-box" style="margin-bottom: 5px; border-left: 4px solid ${note.color}; background: ${note.color}15;">
-                                    <strong style="color: ${note.color};">${typeName}:</strong> ${note.text}
-                                    <br><small style="color: #666;">${noteDate}
-                                    <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil" style="margin-left: 10px; background: none; border: none; cursor: pointer;">🗑️</button>
+                                const textColor = getContrastingTextColor(note.color);
+                                const isLight = isLightColor(note.color);
+
+                                return `<div class="update-box" style="margin-bottom: 8px; border-left: 4px solid ${note.color}; background: ${note.color}; color: ${textColor}; padding: 12px; border-radius: 6px;">
+                                    <strong style="color: ${textColor}; opacity: 0.9;">${typeName}:</strong>
+                                    <span style="color: ${textColor}; margin-left: 6px;">${note.text}</span>
+                                    <br><small style="color: ${textColor}; opacity: 0.7; margin-top: 6px; display: inline-block;">${noteDate}
+                                    <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil" style="margin-left: 10px; background: ${isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'}; color: ${textColor}; border: 1px solid ${isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.3)'}; border-radius: 3px; padding: 2px 6px; cursor: pointer; font-size: 12px;">🗑️</button>
                                     </small>
                                 </div>`;
                             }).join('')
@@ -4863,6 +4867,26 @@
             }
         }
 
+        // Helper function to determine if a color is light or dark
+        function isLightColor(color) {
+            // Convert hex to RGB
+            const hex = color.replace('#', '');
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+
+            // Calculate luminance
+            const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+            // Return true if light (needs dark text), false if dark (needs light text)
+            return luminance > 0.5;
+        }
+
+        // Get contrasting text color
+        function getContrastingTextColor(backgroundColor) {
+            return isLightColor(backgroundColor) ? '#1f2937' : '#ffffff';
+        }
+
 
         function displayActionNotes(action) {
             const notesSection = document.getElementById('detailNotes');
@@ -4900,16 +4924,19 @@
                         </div>`
                     ).join('');
                 } else {
-                    // Detail view mode: show as colorful cards
-                    notesList.innerHTML = action.notes.map(note =>
-                        `<div class="note-card" style="background: ${note.color}; color: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    // Detail view mode: show as colorful cards with contrasting text
+                    notesList.innerHTML = action.notes.map(note => {
+                        const textColor = getContrastingTextColor(note.color);
+                        const badgeColor = isLightColor(note.color) ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)';
+
+                        return `<div class="note-card" style="background: ${note.color}; color: ${textColor}; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                             <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                                <div style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-right: 10px;">${getNoteTypeText(note.type)}</div>
-                                <div style="font-size: 0.8rem; opacity: 0.9;">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
+                                <div style="background: ${badgeColor}; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-right: 10px; color: ${textColor};">${getNoteTypeText(note.type)}</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8; color: ${textColor};">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
                             </div>
-                            <div style="opacity: 0.95; line-height: 1.4;">${note.text}</div>
-                        </div>`
-                    ).join('');
+                            <div style="line-height: 1.4; color: ${textColor};">${note.text}</div>
+                        </div>`;
+                    }).join('');
                 }
             } else {
                 notesSection.style.display = 'none';
