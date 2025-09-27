@@ -4225,14 +4225,15 @@
                                 };
                                 const typeName = typeNames[note.type] || note.type;
                                 const noteDate = new Date(note.timestamp).toLocaleDateString('tr-TR');
-                                const textColor = getContrastingTextColor(note.color);
-                                const isLight = isLightColor(note.color);
+                                const softBg = getSoftColor(note.color, 0.12);
+                                const textColor = getSoftTextColor(note.color);
+                                const borderColor = getMutedColor(note.color);
 
-                                return `<div class="update-box" style="margin-bottom: 8px; border-left: 4px solid ${note.color}; background: ${note.color}; color: ${textColor}; padding: 12px; border-radius: 6px;">
-                                    <strong style="color: ${textColor}; opacity: 0.9;">${typeName}:</strong>
-                                    <span style="color: ${textColor}; margin-left: 6px;">${note.text}</span>
-                                    <br><small style="color: ${textColor}; opacity: 0.7; margin-top: 6px; display: inline-block;">${noteDate}
-                                    <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil" style="margin-left: 10px; background: ${isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'}; color: ${textColor}; border: 1px solid ${isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.3)'}; border-radius: 3px; padding: 2px 6px; cursor: pointer; font-size: 12px;">🗑️</button>
+                                return `<div class="update-box" style="margin-bottom: 8px; border-left: 3px solid ${borderColor}; background: ${softBg}; color: ${textColor}; padding: 12px; border-radius: 8px; border: 1px solid ${getSoftColor(note.color, 0.2)};">
+                                    <strong style="color: ${note.color}; font-weight: 600;">${typeName}:</strong>
+                                    <span style="color: ${textColor}; margin-left: 6px; line-height: 1.4;">${note.text}</span>
+                                    <br><small style="color: #6b7280; margin-top: 6px; display: inline-block; font-size: 0.75rem;">${noteDate}
+                                    <button class="note-delete-btn" onclick="deleteNote('${id}', ${note.id})" title="Notu sil" style="margin-left: 10px; background: rgba(107, 114, 128, 0.1); color: #6b7280; border: 1px solid rgba(107, 114, 128, 0.2); border-radius: 4px; padding: 3px 6px; cursor: pointer; font-size: 11px; transition: all 0.2s;">🗑️</button>
                                     </small>
                                 </div>`;
                             }).join('')
@@ -4887,6 +4888,42 @@
             return isLightColor(backgroundColor) ? '#1f2937' : '#ffffff';
         }
 
+        // Convert any color to a softer, more eye-friendly version
+        function getSoftColor(color, opacity = 0.15) {
+            // For light backgrounds, use the color with low opacity
+            return `${color}${Math.round(opacity * 255).toString(16).padStart(2, '0')}`;
+        }
+
+        // Get a muted version of the color for borders
+        function getMutedColor(color) {
+            const hex = color.replace('#', '');
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+
+            // Make it more muted by blending with gray
+            const mutedR = Math.round(r * 0.7 + 128 * 0.3);
+            const mutedG = Math.round(g * 0.7 + 128 * 0.3);
+            const mutedB = Math.round(b * 0.7 + 128 * 0.3);
+
+            return `#${mutedR.toString(16).padStart(2, '0')}${mutedG.toString(16).padStart(2, '0')}${mutedB.toString(16).padStart(2, '0')}`;
+        }
+
+        // Get text color for soft backgrounds (always darker for readability)
+        function getSoftTextColor(backgroundColor) {
+            const hex = backgroundColor.replace('#', '');
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+
+            // Make it darker for better readability
+            const darkR = Math.round(r * 0.3);
+            const darkG = Math.round(g * 0.3);
+            const darkB = Math.round(b * 0.3);
+
+            return `#${darkR.toString(16).padStart(2, '0')}${darkG.toString(16).padStart(2, '0')}${darkB.toString(16).padStart(2, '0')}`;
+        }
+
 
         function displayActionNotes(action) {
             const notesSection = document.getElementById('detailNotes');
@@ -4899,19 +4936,22 @@
                 const isEditMode = document.getElementById('detailEditForm').style.display === 'block';
 
                 if (isEditMode) {
-                    // Edit mode: show with edit/delete buttons
-                    notesList.innerHTML = action.notes.map((note, index) =>
-                        `<div class="note-item" style="border-left: 4px solid ${note.color}; padding: 12px; margin-bottom: 8px; background: white; border: 1px solid #e9ecef; border-radius: 6px;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                                <div class="note-type" style="font-weight: bold; font-size: 0.9rem; color: ${note.color};">${getNoteTypeText(note.type)}</div>
+                    // Edit mode: show with edit/delete buttons using soft colors
+                    notesList.innerHTML = action.notes.map((note, index) => {
+                        const softBg = getSoftColor(note.color, 0.1);
+                        const borderColor = getMutedColor(note.color);
+
+                        return `<div class="note-item" style="border-left: 3px solid ${borderColor}; padding: 14px; margin-bottom: 10px; background: ${softBg}; border: 1px solid ${getSoftColor(note.color, 0.2)}; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                                <div class="note-type" style="background: ${note.color}; color: white; padding: 3px 8px; border-radius: 10px; font-weight: 500; font-size: 0.75rem;">${getNoteTypeText(note.type)}</div>
                                 <div style="display: flex; gap: 6px;">
-                                    <button onclick="editNote('${action.id}', ${index})" style="padding: 4px 8px; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px; color: #374151; cursor: pointer; transition: background-color 0.2s;">
+                                    <button onclick="editNote('${action.id}', ${index})" style="padding: 6px 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; color: #64748b; cursor: pointer; transition: all 0.2s;">
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                                             <path d="m18.5 2.5-3 3L12 9l-4 1 1-4 3.5-3.5a2.121 2.121 0 0 1 3 3z"/>
                                         </svg>
                                     </button>
-                                    <button onclick="deleteNote('${action.id}', ${note.id})" style="padding: 4px 8px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; font-size: 12px; color: #dc2626; cursor: pointer; transition: background-color 0.2s;">
+                                    <button onclick="deleteNote('${action.id}', ${note.id})" style="padding: 6px 8px; background: #fef8f8; border: 1px solid #fecaca; border-radius: 6px; font-size: 12px; color: #dc2626; cursor: pointer; transition: all 0.2s;">
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <polyline points="3,6 5,6 21,6"/>
                                             <path d="m19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2v2"/>
@@ -4919,22 +4959,23 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="note-text" id="noteText-${action.id}-${index}" style="margin: 5px 0; line-height: 1.4;">${note.text}</div>
-                            <div class="note-timestamp" style="font-size: 0.8rem; color: #666;">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
-                        </div>`
-                    ).join('');
+                            <div class="note-text" id="noteText-${action.id}-${index}" style="margin: 8px 0; line-height: 1.5; color: #374151;">${note.text}</div>
+                            <div class="note-timestamp" style="font-size: 0.75rem; color: #6b7280;">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
+                        </div>`;
+                    }).join('');
                 } else {
-                    // Detail view mode: show as colorful cards with contrasting text
+                    // Detail view mode: show as soft cards with gentle colors
                     notesList.innerHTML = action.notes.map(note => {
-                        const textColor = getContrastingTextColor(note.color);
-                        const badgeColor = isLightColor(note.color) ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)';
+                        const softBg = getSoftColor(note.color, 0.15);
+                        const textColor = getSoftTextColor(note.color);
+                        const borderColor = getMutedColor(note.color);
 
-                        return `<div class="note-card" style="background: ${note.color}; color: ${textColor}; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                                <div style="background: ${badgeColor}; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-right: 10px; color: ${textColor};">${getNoteTypeText(note.type)}</div>
-                                <div style="font-size: 0.8rem; opacity: 0.8; color: ${textColor};">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
+                        return `<div class="note-card" style="background: ${softBg}; color: ${textColor}; padding: 16px; margin-bottom: 12px; border-radius: 10px; border: 1px solid ${getSoftColor(note.color, 0.25)}; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                <div style="background: ${note.color}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; margin-right: 12px;">${getNoteTypeText(note.type)}</div>
+                                <div style="font-size: 0.8rem; color: #6b7280;">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
                             </div>
-                            <div style="line-height: 1.4; color: ${textColor};">${note.text}</div>
+                            <div style="line-height: 1.5; color: ${textColor}; font-size: 0.95rem;">${note.text}</div>
                         </div>`;
                     }).join('');
                 }
