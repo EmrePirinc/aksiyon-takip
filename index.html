@@ -2574,15 +2574,6 @@
                     </div>
                 </div>
 
-                <!-- Erteleme Geçmişi Bölümü - Sadece düzenleme modunda görünür -->
-                <div id="postponeHistorySection" style="display: none;">
-                    <div class="form-group">
-                        <label>Erteleme Geçmişi</label>
-                        <div id="postponeHistoryContainer" class="postpone-history-container">
-                            <!-- Erteleme geçmişi buraya dinamik olarak eklenecek -->
-                        </div>
-                    </div>
-                </div>
 
                 <div class="modal-buttons">
                     <button type="button" class="btn modal-btn cancel" onclick="closeModal()">İptal</button>
@@ -2810,11 +2801,6 @@
                 <div id="detailAttachmentsList" class="attachment-list"></div>
             </div>
 
-            <!-- Postpone History Section -->
-            <div id="detailPostponeHistory" class="detail-section" style="display: none;">
-                <div class="detail-label" style="margin-bottom: 8px;">📅 Erteleme Geçmişi</div>
-                <div id="detailPostponeHistoryList"></div>
-            </div>
 
             <!-- Notes Section -->
             <div id="detailNotes" class="detail-section" style="display: none;">
@@ -4221,11 +4207,6 @@
             const previewContainer = document.getElementById('actionFilePreview');
             if (previewContainer) previewContainer.innerHTML = '';
 
-            // Hide postpone history section for new actions
-            const postponeHistorySection = document.getElementById('postponeHistorySection');
-            if (postponeHistorySection) {
-                postponeHistorySection.style.display = 'none';
-            }
 
             document.getElementById("modalTitle").textContent = "Yeni Aksiyon Ekle";
             const modal = document.getElementById("actionModal");
@@ -4281,16 +4262,6 @@
                 });
             }
 
-            // Erteleme geçmişi bölümünü göster ve doldur
-            const postponeHistorySection = document.getElementById('postponeHistorySection');
-            const postponeHistoryContainer = document.getElementById('postponeHistoryContainer');
-
-            if (action.postponeHistory && action.postponeHistory.length > 0) {
-                postponeHistorySection.style.display = 'block';
-                renderPostponeHistory(action.postponeHistory, id);
-            } else {
-                postponeHistorySection.style.display = 'none';
-            }
 
             // Modal'ı göster
             const modal = document.getElementById("actionModal");
@@ -4528,8 +4499,7 @@
 
             // Refresh displays
             displayActions();
-            displayPostponeHistory(action);
-
+            
             alert('✅ Erteleme kaydı silindi!');
         }
         
@@ -4591,8 +4561,7 @@
             displayActionAttachments(action);
 
             // Show postpone history if any
-            displayPostponeHistory(action);
-
+            
             // Show notes if any
             displayActionNotes(action);
 
@@ -4618,52 +4587,6 @@
             }
         }
 
-        function displayPostponeHistory(action) {
-            const postponeSection = document.getElementById('detailPostponeHistory');
-            const postponeList = document.getElementById('detailPostponeHistoryList');
-
-            if (action.postponeHistory && action.postponeHistory.length > 0) {
-                postponeSection.style.display = 'block';
-
-                // Check if we're in edit mode or detail view mode
-                const isEditMode = document.getElementById('detailEditForm').style.display === 'block';
-
-                if (isEditMode) {
-                    // Edit mode: show with edit/delete buttons
-                    postponeList.innerHTML = action.postponeHistory.map((postpone, index) =>
-                        `<div class="postpone-item" data-postpone-id="${action.id}-${index}">
-                            <div class="postpone-dates">
-                                <span class="old-date">${postpone.oldDate ? formatDate(postpone.oldDate) : 'Tarih yok'}</span>
-                                →
-                                <span class="new-date">${postpone.newDate ? formatDate(postpone.newDate) : 'Tarih yok'}</span>
-                            </div>
-                            <div class="postpone-reason">${postpone.reason || 'Sebep belirtilmedi'}</div>
-                            <div class="postpone-timestamp">${postpone.timestamp ? new Date(postpone.timestamp).toLocaleDateString('tr-TR') : ''}</div>
-                            <div class="postpone-actions">
-                                <button class="postpone-edit-btn" onclick="editPostpone('${action.id}', ${index})">Düzenle</button>
-                                <button class="postpone-delete-btn" onclick="deletePostpone('${action.id}', ${index})">Sil</button>
-                            </div>
-                        </div>`
-                    ).join('');
-                } else {
-                    // Detail view mode: show as colorful cards without buttons
-                    postponeList.innerHTML = action.postponeHistory.map((postpone, index) =>
-                        `<div class="postpone-card" style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                                <div style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-right: 10px;">⏰ Erteleme</div>
-                                <div style="font-size: 0.8rem; opacity: 0.9;">${postpone.timestamp ? new Date(postpone.timestamp).toLocaleDateString('tr-TR') : ''}</div>
-                            </div>
-                            <div style="font-weight: bold; margin-bottom: 8px;">
-                                ${postpone.oldDate ? formatDate(postpone.oldDate) : 'Tarih yok'} → ${postpone.newDate ? formatDate(postpone.newDate) : 'Tarih yok'}
-                            </div>
-                            <div style="opacity: 0.9;">${postpone.reason || 'Sebep belirtilmedi'}</div>
-                        </div>`
-                    ).join('');
-                }
-            } else {
-                postponeSection.style.display = 'none';
-            }
-        }
 
         function displayActionNotes(action) {
             const notesSection = document.getElementById('detailNotes');
@@ -4753,8 +4676,7 @@
 
             // Refresh displays
             displayActions();
-            displayPostponeHistory(action);
-
+            
             // Update the edit form's original date field with the new date for next postpone
             document.getElementById('postponeOriginalDate').value = newDate;
 
@@ -4805,8 +4727,7 @@
             }
 
             // Refresh postpone history and notes display for the new mode
-            displayPostponeHistory(action);
-            displayActionNotes(action);
+                        displayActionNotes(action);
         }
 
         function openComprehensiveEdit(id) {
@@ -4861,38 +4782,6 @@
                 attachmentsSection.style.display = 'none';
             }
 
-            // Postpone History
-            const postponeHistorySection = document.getElementById('detailPostponeHistory');
-            const postponeHistoryList = document.getElementById('detailPostponeHistoryList');
-
-            if (action.postponeHistory && action.postponeHistory.length > 0) {
-                postponeHistorySection.style.display = 'block';
-                postponeHistoryList.innerHTML = action.postponeHistory.map((postpone, index) => {
-                    const postponeDate = new Date(postpone.postponeDate);
-                    const originalDate = new Date(postpone.originalDate);
-                    const timestamp = postpone.timestamp ? new Date(postpone.timestamp).toLocaleDateString('tr-TR') : 'Bilinmiyor';
-
-                    return `
-                        <div class="postpone-history-item" data-postpone-id="${id}-${index}" style="margin-bottom: 15px;">
-                            <div style="padding: 12px; background: #fff8f0; border-left: 4px solid #f39c12; border-radius: 6px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                    <div style="font-weight: 600; color: #e67e22;">
-                                        ${originalDate.toLocaleDateString('tr-TR')} → ${postponeDate.toLocaleDateString('tr-TR')}
-                                    </div>
-                                    <div style="display: flex; gap: 5px;">
-                                        <button class="postpone-edit-btn" onclick="editPostpone('${id}', ${index})" style="font-size: 0.7rem; padding: 4px 8px; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer;">Düzenle</button>
-                                        <button class="postpone-delete-btn" onclick="deletePostpone('${id}', ${index})" style="font-size: 0.7rem; padding: 4px 8px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer;">Sil</button>
-                                    </div>
-                                </div>
-                                <div style="color: #666; font-size: 0.9rem;">${postpone.reason || 'Sebep belirtilmemiş'}</div>
-                                <small style="color: #999; font-size: 0.8rem;">Erteleme tarihi: ${timestamp}</small>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } else {
-                postponeHistorySection.style.display = 'none';
-            }
 
             // Notes
             const notesSection = document.getElementById('detailNotes');
@@ -5085,8 +4974,7 @@
                 displayActions();
                 displayActionNotes(action);
                 if (type === 'postpone') {
-                    displayPostponeHistory(action);
-                }
+                                    }
 
                 // Close the inline form
                 toggleInlineNoteForm();
