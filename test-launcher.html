@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aksiyon Takip - Test Launcher</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .test-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .test-header h1 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .test-header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .test-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .test-btn {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .test-btn.secondary {
+            background: linear-gradient(135deg, #10b981, #047857);
+        }
+
+        .test-btn.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .test-btn.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .test-output {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border: 2px solid #374151;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-pass { background: #10b981; }
+        .status-fail { background: #ef4444; }
+        .status-warn { background: #f59e0b; }
+        .status-info { background: #3b82f6; }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .test-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+
+        .stat-card.pass { border-color: #10b981; }
+        .stat-card.fail { border-color: #ef4444; }
+        .stat-card.warn { border-color: #f59e0b; }
+        .stat-card.total { border-color: #3b82f6; }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🧪 Test Launcher</h1>
+            <p>Aksiyon Takip Sistemi - Kapsamlı Test Suite</p>
+        </div>
+
+        <div class="test-buttons">
+            <button class="test-btn" onclick="runQuickTest()">
+                🚀 Hızlı Test
+            </button>
+            <button class="test-btn secondary" onclick="runFullTest()">
+                🔬 Tam Test Suite
+            </button>
+            <button class="test-btn warning" onclick="openMainApp()">
+                🌐 Ana Uygulamayı Aç
+            </button>
+            <button class="test-btn danger" onclick="clearResults()">
+                🗑️ Sonuçları Temizle
+            </button>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="test-stats" id="testStats" style="display: none;">
+            <div class="stat-card total">
+                <div class="stat-number" id="totalTests">0</div>
+                <div class="stat-label">Toplam</div>
+            </div>
+            <div class="stat-card pass">
+                <div class="stat-number" id="passedTests">0</div>
+                <div class="stat-label">Başarılı</div>
+            </div>
+            <div class="stat-card fail">
+                <div class="stat-number" id="failedTests">0</div>
+                <div class="stat-label">Başarısız</div>
+            </div>
+            <div class="stat-card warn">
+                <div class="stat-number" id="warningTests">0</div>
+                <div class="stat-label">Uyarı</div>
+            </div>
+        </div>
+
+        <div class="test-output" id="testOutput">
+            <div style="color: #10b981;">🧪 Test Launcher hazır. Bir test seçerek başlayın...</div>
+        </div>
+    </div>
+
+    <script>
+        let testWindow = null;
+        let testStats = { total: 0, passed: 0, failed: 0, warnings: 0 };
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('testOutput');
+            const timestamp = new Date().toLocaleTimeString('tr-TR');
+            const emoji = type === 'pass' ? '✅' : type === 'fail' ? '❌' : type === 'warn' ? '⚠️' : 'ℹ️';
+
+            const line = document.createElement('div');
+            line.innerHTML = `<span class="status-indicator status-${type}"></span>[${timestamp}] ${message}`;
+
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+
+            // Stats güncelle
+            if (type === 'pass') testStats.passed++;
+            else if (type === 'fail') testStats.failed++;
+            else if (type === 'warn') testStats.warnings++;
+
+            testStats.total = testStats.passed + testStats.failed + testStats.warnings;
+            updateStats();
+        }
+
+        function updateStats() {
+            const statsDiv = document.getElementById('testStats');
+            statsDiv.style.display = 'grid';
+
+            document.getElementById('totalTests').textContent = testStats.total;
+            document.getElementById('passedTests').textContent = testStats.passed;
+            document.getElementById('failedTests').textContent = testStats.failed;
+            document.getElementById('warningTests').textContent = testStats.warnings;
+
+            // Progress bar güncelle
+            const progress = testStats.total > 0 ? (testStats.passed / testStats.total) * 100 : 0;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function clearResults() {
+            document.getElementById('testOutput').innerHTML =
+                '<div style="color: #10b981;">🧪 Test sonuçları temizlendi. Yeni test başlatabilirsiniz...</div>';
+
+            testStats = { total: 0, passed: 0, failed: 0, warnings: 0 };
+            updateStats();
+            document.getElementById('testStats').style.display = 'none';
+            document.getElementById('progressFill').style.width = '0%';
+        }
+
+        async function runQuickTest() {
+            log('🚀 Hızlı test başlatılıyor...', 'info');
+
+            // Ana uygulama penceresini aç
+            if (!testWindow || testWindow.closed) {
+                testWindow = window.open('/index.html', 'mainApp', 'width=1200,height=800');
+                log('Ana uygulama penceresi açıldı', 'info');
+
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            }
+
+            // Temel kontroller
+            try {
+                // DOM kontrolü
+                const loginContainer = testWindow.document.getElementById('login-container');
+                if (loginContainer) {
+                    log('Login container bulundu', 'pass');
+                } else {
+                    log('Login container bulunamadı', 'fail');
+                }
+
+                const appContainer = testWindow.document.getElementById('app-container');
+                if (appContainer) {
+                    log('App container bulundu', 'pass');
+                } else {
+                    log('App container bulunamadı', 'fail');
+                }
+
+                // Modal kontrolü
+                const modals = ['actionModal', 'personModal', 'detailModal'];
+                modals.forEach(modalId => {
+                    const modal = testWindow.document.getElementById(modalId);
+                    if (modal) {
+                        log(`${modalId} modalı bulundu`, 'pass');
+                    } else {
+                        log(`${modalId} modalı bulunamadı`, 'fail');
+                    }
+                });
+
+                // JavaScript fonksiyon kontrolü
+                const functions = ['openModal', 'closeModal', 'filterActions'];
+                functions.forEach(funcName => {
+                    if (typeof testWindow[funcName] === 'function') {
+                        log(`${funcName} fonksiyonu mevcut`, 'pass');
+                    } else {
+                        log(`${funcName} fonksiyonu bulunamadı`, 'fail');
+                    }
+                });
+
+                log('🎉 Hızlı test tamamlandı!', 'info');
+
+            } catch (error) {
+                log(`Test hatası: ${error.message}`, 'fail');
+            }
+        }
+
+        async function runFullTest() {
+            log('🔬 Tam test suite başlatılıyor...', 'info');
+
+            // Ana uygulama penceresini aç
+            if (!testWindow || testWindow.closed) {
+                testWindow = window.open('/index.html', 'mainApp', 'width=1200,height=800');
+                log('Ana uygulama penceresi açıldı', 'info');
+
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            }
+
+            try {
+                // Test script'ini ana uygulamaya yükle
+                const script = testWindow.document.createElement('script');
+                script.src = '/automated-tester.js';
+                testWindow.document.head.appendChild(script);
+
+                log('Test scripti yüklendi', 'info');
+
+                // Test'i çalıştır
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                if (testWindow.runAutomatedTests) {
+                    await testWindow.runAutomatedTests();
+                    log('Otomatik testler çalıştırıldı', 'info');
+                } else {
+                    log('Test fonksiyonu bulunamadı', 'fail');
+                }
+
+                log('🎉 Tam test suite tamamlandı!', 'info');
+
+            } catch (error) {
+                log(`Test hatası: ${error.message}`, 'fail');
+            }
+        }
+
+        function openMainApp() {
+            if (testWindow && !testWindow.closed) {
+                testWindow.focus();
+                log('Mevcut uygulama penceresi odaklandı', 'info');
+            } else {
+                testWindow = window.open('/index.html', 'mainApp', 'width=1200,height=800');
+                log('Ana uygulama yeni pencerede açıldı', 'info');
+            }
+        }
+
+        // Page load'da stats'ı gizle
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('testStats').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
