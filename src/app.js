@@ -890,6 +890,93 @@
             }
         }
 
+        // Quill editor instances
+        let noteTextQuill = null;
+        let editNoteQuill = null;
+
+        // Initialize Quill editor for add note
+        function initializeNoteTextEditor() {
+            const editorElement = document.getElementById('noteTextEditor');
+            if (!editorElement) return;
+
+            // Clear any existing Quill instance
+            editorElement.innerHTML = '';
+
+            // Initialize Quill
+            noteTextQuill = new Quill('#noteTextEditor', {
+                theme: 'snow',
+                placeholder: 'Açıklama girin...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['clean']
+                    ]
+                }
+            });
+
+            // Sync Quill content with hidden input for form validation
+            noteTextQuill.on('text-change', function() {
+                const html = noteTextQuill.root.innerHTML;
+                const hiddenInput = document.getElementById('noteText');
+                if (hiddenInput) {
+                    hiddenInput.value = html.trim() === '<p><br></p>' ? '' : html;
+                }
+            });
+        }
+
+        // Initialize Quill editor for edit note
+        function initializeEditNoteEditor(actionId, noteIndex, initialContent) {
+            const editorId = `editNoteTextEditor-${actionId}-${noteIndex}`;
+            const editorElement = document.getElementById(editorId);
+            if (!editorElement) return;
+
+            // Clear any existing Quill instance
+            editorElement.innerHTML = '';
+
+            // Initialize Quill
+            editNoteQuill = new Quill(`#${editorId}`, {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['clean']
+                    ]
+                }
+            });
+
+            // Set initial content
+            if (initialContent) {
+                // Check if content is HTML or plain text
+                if (initialContent.includes('<') && initialContent.includes('>')) {
+                    editNoteQuill.root.innerHTML = initialContent;
+                } else {
+                    // Convert plain text line breaks to HTML
+                    const htmlContent = initialContent.replace(/\n/g, '<br>');
+                    editNoteQuill.root.innerHTML = `<p>${htmlContent}</p>`;
+                }
+            }
+
+            // Sync Quill content with hidden input
+            editNoteQuill.on('text-change', function() {
+                const html = editNoteQuill.root.innerHTML;
+                const hiddenInput = document.getElementById(`editNoteText-${actionId}-${noteIndex}`);
+                if (hiddenInput) {
+                    hiddenInput.value = html.trim() === '<p><br></p>' ? '' : html;
+                }
+            });
+
+            // Trigger initial sync
+            const html = editNoteQuill.root.innerHTML;
+            const hiddenInput = document.getElementById(`editNoteText-${actionId}-${noteIndex}`);
+            if (hiddenInput) {
+                hiddenInput.value = html.trim() === '<p><br></p>' ? '' : html;
+            }
+        }
+
         // Image modal functions with zoom
         let currentZoom = 1;
         let currentX = 0;
@@ -2016,7 +2103,8 @@
                     <!-- Text Area -->
                     <div>
                         <label style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;">Açıklama</label>
-                        <textarea id="editNoteText-${actionId}-${noteIndex}" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; resize: vertical; min-height: 70px; line-height: 1.4; background: white;">${originalText}</textarea>
+                        <div id="editNoteTextEditor-${actionId}-${noteIndex}" style="background: white; min-height: 150px; border: 1px solid #d1d5db; border-radius: 4px;"></div>
+                        <input type="hidden" id="editNoteText-${actionId}-${noteIndex}">
                     </div>
 
                     <!-- File Upload Section -->
@@ -2050,12 +2138,10 @@
             // Initialize file upload functionality
             setupEditNoteFileUpload(actionId, noteIndex);
 
-            // Focus on textarea
-            const textarea = noteTextElement.querySelector('textarea');
-            if (textarea) {
-                textarea.focus();
-                textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-            }
+            // Initialize Quill editor with original content
+            setTimeout(() => {
+                initializeEditNoteEditor(actionId, noteIndex, originalText);
+            }, 100);
         }
 
         function setEditNoteColor(actionId, noteIndex, color) {
@@ -2378,7 +2464,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="note-text" id="noteText-${action.id}-${index}" style="margin: 8px 0; line-height: 1.5; color: #374151;">${note.text}</div>
+                            <div class="note-text" id="noteText-${action.id}-${index}" style="margin: 8px 0; line-height: 1.5; color: #374151; white-space: pre-wrap; word-wrap: break-word;">${note.text}</div>
                             ${note.attachments && note.attachments.length > 0 ? `
                                 <div style="margin: 8px 0;">
                                     <div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 6px;">📎 Ekli Dosyalar (${note.attachments.length})</div>
@@ -4310,6 +4396,7 @@
                 setupColorPicker();
                 handleImageUpload();
                 setupNoteTypeHandler();
+                initializeNoteTextEditor();
             }, 100);
         };
 
