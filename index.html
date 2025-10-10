@@ -317,6 +317,34 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        body, h1, h2, h3, h4, h5, h6, p, ul, ol, li {
+            padding: 0;
+        }
+
+        /* Note text alanlarında liste düzeni - Quill override */
+        .note-text ol, .note-text ul, #detailDescription ol, #detailDescription ul,
+        .ql-editor ol, .ql-editor ul, div[id*="noteText"] ol, div[id*="noteText"] ul,
+        .action-card ol, .action-card ul, .postpone-note ol, .postpone-note ul,
+        .modal ol, .modal ul, .modal-content ol, .modal-content ul,
+        #detailModal ol, #detailModal ul, #actionModal ol, #actionModal ul {
+            padding-left: 15px !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            list-style-position: inside !important;
+        }
+
+        /* Quill editor spesifik override */
+        .ql-snow .ql-editor ol, .ql-snow .ql-editor ul,
+        .ql-snow .ql-editor .ql-list,
+        .ql-editor .ql-indent-1:not(.ql-direction-rtl),
+        .ql-editor li[data-list] {
+            padding-left: 15px !important;
+            margin: 0 !important;
+            text-indent: 0 !important;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background: var(--gray-50);
@@ -1396,7 +1424,7 @@
         .action-card.anadolu::before { background: var(--anadolu); }
         .action-card.aifteam::before { background: var(--aifteam); }
         .action-card.ortak::before { background: var(--ortak); }
-        .action-card.postponed { border-left: 5px solid var(--postponed); }
+        /* .action-card.postponed { border-left: 5px solid var(--postponed); } */
 
         .action-header {
             display: flex;
@@ -1906,7 +1934,7 @@
         }
         .detail-label { font-weight: 600; color: var(--gray-600); }
         .detail-value { font-weight: 500; color: var(--gray-800); }
-        #detailDescription { background: var(--gray-50); padding: var(--space-4); border-radius: var(--radius-lg); line-height: 1.6; white-space: pre-wrap; }
+        #detailDescription { background: var(--gray-50); padding: var(--space-4); border-radius: var(--radius-lg); line-height: 1.6; /* white-space: pre-wrap; */ }
         .postpone-note { 
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
             padding: var(--space-3); 
@@ -4043,7 +4071,19 @@
         function initializeEditNoteEditor(actionId, noteIndex, initialContent) {
             const editorId = `editNoteTextEditor-${actionId}-${noteIndex}`;
             const editorElement = document.getElementById(editorId);
-            if (!editorElement) return;
+
+            console.log(`🎛️ initializeEditNoteEditor called:`, {
+                actionId,
+                noteIndex,
+                editorId,
+                editorFound: !!editorElement,
+                initialContent: JSON.stringify(initialContent)
+            });
+
+            if (!editorElement) {
+                console.error(`❌ Editor element not found: ${editorId}`);
+                return;
+            }
 
             // Clear any existing Quill instance
             editorElement.innerHTML = '';
@@ -5023,6 +5063,7 @@
         
         // --- DETAIL VIEW MODAL ---
         let currentDetailActionId = null;
+        let hasNoteChanges = false; // Track if any note changes were made
 
         function openDetailView(id) {
             const action = actions.find(a => String(a.id) === String(id));
@@ -5033,6 +5074,7 @@
 
             currentDetailActionId = id;
             currentEditingActionId = null; // Reset editing state
+            hasNoteChanges = false; // Reset note changes flag
 
             // Set modal title and show detail view
             document.getElementById('detailTitle').textContent = action.title;
@@ -5070,6 +5112,7 @@
 
             // Show the modal
             const modal = document.getElementById('detailModal');
+            modal.classList.add('active');
             modal.style.display = 'flex';
         }
 
@@ -5174,6 +5217,9 @@
                 return;
             }
 
+            // Mark that note changes were initiated
+            hasNoteChanges = true;
+
             const note = action.notes[noteIndex];
             const noteTextElement = document.getElementById(`noteText-${actionId}-${noteIndex}`);
 
@@ -5264,6 +5310,107 @@
             }
         }
 
+        function createNoteEditForm(actionId, noteIndex, note) {
+            const softBg = getSoftColor(note.color, 0.1);
+            const borderColor = getMutedColor(note.color);
+
+            return `<div class="note-item" style="border-left: 3px solid ${borderColor}; padding: 14px; margin-bottom: 10px; background: ${softBg}; border: 1px solid ${getSoftColor(note.color, 0.2)}; border-radius: 8px;">
+                <div class="note-text" id="noteText-${actionId}-${noteIndex}" style="margin: 8px 0; line-height: 1.5; color: #374151;">
+                    <div style="display: flex; flex-direction: column; gap: 12px; background: #f8f9fa; padding: 16px; border-radius: 6px; border: 1px solid #e9ecef;">
+                        <!-- Type Selection -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div>
+                                <label style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;">Tip</label>
+                                <select id="editNoteType-${actionId}-${noteIndex}" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; background: white;">
+                                    <option value="postpone" ${note.type === 'postpone' ? 'selected' : ''}>Erteleme</option>
+                                    <option value="note" ${note.type === 'note' ? 'selected' : ''}>Not</option>
+                                    <option value="update" ${note.type === 'update' ? 'selected' : ''}>Güncelleme</option>
+                                    <option value="reminder" ${note.type === 'reminder' ? 'selected' : ''}>Hatırlatma</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;">Renk</label>
+                                <div style="display: flex; gap: 4px; align-items: center;">
+                                    <input type="color" id="editNoteColor-${actionId}-${noteIndex}" value="${note.color}" style="width: 40px; height: 32px; border: 1px solid #d1d5db; border-radius: 4px; padding: 0; cursor: pointer;">
+                                    <div style="display: flex; gap: 2px;">
+                                        <button type="button" onclick="setEditNoteColor('${actionId}', ${noteIndex}, '#3498db')" style="width: 24px; height: 24px; background: #3498db; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;"></button>
+                                        <button type="button" onclick="setEditNoteColor('${actionId}', ${noteIndex}, '#e74c3c')" style="width: 24px; height: 24px; background: #e74c3c; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;"></button>
+                                        <button type="button" onclick="setEditNoteColor('${actionId}', ${noteIndex}, '#f39c12')" style="width: 24px; height: 24px; background: #f39c12; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;"></button>
+                                        <button type="button" onclick="setEditNoteColor('${actionId}', ${noteIndex}, '#2ecc71')" style="width: 24px; height: 24px; background: #2ecc71; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;"></button>
+                                        <button type="button" onclick="setEditNoteColor('${actionId}', ${noteIndex}, '#9b59b6')" style="width: 24px; height: 24px; background: #9b59b6; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Text Area -->
+                        <div>
+                            <label style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;">Açıklama</label>
+                            <div id="editNoteTextEditor-${actionId}-${noteIndex}" style="background: white; min-height: 150px; border: 1px solid #d1d5db; border-radius: 4px;"></div>
+                            <input type="hidden" id="editNoteText-${actionId}-${noteIndex}">
+                        </div>
+
+                        <!-- File Upload Section -->
+                        <div>
+                            <label style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;">Dosya Ekle</label>
+                            <input type="file" id="editNoteFiles-${actionId}-${noteIndex}" multiple accept="*/*" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; background: white;">
+                            <div id="editNoteFilePreview-${actionId}-${noteIndex}" class="file-preview-container" style="display: none;">
+                                <!-- Hidden preview container - files shown in attachments section below -->
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                            <button onclick="cancelNoteEdit('${actionId}', ${noteIndex})" style="padding: 8px 16px; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; cursor: pointer; transition: background-color 0.2s;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                                İptal
+                            </button>
+                            <button onclick="saveNoteEdit('${actionId}', ${noteIndex})" style="padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 4px; font-size: 13px; cursor: pointer; transition: background-color 0.2s;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                                    <polyline points="20,6 9,17 4,12"/>
+                                </svg>
+                                Kaydet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                ${note.attachments && note.attachments.length > 0 ? `
+                    <div style="margin: 8px 0;">
+                        <div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 6px;">📎 Ekli Dosyalar (${note.attachments.length})</div>
+                        <div id="editNoteExistingFiles-${actionId}-${noteIndex}" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            ${note.attachments.map((file, fileIndex) => {
+                                if (file.type && file.type.startsWith('image/')) {
+                                    return `
+                                        <div style="position: relative; max-width: 120px; border: 1px solid #ddd; border-radius: 6px; overflow: hidden;">
+                                            <div onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="cursor: pointer;">
+                                                <img src="${file.url}" alt="${file.name}" style="width: 100%; height: 80px; object-fit: cover;">
+                                                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: white; font-size: 0.6rem; text-align: center; padding: 2px 0;">📷</div>
+                                            </div>
+                                            <button onclick="removeEditNoteFile('${actionId}', ${noteIndex}, '${file.name}')" style="position: absolute; top: 2px; right: 2px; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;">×</button>
+                                        </div>`;
+                                } else {
+                                    return `
+                                        <div style="position: relative; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px; display: flex; align-items: center; gap: 6px; max-width: 200px;">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
+                                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+                                                <polyline points="13,2 13,9 20,9"/>
+                                            </svg>
+                                            <div onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="cursor: pointer; flex: 1; min-width: 0;">
+                                                <div style="font-size: 0.75rem; color: #374151; word-break: break-all;">${file.name}</div>
+                                            </div>
+                                            <button onclick="removeEditNoteFile('${actionId}', ${noteIndex}, '${file.name}')" style="background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">×</button>
+                                        </div>`;
+                                }
+                            }).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>`;
+        }
+
         function saveNoteEdit(actionId, noteIndex) {
             const action = actions.find(a => a.id === actionId);
             if (!action || !action.notes || !action.notes[noteIndex]) {
@@ -5319,10 +5466,94 @@
         }
 
         function cancelNoteEdit(actionId, noteIndex) {
+            console.log('cancelNoteEdit called with:', actionId, noteIndex);
             const action = actions.find(a => a.id === actionId);
-            if (action) {
-                displayActionNotes(action); // Refresh display to original state
+            console.log('Action found:', !!action);
+
+            if (!action || !action.notes || !action.notes[noteIndex]) {
+                return;
             }
+
+            // Get original note data
+            const originalNote = action.notes[noteIndex];
+
+            // Get current form values
+            const typeSelect = document.getElementById(`editNoteType-${actionId}-${noteIndex}`);
+            const colorInput = document.getElementById(`editNoteColor-${actionId}-${noteIndex}`);
+            const textInput = document.getElementById(`editNoteText-${actionId}-${noteIndex}`);
+
+            if (!typeSelect || !colorInput || !textInput) {
+                console.log('Form elements not found, refreshing display...');
+                displayActionNotes(action);
+                return;
+            }
+
+            // Check for changes
+            const currentType = typeSelect.value;
+            const currentColor = colorInput.value;
+            const currentText = textInput.value.trim();
+
+            // Normalize text for comparison (strip HTML tags and normalize whitespace)
+            const normalizeText = (text) => {
+                if (!text) return '';
+                // Remove HTML tags, normalize whitespace, and handle common Quill artifacts
+                let normalized = text
+                    .replace(/<[^>]*>/g, '')  // Remove HTML tags
+                    .replace(/&nbsp;/g, ' ')  // Replace non-breaking spaces
+                    .replace(/\s+/g, ' ')     // Normalize whitespace
+                    .trim();
+
+                // Handle empty Quill content (just <p><br></p> becomes empty)
+                if (normalized === '' || normalized === ' ') {
+                    return '';
+                }
+
+                return normalized;
+            };
+
+            const normalizedCurrentText = normalizeText(currentText);
+            const normalizedOriginalText = normalizeText(originalNote.text);
+
+            const hasChanges = (
+                currentType !== originalNote.type ||
+                currentColor !== originalNote.color ||
+                normalizedCurrentText !== normalizedOriginalText
+            );
+
+            console.log('=== CHANGE DETECTION DEBUG ===');
+            console.log('Type check:', {
+                original: originalNote.type,
+                current: currentType,
+                changed: currentType !== originalNote.type
+            });
+            console.log('Color check:', {
+                original: originalNote.color,
+                current: currentColor,
+                changed: currentColor !== originalNote.color
+            });
+            console.log('Text check:');
+            console.log('Original text:', JSON.stringify(originalNote.text));
+            console.log('Current text:', JSON.stringify(currentText));
+            console.log('Normalized original:', JSON.stringify(normalizedOriginalText));
+            console.log('Normalized current:', JSON.stringify(normalizedCurrentText));
+            console.log('Text changed:', normalizedCurrentText !== normalizedOriginalText);
+            console.log('Overall hasChanges:', hasChanges);
+            console.log('=== END DEBUG ===');
+
+            if (hasChanges) {
+                const shouldDiscard = confirm('Not düzenlemesinde kaydedilmemiş değişiklikleriniz var. Değişiklikleri kaydetmeden çıkmak istediğinizden emin misiniz?');
+
+                if (!shouldDiscard) {
+                    console.log('User chose to keep editing');
+                    return; // User wants to keep editing
+                }
+
+                console.log('User chose to discard changes');
+            }
+
+            console.log('Calling displayActionNotes to refresh...');
+            displayActionNotes(action); // Refresh display to original state
+            console.log('displayActionNotes completed');
         }
 
         // File upload functionality for edit note
@@ -5554,63 +5785,26 @@
                 const isEditMode = document.getElementById('detailEditForm').style.display === 'block';
 
                 if (isEditMode) {
-                    // Edit mode: show with edit/delete buttons using soft colors
+                    // Edit mode: show all notes directly in edit form
                     notesList.innerHTML = action.notes.map((note, index) => {
-                        const softBg = getSoftColor(note.color, 0.1);
-                        const borderColor = getMutedColor(note.color);
-
-                        return `<div class="note-item" style="border-left: 3px solid ${borderColor}; padding: 14px; margin-bottom: 10px; background: ${softBg}; border: 1px solid ${getSoftColor(note.color, 0.2)}; border-radius: 8px;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                                <div class="note-type" style="background: ${note.color}; color: white; padding: 3px 8px; border-radius: 10px; font-weight: 500; font-size: 0.75rem;">${getNoteTypeText(note.type)}</div>
-                                <div style="display: flex; gap: 6px;">
-                                    <button onclick="editNote('${action.id}', ${index})" style="padding: 6px 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; color: #64748b; cursor: pointer; transition: all 0.2s;">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                            <path d="m18.5 2.5-3 3L12 9l-4 1 1-4 3.5-3.5a2.121 2.121 0 0 1 3 3z"/>
-                                        </svg>
-                                    </button>
-                                    <button onclick="deleteNote('${action.id}', ${note.id})" style="padding: 6px 8px; background: #fef8f8; border: 1px solid #fecaca; border-radius: 6px; font-size: 12px; color: #dc2626; cursor: pointer; transition: all 0.2s;">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <polyline points="3,6 5,6 21,6"/>
-                                            <path d="m19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2v2"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="note-text" id="noteText-${action.id}-${index}" style="margin: 8px 0; line-height: 1.5; color: #374151; white-space: pre-wrap; word-wrap: break-word;">${note.text}</div>
-                            ${note.attachments && note.attachments.length > 0 ? `
-                                <div style="margin: 8px 0;">
-                                    <div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 6px;">📎 Ekli Dosyalar (${note.attachments.length})</div>
-                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                                        ${note.attachments.map((file, fileIndex) => {
-                                            if (file.type && file.type.startsWith('image/')) {
-                                                return `
-                                                    <div style="position: relative; max-width: 120px; border: 1px solid #ddd; border-radius: 6px; overflow: hidden;">
-                                                        <div onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="cursor: pointer;">
-                                                            <img src="${file.url}" alt="${file.name}" style="width: 100%; height: 80px; object-fit: cover;">
-                                                            <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: white; font-size: 0.6rem; text-align: center; padding: 2px 0;">📷</div>
-                                                        </div>
-                                                        <button onclick="removeEditNoteFile('${action.id}', ${index}, '${file.name}')" style="position: absolute; top: 2px; right: 2px; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;">×</button>
-                                                    </div>
-                                                `;
-                                            } else {
-                                                return `
-                                                    <div style="display: flex; align-items: center; padding: 6px 10px; background: rgba(255,255,255,0.8); border-radius: 6px; font-size: 0.75rem; border: 1px solid rgba(0,0,0,0.15); min-width: 100px; position: relative;">
-                                                        <span onclick="handleAttachmentClick('${file.url}', '${file.name}', '${file.type}')" style="display: flex; align-items: center; cursor: pointer; flex: 1;">
-                                                            <span style="margin-right: 6px; font-size: 1rem;">${getFileIcon(file.type)}</span>
-                                                            <span style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${file.name}">${file.name}</span>
-                                                        </span>
-                                                        <button onclick="removeEditNoteFile('${action.id}', ${index}, '${file.name}')" style="background: rgba(220, 38, 38, 0.7); color: white; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 4px;">×</button>
-                                                    </div>
-                                                `;
-                                            }
-                                        }).join('')}
-                                    </div>
-                                </div>
-                            ` : ''}
-                            <div class="note-timestamp" style="font-size: 0.75rem; color: #6b7280;">${new Date(note.timestamp).toLocaleDateString('tr-TR')}</div>
-                        </div>`;
+                        // Auto-open edit form for each note
+                        return createNoteEditForm(action.id, index, note);
                     }).join('');
+
+                    // Initialize all note edit forms after they're rendered
+                    setTimeout(() => {
+                        action.notes.forEach((note, index) => {
+                            console.log(`🔧 Initializing note ${index}:`, {
+                                actionId: action.id,
+                                noteIndex: index,
+                                noteText: JSON.stringify(note.text),
+                                noteType: note.type,
+                                noteColor: note.color
+                            });
+                            setupEditNoteFileUpload(action.id, index);
+                            initializeEditNoteEditor(action.id, index, note.text);
+                        });
+                    }, 100);
                 } else {
                     // Detail view mode: show as soft cards with gentle colors
                     notesList.innerHTML = action.notes.map(note => {
@@ -5913,6 +6107,22 @@
                 actionData.attachments = existingAction.attachments || [];
                 actionData.postponed = existingAction.postponed;
                 actionData.postponeReason = existingAction.postponeReason;
+
+                // Save all note edits that are currently open
+                if (actionData.notes && actionData.notes.length > 0) {
+                    for (let noteIndex = 0; noteIndex < actionData.notes.length; noteIndex++) {
+                        const typeSelect = document.getElementById(`editNoteType-${currentEditingActionId}-${noteIndex}`);
+                        const colorInput = document.getElementById(`editNoteColor-${currentEditingActionId}-${noteIndex}`);
+                        const textInput = document.getElementById(`editNoteText-${currentEditingActionId}-${noteIndex}`);
+
+                        // If the note edit form exists, save its values
+                        if (typeSelect && colorInput && textInput) {
+                            actionData.notes[noteIndex].type = typeSelect.value;
+                            actionData.notes[noteIndex].color = colorInput.value;
+                            actionData.notes[noteIndex].text = textInput.value;
+                        }
+                    }
+                }
             }
 
             // Handle file uploads if any
@@ -5936,7 +6146,13 @@
             const detailEditForm = document.getElementById('detailEditForm');
             const isInEditMode = detailEditForm && detailEditForm.style.display === 'block';
 
+            console.log('closeDetailModal called');
+            console.log('detailEditForm found:', !!detailEditForm);
+            console.log('detailEditForm.style.display:', detailEditForm ? detailEditForm.style.display : 'null');
+            console.log('isInEditMode:', isInEditMode);
+
             if (isInEditMode) {
+                console.log('In edit mode, checking for unsaved changes...');
                 // Check for changes before closing
                 if (hasUnsavedChanges()) {
                     const shouldSave = confirm('Düzenleme modundasınız ve kaydedilmemiş değişiklikleriniz var. Kaydetmek istiyor musunuz?');
@@ -5963,37 +6179,95 @@
             modal.style.display = 'none';
             // Reset inline note form
             document.getElementById('inlineNoteForm').style.display = 'none';
+            // Reset note changes flag
+            hasNoteChanges = false;
         }
 
         // Function to check if there are unsaved changes
         function hasUnsavedChanges() {
             const action = actions.find(a => a.id === currentDetailActionId);
-            if (!action) return false;
+            if (!action) {
+                console.log('No action found for ID:', currentDetailActionId);
+                return false;
+            }
+
+            // Check if any note edit forms are open
+            const noteEditForms = document.querySelectorAll('[id*="editNoteTextEditor"]');
+            let hasNoteEdits = false;
+            noteEditForms.forEach(form => {
+                if (form.style.display !== 'none' && form.closest('.note-item')) {
+                    hasNoteEdits = true;
+                }
+            });
+
+            // Check if inline note form is open
+            const inlineNoteForm = document.getElementById('inlineNoteForm');
+            const isInlineNoteOpen = inlineNoteForm && (inlineNoteForm.style.display === 'block' || inlineNoteForm.style.display === '');
+
+            if (hasNoteEdits) {
+                console.log('Note edit forms are open, considering as unsaved changes');
+                return true;
+            }
+
+            if (isInlineNoteOpen) {
+                console.log('Inline note form is open, considering as unsaved changes');
+                return true;
+            }
+
+            // Check if any note changes were made
+            if (hasNoteChanges) {
+                console.log('Note changes flag is set, considering as unsaved changes');
+                return true;
+            }
 
             // Get current form values
             const titleInput = document.getElementById('editActionTitle');
-            const responsibleInput = document.getElementById('editActionResponsible');
+            const responsibleSelect = document.getElementById('editActionResponsible');
             const statusSelect = document.getElementById('editActionStatus');
-            const prioritySelect = document.getElementById('editActionPriority');
+            const priorityCheckbox = document.getElementById('editActionPriority');
             const descriptionTextarea = document.getElementById('editActionDescription');
-            const dueDateInput = document.getElementById('editActionDueDate');
-            const tagsInput = document.getElementById('editActionTags');
+            const dateInput = document.getElementById('editActionDate');
+            const assignedPersonSelect = document.getElementById('editActionAssignedPerson');
 
-            if (!titleInput || !responsibleInput || !statusSelect || !prioritySelect ||
-                !descriptionTextarea || !dueDateInput || !tagsInput) {
+            console.log('Elements found:', {
+                titleInput: !!titleInput,
+                responsibleSelect: !!responsibleSelect,
+                statusSelect: !!statusSelect,
+                priorityCheckbox: !!priorityCheckbox,
+                descriptionTextarea: !!descriptionTextarea,
+                dateInput: !!dateInput,
+                assignedPersonSelect: !!assignedPersonSelect
+            });
+
+            if (!titleInput || !responsibleSelect || !statusSelect || !priorityCheckbox ||
+                !descriptionTextarea || !dateInput || !assignedPersonSelect) {
+                console.log('Some elements not found, returning false');
                 return false;
             }
 
             // Compare with original values
-            return (
+            const hasChanges = (
                 titleInput.value.trim() !== (action.title || '') ||
-                responsibleInput.value.trim() !== (action.responsible || '') ||
-                statusSelect.value !== (action.status || 'pending') ||
-                prioritySelect.value !== (action.priority || 'medium') ||
+                responsibleSelect.value !== (action.responsible || '') ||
+                statusSelect.value !== (action.status || 'waiting') ||
+                priorityCheckbox.checked !== (action.priority || false) ||
                 descriptionTextarea.value.trim() !== (action.description || '') ||
-                dueDateInput.value !== (action.dueDate || '') ||
-                tagsInput.value.trim() !== (action.tags ? action.tags.join(', ') : '')
+                dateInput.value !== (action.date || '') ||
+                assignedPersonSelect.value !== (action.assignedPerson || '')
             );
+
+            console.log('Has changes:', hasChanges);
+            console.log('=== DETAILED COMPARISON ===');
+            console.log('Title:', `"${titleInput.value.trim()}" !== "${action.title || ''}"`, titleInput.value.trim() !== (action.title || ''));
+            console.log('Responsible:', `"${responsibleSelect.value}" !== "${action.responsible || ''}"`, responsibleSelect.value !== (action.responsible || ''));
+            console.log('Status:', `"${statusSelect.value}" !== "${action.status || 'waiting'}"`, statusSelect.value !== (action.status || 'waiting'));
+            console.log('Priority:', `${priorityCheckbox.checked} !== ${action.priority || false}`, priorityCheckbox.checked !== (action.priority || false));
+            console.log('Description:', `"${descriptionTextarea.value.trim()}" !== "${action.description || ''}"`, descriptionTextarea.value.trim() !== (action.description || ''));
+            console.log('Date:', `"${dateInput.value}" !== "${action.date || ''}"`, dateInput.value !== (action.date || ''));
+            console.log('AssignedPerson:', `"${assignedPersonSelect.value}" !== "${action.assignedPerson || ''}"`, assignedPersonSelect.value !== (action.assignedPerson || ''));
+            console.log('=== END COMPARISON ===');
+
+            return hasChanges;
         }
 
         function toggleInlineNoteForm() {
@@ -6523,8 +6797,75 @@
         // ESC key handler for closing modals and Tab key handler for form submission
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
+                console.log('=== ESC KEY PRESSED ===');
+
+                // First check if any note edit form is open
+                const noteEditForms = document.querySelectorAll('[id*="editNoteTextEditor"]');
+                console.log('Found note edit forms:', noteEditForms.length);
+
+                let isNoteEditOpen = false;
+                let activeNoteEditDetails = null;
+
+                noteEditForms.forEach((form, index) => {
+                    console.log(`Form ${index}:`, {
+                        id: form.id,
+                        display: form.style.display,
+                        hasNoteItem: !!form.closest('.note-item'),
+                        visible: form.style.display !== 'none' && form.closest('.note-item')
+                    });
+
+                    if (form.style.display !== 'none' && form.closest('.note-item')) {
+                        isNoteEditOpen = true;
+                        activeNoteEditDetails = {
+                            id: form.id,
+                            element: form
+                        };
+                    }
+                });
+
+                console.log('Note edit open:', isNoteEditOpen, activeNoteEditDetails);
+
+                if (isNoteEditOpen) {
+                    // Handle note edit cancel - find the active note edit and cancel it
+                    const activeNoteEdit = document.querySelector('.note-item [id*="editNoteTextEditor"]:not([style*="display: none"])');
+                    console.log('Active note edit element:', activeNoteEdit);
+
+                    if (activeNoteEdit) {
+                        const editorId = activeNoteEdit.id;
+                        const matches = editorId.match(/editNoteTextEditor-(.+)-(\d+)/);
+                        console.log('Editor ID matches:', matches);
+
+                        if (matches) {
+                            const actionId = matches[1];
+                            const noteIndex = parseInt(matches[2]);
+                            console.log('Calling cancelNoteEdit with:', actionId, noteIndex);
+                            cancelNoteEdit(actionId, noteIndex);
+                        }
+                    }
+                    return;
+                }
+
+                // Check if inline note form is open
+                const inlineNoteForm = document.getElementById('inlineNoteForm');
+                const isInlineNoteOpen = inlineNoteForm && (inlineNoteForm.style.display === 'block' || inlineNoteForm.style.display === '');
+                console.log('Inline note form open:', isInlineNoteOpen);
+
+                if (isInlineNoteOpen) {
+                    // Close inline note form
+                    console.log('Closing inline note form');
+                    toggleInlineNoteForm();
+                    return;
+                }
+
                 const activeModal = document.querySelector('.modal.active');
                 if (activeModal) {
+                    // Special handling for detailModal
+                    if (activeModal.id === 'detailModal') {
+                        e.preventDefault();
+                        closeDetailModal();
+                        return; // Exit early since closeDetailModal handles cleanup
+                    }
+
                     // Close the active modal
                     activeModal.classList.remove('active');
                     activeModal.style.display = 'none';
@@ -6559,11 +6900,6 @@
                             postponeEditForm.reset();
                         }
                         currentEditingPostpone = { actionId: null, postponeIndex: null };
-                    } else if (activeModal.id === 'detailModal') {
-                        // Prevent default modal closing behavior and use our custom close function
-                        e.preventDefault();
-                        closeDetailModal();
-                        return; // Exit early since closeDetailModal handles cleanup
                     }
                     
                     // Close user dropdown if open
