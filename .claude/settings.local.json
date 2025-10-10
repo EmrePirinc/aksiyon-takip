@@ -15,7 +15,9 @@
       "Bash(npm i:*)",
       "Bash(explorer:*)",
       "Bash(start \"C:\\Users\\M-Rey\\OneDrive\\Masaüstü\\Github\\aksiyon-takip\\index.html\")",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Read(//c/Users/AIFTeam-24/OneDrive - Aif Bilişim ve Danışmanlık Hiz.Ltd.Şti/Masaüstü/Github/**)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []
