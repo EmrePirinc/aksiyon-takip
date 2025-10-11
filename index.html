@@ -3665,9 +3665,16 @@
             currentActionId = null;
             selectedNoteFiles = [];
 
-            // Clear Quill editor
+            // Properly clean up Quill editor
             if (noteTextQuill) {
-                noteTextQuill.setText('');
+                try {
+                    // Remove event listeners and clear content
+                    noteTextQuill.off('text-change');
+                    noteTextQuill.setText('');
+                    noteTextQuill = null;
+                } catch (e) {
+                    console.warn('Error cleaning up Quill on modal close:', e);
+                }
             }
         }
 
@@ -4048,10 +4055,45 @@
             const editorElement = document.getElementById('noteTextEditor');
             if (!editorElement) return;
 
-            // Clear any existing Quill instance
-            editorElement.innerHTML = '';
+            // Properly destroy existing Quill instance if it exists
+            if (noteTextQuill) {
+                try {
+                    // Remove all event listeners and destroy the instance
+                    noteTextQuill.off('text-change');
+                    noteTextQuill = null;
+                } catch (e) {
+                    console.warn('Error cleaning up Quill instance:', e);
+                }
+            }
 
-            // Initialize Quill
+            // Completely clear the editor and recreate it to remove all Quill artifacts
+            const parent = editorElement.parentElement;
+            const editorId = editorElement.id;
+            const editorStyle = editorElement.getAttribute('style');
+
+            // CRITICAL: Remove ALL Quill toolbar elements from parent (they accumulate here!)
+            const existingToolbars = parent.querySelectorAll('.ql-toolbar');
+            existingToolbars.forEach(toolbar => toolbar.remove());
+
+            // Remove the old editor element completely
+            editorElement.remove();
+
+            // Create a fresh new editor element
+            const newEditor = document.createElement('div');
+            newEditor.id = editorId;
+            if (editorStyle) {
+                newEditor.setAttribute('style', editorStyle);
+            }
+
+            // Find the label and insert after it
+            const label = parent.querySelector('label[for="noteText"]');
+            if (label) {
+                label.insertAdjacentElement('afterend', newEditor);
+            } else {
+                parent.insertBefore(newEditor, parent.firstChild);
+            }
+
+            // Initialize Quill on the fresh element
             noteTextQuill = new Quill('#noteTextEditor', {
                 theme: 'snow',
                 placeholder: 'Açıklama girin...',
@@ -4093,10 +4135,21 @@
                 return;
             }
 
-            // Clear any existing Quill instance
+            // Properly destroy existing Quill instance if it exists
+            if (editorElement.__quill) {
+                try {
+                    // Remove all event listeners and destroy the instance
+                    editorElement.__quill.off('text-change');
+                    editorElement.__quill = null;
+                } catch (e) {
+                    console.warn('Error cleaning up Quill instance:', e);
+                }
+            }
+
+            // Clear the DOM element
             editorElement.innerHTML = '';
 
-            // Initialize Quill
+            // Initialize Quill and store reference on the DOM element
             editNoteQuill = new Quill(`#${editorId}`, {
                 theme: 'snow',
                 modules: {
@@ -4108,6 +4161,9 @@
                     ]
                 }
             });
+
+            // Store the instance on the DOM element for cleanup
+            editorElement.__quill = editNoteQuill;
 
             // Set initial content
             if (initialContent) {
