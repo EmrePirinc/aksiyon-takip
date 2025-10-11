@@ -2501,6 +2501,13 @@
                             </svg>
                             <span>Takvim</span>
                         </button>
+                        <button class="view-tab" data-view="plans" title="Yerinde Çalışma Planları">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span>Planlar</span>
+                        </button>
                     </div>
                 </div>
 
@@ -2652,6 +2659,7 @@
                 <div id="actionsContainerList" class="actions-view-container"></div>
                 <div id="actionsContainerKanban" class="actions-view-container"></div>
                 <div id="actionsContainerCalendar" class="actions-view-container"></div>
+                <div id="actionsContainerPlans" class="actions-view-container"></div>
                 <div id="noResults" class="actions-view-container" style="text-align: center; color: var(--gray-500); padding: var(--space-8);"></div>
             </div>
         </div>
@@ -3118,6 +3126,55 @@
         </div>
     </div>
 
+    <!-- Site Plan Modal -->
+    <div class="modal" id="sitePlanModal">
+        <div class="modal-content modal-content-scrollable" style="max-width: 800px;">
+            <div class="modal-header"><h2 id="planModalTitle">Yeni Yerinde Çalışma Planı</h2></div>
+            <form id="sitePlanForm">
+                <div class="form-group">
+                    <label for="planName">Plan Adı *</label>
+                    <input type="text" id="planName" placeholder="Örn: 15 Ocak Saha Ziyareti" required>
+                </div>
+                <div class="form-group">
+                    <label for="planDate">Tarih *</label>
+                    <input type="date" id="planDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="planResponsible">Sorumlu Kişi</label>
+                    <select id="planResponsible">
+                        <option value="">Kişi seçiniz...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="planNotes">Notlar</label>
+                    <textarea id="planNotes" rows="3" placeholder="Plan hakkında notlar..."></textarea>
+                </div>
+
+                <!-- Action Selection -->
+                <div class="form-group">
+                    <label>Aksiyonlar *</label>
+                    <div style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="planActionSearch" placeholder="Aksiyon ara..." style="flex: 1;">
+                        <button type="button" class="btn btn-secondary" onclick="clearPlanActionSearch()" style="padding: 8px 16px;">Temizle</button>
+                    </div>
+                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--gray-300); border-radius: 6px; padding: 12px; background: var(--gray-50);">
+                        <div id="planActionsList">
+                            <!-- Actions will be populated here -->
+                        </div>
+                    </div>
+                    <div id="selectedActionsCount" style="margin-top: 8px; color: var(--gray-600); font-size: 14px;">
+                        Seçili aksiyon: 0
+                    </div>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" class="btn modal-btn cancel" onclick="closeSitePlanModal()">İptal</button>
+                    <button type="submit" class="btn btn-primary modal-btn save">Planı Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Image Modal -->
     <div id="imageModal" class="image-modal" onclick="closeImageModal()" style="display: none;">
         <div class="image-container" onclick="event.stopPropagation()">
@@ -3246,6 +3303,7 @@
         // --- GLOBAL STATE ---
         let actions = [];
         let persons = [];
+        let sitePlans = []; // Site visit plans
         let editingId = null;
         let postponingId = null;
         let currentPostponeId = null;
@@ -3305,6 +3363,7 @@
 
                 loadActions();
                 loadPersons();
+                loadSitePlans();
 
                 // Load Google API credentials from Firebase
                 loadGoogleCredentials().then((loaded) => {
@@ -3446,6 +3505,197 @@
                 renderPersonList();
             });
         }
+
+        // --- SITE PLANS (Yerinde Çalışma Planları) ---
+        function loadSitePlans() {
+            const plansRef = database.ref('sitePlans');
+            plansRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                sitePlans = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+                if (currentView === 'plans') {
+                    renderSitePlans();
+                }
+            });
+        }
+
+        function saveSitePlan(planData) {
+            const planId = planData.id || database.ref().child('sitePlans').push().key;
+            const plan = {
+                ...planData,
+                id: planId,
+                createdAt: planData.createdAt || Date.now(),
+                updatedAt: Date.now(),
+                createdBy: auth.currentUser.uid
+            };
+
+            return database.ref(`sitePlans/${planId}`).set(plan).then(() => {
+                showNotification('✅ Plan başarıyla kaydedildi!', 'success');
+                return planId;
+            }).catch(error => {
+                console.error('Plan kaydetme hatası:', error);
+                showNotification('❌ Plan kaydedilemedi!', 'error');
+                throw error;
+            });
+        }
+
+        function deleteSitePlan(planId) {
+            if (confirm('Bu planı silmek istediğinize emin misiniz?')) {
+                return database.ref(`sitePlans/${planId}`).remove().then(() => {
+                    showNotification('✅ Plan silindi!', 'success');
+                }).catch(error => {
+                    console.error('Plan silme hatası:', error);
+                    showNotification('❌ Plan silinemedi!', 'error');
+                });
+            }
+        }
+
+        // --- SITE PLAN MODAL FUNCTIONS ---
+        function openSitePlanModal(planId = null) {
+            const modal = document.getElementById('sitePlanModal');
+            const form = document.getElementById('sitePlanForm');
+            const title = document.getElementById('planModalTitle');
+
+            form.reset();
+            title.textContent = planId ? 'Planı Düzenle' : 'Yeni Yerinde Çalışma Planı';
+
+            // Populate person dropdown
+            const personSelect = document.getElementById('planResponsible');
+            personSelect.innerHTML = '<option value="">Kişi seçiniz...</option>';
+            persons.forEach(person => {
+                const option = document.createElement('option');
+                option.value = person.id;
+                option.textContent = person.name;
+                personSelect.appendChild(option);
+            });
+
+            // Populate actions list
+            populatePlanActions();
+
+            // If editing, load plan data
+            if (planId) {
+                const plan = sitePlans.find(p => p.id === planId);
+                if (plan) {
+                    document.getElementById('planName').value = plan.name || '';
+                    document.getElementById('planDate').value = plan.date || '';
+                    document.getElementById('planResponsible').value = plan.responsiblePerson || '';
+                    document.getElementById('planNotes').value = plan.notes || '';
+
+                    // Check selected actions
+                    if (plan.selectedActions && plan.selectedActions.length > 0) {
+                        plan.selectedActions.forEach(actionId => {
+                            const checkbox = document.querySelector(`input[data-action-id="${actionId}"]`);
+                            if (checkbox) checkbox.checked = true;
+                        });
+                        updateSelectedActionsCount();
+                    }
+                }
+            }
+
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+        }
+
+        function closeSitePlanModal() {
+            const modal = document.getElementById('sitePlanModal');
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+        }
+
+        function populatePlanActions(searchTerm = '') {
+            const container = document.getElementById('planActionsList');
+            const filteredActions = actions.filter(action => {
+                if (!searchTerm) return true;
+                const term = searchTerm.toLowerCase();
+                return (action.title && action.title.toLowerCase().includes(term)) ||
+                       (action.description && action.description.toLowerCase().includes(term)) ||
+                       (action.responsible && action.responsible.toLowerCase().includes(term));
+            });
+
+            if (filteredActions.length === 0) {
+                container.innerHTML = '<p style="color: var(--gray-500); text-align: center; padding: 20px;">Aksiyon bulunamadı</p>';
+                return;
+            }
+
+            container.innerHTML = filteredActions.map(action => {
+                const statusColors = {
+                    'waiting': '#f39c12',
+                    'in-progress': '#3498db',
+                    'completed': '#2ecc71'
+                };
+                const statusTexts = {
+                    'waiting': 'Bekliyor',
+                    'in-progress': 'Devam Ediyor',
+                    'completed': 'Tamamlandı'
+                };
+
+                return `
+                    <div style="display: flex; align-items: start; padding: 10px; background: white; border-radius: 6px; margin-bottom: 8px; border: 1px solid var(--gray-200);">
+                        <input type="checkbox" data-action-id="${action.id}" onchange="updateSelectedActionsCount()" style="margin-right: 12px; margin-top: 4px; width: 18px; height: 18px; cursor: pointer;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; margin-bottom: 4px; color: var(--gray-900);">${action.title}</div>
+                            <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 6px;">${action.description || ''}</div>
+                            <div style="display: flex; gap: 12px; font-size: 12px;">
+                                <span style="color: var(--gray-600);">📋 ${action.responsible || 'Atanmadı'}</span>
+                                <span style="color: ${statusColors[action.status]}; font-weight: 500;">● ${statusTexts[action.status]}</span>
+                                ${action.date ? `<span style="color: var(--gray-600);">📅 ${action.date}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateSelectedActionsCount() {
+            const checkboxes = document.querySelectorAll('#planActionsList input[type="checkbox"]:checked');
+            document.getElementById('selectedActionsCount').textContent = `Seçili aksiyon: ${checkboxes.length}`;
+        }
+
+        function clearPlanActionSearch() {
+            document.getElementById('planActionSearch').value = '';
+            populatePlanActions();
+        }
+
+        // Plan action search
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('planActionSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    populatePlanActions(e.target.value);
+                });
+            }
+        });
+
+        // Site Plan Form Submit
+        document.getElementById('sitePlanForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const selectedActions = Array.from(document.querySelectorAll('#planActionsList input[type="checkbox"]:checked'))
+                .map(cb => cb.dataset.actionId);
+
+            if (selectedActions.length === 0) {
+                showNotification('⚠️ En az bir aksiyon seçmelisiniz!', 'warning');
+                return;
+            }
+
+            const planData = {
+                name: document.getElementById('planName').value,
+                date: document.getElementById('planDate').value,
+                responsiblePerson: document.getElementById('planResponsible').value,
+                notes: document.getElementById('planNotes').value,
+                selectedActions: selectedActions,
+                status: 'planned'
+            };
+
+            try {
+                await saveSitePlan(planData);
+                closeSitePlanModal();
+                if (currentView === 'plans') {
+                    renderSitePlans();
+                }
+            } catch (error) {
+                console.error('Plan kaydetme hatası:', error);
+            }
+        });
 
         document.getElementById("actionForm").addEventListener("submit", async e => {
             e.preventDefault();
@@ -4591,17 +4841,20 @@
                 containerElement.style.display = 'block';
                 
                 switch(currentView) {
-                    case 'grouped': 
-                        renderGroupedView(filteredActions); 
+                    case 'grouped':
+                        renderGroupedView(filteredActions);
                         break;
-                    case 'list': 
-                        renderListView(filteredActions); 
+                    case 'list':
+                        renderListView(filteredActions);
                         break;
-                    case 'kanban': 
-                        renderKanbanView(filteredActions); 
+                    case 'kanban':
+                        renderKanbanView(filteredActions);
                         break;
-                    case 'calendar': 
-                        renderCalendarView(filteredActions); 
+                    case 'calendar':
+                        renderCalendarView(filteredActions);
+                        break;
+                    case 'plans':
+                        renderSitePlans();
                         break;
                 }
             }
@@ -6556,6 +6809,150 @@
         function changeMonth(direction) {
             calendarDate.setMonth(calendarDate.getMonth() + direction);
             renderActions();
+        }
+
+        // --- SITE PLANS VIEW ---
+        function renderSitePlans() {
+            const container = document.getElementById('actionsContainerPlans');
+
+            if (!sitePlans || sitePlans.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">📍</div>
+                        <h2 style="color: var(--gray-700); margin-bottom: 12px;">Henüz plan oluşturulmamış</h2>
+                        <p style="color: var(--gray-500); margin-bottom: 30px;">Yerinde çalışma planları oluşturarak aksiyonlarınızı organize edin</p>
+                        <button class="btn btn-primary" onclick="openSitePlanModal()" style="padding: 12px 32px; font-size: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            İlk Planı Oluştur
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort plans by date
+            const sortedPlans = [...sitePlans].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const header = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2 style="margin: 0; color: var(--gray-900);">Yerinde Çalışma Planları</h2>
+                    <button class="btn btn-primary" onclick="openSitePlanModal()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Yeni Plan Oluştur
+                    </button>
+                </div>
+            `;
+
+            const planCards = sortedPlans.map(plan => {
+                const statusColors = {
+                    'planned': { bg: '#e3f2fd', border: '#2196f3', text: '#1565c0' },
+                    'completed': { bg: '#e8f5e9', border: '#4caf50', text: '#2e7d32' },
+                    'cancelled': { bg: '#ffebee', border: '#f44336', text: '#c62828' }
+                };
+
+                const statusTexts = {
+                    'planned': 'Planlandı',
+                    'completed': 'Tamamlandı',
+                    'cancelled': 'İptal Edildi'
+                };
+
+                const colors = statusColors[plan.status] || statusColors.planned;
+                const statusText = statusTexts[plan.status] || 'Planlandı';
+
+                // Get person name
+                const person = persons.find(p => p.id === plan.responsiblePerson);
+                const personName = person ? person.name : 'Atanmadı';
+
+                // Get selected actions details
+                const planActions = plan.selectedActions ?
+                    plan.selectedActions.map(actionId => actions.find(a => a.id === actionId)).filter(Boolean) : [];
+
+                return `
+                    <div class="action-card" style="margin-bottom: 20px; border-left: 4px solid ${colors.border};">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                            <div style="flex: 1;">
+                                <h3 style="margin: 0 0 8px 0; font-size: 20px; color: var(--gray-900);">${plan.name}</h3>
+                                <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px; color: var(--gray-600);">
+                                    <span style="display: flex; align-items: center; gap: 6px;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                                        </svg>
+                                        ${plan.date || 'Tarih belirlenmedi'}
+                                    </span>
+                                    <span style="display: flex; align-items: center; gap: 6px;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="12" cy="7" r="4"></circle>
+                                        </svg>
+                                        ${personName}
+                                    </span>
+                                    <span style="background: ${colors.bg}; color: ${colors.text}; padding: 4px 12px; border-radius: 12px; font-weight: 500; border: 1px solid ${colors.border};">
+                                        ${statusText}
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-icon" onclick="openSitePlanModal('${plan.id}')" title="Düzenle">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                                <button class="btn btn-icon" onclick="deleteSitePlan('${plan.id}')" title="Sil" style="color: #f44336;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        ${plan.notes ? `<div style="padding: 12px; background: var(--gray-50); border-radius: 6px; margin-bottom: 16px; color: var(--gray-700);">${plan.notes}</div>` : ''}
+
+                        <div style="margin-top: 16px;">
+                            <div style="font-weight: 600; margin-bottom: 12px; color: var(--gray-700); font-size: 14px;">
+                                Seçilen Aksiyonlar (${planActions.length})
+                            </div>
+                            <div style="display: grid; gap: 10px;">
+                                ${planActions.map(action => {
+                                    const statusColors = {
+                                        'waiting': '#f39c12',
+                                        'in-progress': '#3498db',
+                                        'completed': '#2ecc71'
+                                    };
+                                    const statusTexts = {
+                                        'waiting': 'Bekliyor',
+                                        'in-progress': 'Devam Ediyor',
+                                        'completed': 'Tamamlandı'
+                                    };
+                                    return `
+                                        <div style="padding: 12px; background: white; border: 1px solid var(--gray-200); border-radius: 8px; cursor: pointer; transition: all 0.2s;" onclick="openDetailView('${action.id}')" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='none'">
+                                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                                <div style="flex: 1;">
+                                                    <div style="font-weight: 600; margin-bottom: 4px; color: var(--gray-900);">${action.title}</div>
+                                                    <div style="font-size: 13px; color: var(--gray-600);">${action.description ? action.description.substring(0, 100) + (action.description.length > 100 ? '...' : '') : ''}</div>
+                                                </div>
+                                                <span style="color: ${statusColors[action.status]}; font-weight: 500; font-size: 12px; white-space: nowrap; margin-left: 12px;">● ${statusTexts[action.status]}</span>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = header + planCards;
         }
 
         // --- KANBAN DRAG & DROP ---
