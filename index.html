@@ -3653,6 +3653,9 @@
             // Initialize upload handler
             noteFileUploadInitialized = false; // Reset to allow re-initialization
             handleNoteFileUpload();
+
+            // Initialize Quill editor for note text
+            initializeNoteTextEditor();
         }
 
         function closeAddNoteModal() {
@@ -3661,6 +3664,11 @@
             modal.style.display = 'none';
             currentActionId = null;
             selectedNoteFiles = [];
+
+            // Clear Quill editor
+            if (noteTextQuill) {
+                noteTextQuill.setText('');
+            }
         }
 
         // Color picker functionality
@@ -7742,9 +7750,7 @@
             originalOpenAddNoteModal(id);
             setTimeout(() => {
                 setupColorPicker();
-                handleImageUpload();
                 setupNoteTypeHandler();
-                initializeNoteTextEditor();
             }, 100);
         };
 
