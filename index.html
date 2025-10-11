@@ -3307,6 +3307,7 @@
         let editingId = null;
         let postponingId = null;
         let currentPostponeId = null;
+        let currentEditingPlanId = null; // For plan editing
         let currentStatusFilter = 'all';
         let currentTeamFilter = 'all';
         let priorityFilterActive = false;
@@ -3520,16 +3521,27 @@
 
         function saveSitePlan(planData) {
             const planId = planData.id || database.ref().child('sitePlans').push().key;
+            const isEditing = !!planData.id;
+
+            // If editing, preserve original createdAt
+            let createdAt = Date.now();
+            if (isEditing) {
+                const existingPlan = sitePlans.find(p => p.id === planId);
+                if (existingPlan) {
+                    createdAt = existingPlan.createdAt;
+                }
+            }
+
             const plan = {
                 ...planData,
                 id: planId,
-                createdAt: planData.createdAt || Date.now(),
+                createdAt: createdAt,
                 updatedAt: Date.now(),
-                createdBy: auth.currentUser.uid
+                createdBy: planData.createdBy || auth.currentUser.uid
             };
 
             return database.ref(`sitePlans/${planId}`).set(plan).then(() => {
-                showNotification('✅ Plan başarıyla kaydedildi!', 'success');
+                showNotification(isEditing ? '✅ Plan başarıyla güncellendi!' : '✅ Plan başarıyla oluşturuldu!', 'success');
                 return planId;
             }).catch(error => {
                 console.error('Plan kaydetme hatası:', error);
@@ -3556,6 +3568,7 @@
             const title = document.getElementById('planModalTitle');
 
             form.reset();
+            currentEditingPlanId = planId; // Store plan ID for editing
             title.textContent = planId ? 'Planı Düzenle' : 'Yeni Yerinde Çalışma Planı';
 
             // Populate person dropdown
@@ -3568,10 +3581,7 @@
                 personSelect.appendChild(option);
             });
 
-            // Populate actions list
-            populatePlanActions();
-
-            // If editing, load plan data
+            // If editing, load plan data first, then populate actions
             if (planId) {
                 const plan = sitePlans.find(p => p.id === planId);
                 if (plan) {
@@ -3580,15 +3590,13 @@
                     document.getElementById('planResponsible').value = plan.responsiblePerson || '';
                     document.getElementById('planNotes').value = plan.notes || '';
 
-                    // Check selected actions
-                    if (plan.selectedActions && plan.selectedActions.length > 0) {
-                        plan.selectedActions.forEach(actionId => {
-                            const checkbox = document.querySelector(`input[data-action-id="${actionId}"]`);
-                            if (checkbox) checkbox.checked = true;
-                        });
-                        updateSelectedActionsCount();
-                    }
+                    // Populate actions list with selected ones
+                    populatePlanActions('', plan.selectedActions || []);
+                } else {
+                    populatePlanActions();
                 }
+            } else {
+                populatePlanActions();
             }
 
             modal.classList.add('active');
@@ -3599,9 +3607,10 @@
             const modal = document.getElementById('sitePlanModal');
             modal.classList.remove('active');
             modal.style.display = 'none';
+            currentEditingPlanId = null; // Clear editing plan ID
         }
 
-        function populatePlanActions(searchTerm = '') {
+        function populatePlanActions(searchTerm = '', selectedActions = []) {
             const container = document.getElementById('planActionsList');
             const filteredActions = actions.filter(action => {
                 if (!searchTerm) return true;
@@ -3617,6 +3626,7 @@
             }
 
             container.innerHTML = filteredActions.map(action => {
+                const isSelected = selectedActions.includes(action.id);
                 const statusColors = {
                     'waiting': '#f39c12',
                     'in-progress': '#3498db',
@@ -3628,31 +3638,87 @@
                     'completed': 'Tamamlandı'
                 };
 
+                const priorityBadge = action.priority ?
+                    '<span style="background: #fee; color: #c33; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">ÖNCELİKLİ</span>' : '';
+
                 return `
-                    <div style="display: flex; align-items: start; padding: 10px; background: white; border-radius: 6px; margin-bottom: 8px; border: 1px solid var(--gray-200);">
-                        <input type="checkbox" data-action-id="${action.id}" onchange="updateSelectedActionsCount()" style="margin-right: 12px; margin-top: 4px; width: 18px; height: 18px; cursor: pointer;">
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; margin-bottom: 4px; color: var(--gray-900);">${action.title}</div>
-                            <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 6px;">${action.description || ''}</div>
-                            <div style="display: flex; gap: 12px; font-size: 12px;">
-                                <span style="color: var(--gray-600);">📋 ${action.responsible || 'Atanmadı'}</span>
-                                <span style="color: ${statusColors[action.status]}; font-weight: 500;">● ${statusTexts[action.status]}</span>
-                                ${action.date ? `<span style="color: var(--gray-600);">📅 ${action.date}</span>` : ''}
-                            </div>
+                    <div class="action-card selectable-action-card ${isSelected ? 'selected' : ''}"
+                         data-action-id="${action.id}"
+                         onclick="toggleActionSelection('${action.id}')"
+                         style="cursor: pointer; position: relative; transition: all 0.2s; margin-bottom: 12px; ${isSelected ? 'border-color: #2196f3; background: #e3f2fd;' : ''}">
+
+                        ${isSelected ? '<div style="position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; background: #2196f3; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px;">✓</div>' : ''}
+
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: var(--gray-900); flex: 1; padding-right: 32px;">${action.title}</h3>
+                        </div>
+
+                        <p style="margin: 0 0 12px 0; color: var(--gray-600); font-size: 14px; line-height: 1.5;">${action.description || 'Açıklama yok'}</p>
+
+                        <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center; font-size: 13px;">
+                            <span style="display: flex; align-items: center; gap: 6px; color: var(--gray-600);">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                ${action.responsible || 'Atanmadı'}
+                            </span>
+
+                            <span class="status-badge ${action.status}" style="padding: 4px 10px; border-radius: 12px; font-weight: 500; font-size: 12px; background: ${statusColors[action.status]}15; color: ${statusColors[action.status]};">
+                                ${statusTexts[action.status]}
+                            </span>
+
+                            ${action.date ? `<span style="display: flex; align-items: center; gap: 6px; color: var(--gray-600);">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                ${action.date}
+                            </span>` : ''}
+
+                            ${priorityBadge}
                         </div>
                     </div>
                 `;
             }).join('');
+
+            updateSelectedActionsCount();
+        }
+
+        function toggleActionSelection(actionId) {
+            const card = document.querySelector(`.selectable-action-card[data-action-id="${actionId}"]`);
+            if (!card) return;
+
+            if (card.classList.contains('selected')) {
+                card.classList.remove('selected');
+                card.style.borderColor = '';
+                card.style.background = '';
+                const checkmark = card.querySelector('div[style*="position: absolute"]');
+                if (checkmark) checkmark.remove();
+            } else {
+                card.classList.add('selected');
+                card.style.borderColor = '#2196f3';
+                card.style.background = '#e3f2fd';
+                card.insertAdjacentHTML('afterbegin', '<div style="position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; background: #2196f3; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px;">✓</div>');
+            }
+
+            updateSelectedActionsCount();
         }
 
         function updateSelectedActionsCount() {
-            const checkboxes = document.querySelectorAll('#planActionsList input[type="checkbox"]:checked');
-            document.getElementById('selectedActionsCount').textContent = `Seçili aksiyon: ${checkboxes.length}`;
+            const selectedCards = document.querySelectorAll('.selectable-action-card.selected');
+            document.getElementById('selectedActionsCount').textContent = `Seçili aksiyon: ${selectedCards.length}`;
         }
 
         function clearPlanActionSearch() {
+            const currentSelected = Array.from(document.querySelectorAll('.selectable-action-card.selected'))
+                .map(card => card.dataset.actionId);
             document.getElementById('planActionSearch').value = '';
-            populatePlanActions();
+            populatePlanActions('', currentSelected);
         }
 
         // Plan action search
@@ -3660,7 +3726,9 @@
             const searchInput = document.getElementById('planActionSearch');
             if (searchInput) {
                 searchInput.addEventListener('input', (e) => {
-                    populatePlanActions(e.target.value);
+                    const currentSelected = Array.from(document.querySelectorAll('.selectable-action-card.selected'))
+                        .map(card => card.dataset.actionId);
+                    populatePlanActions(e.target.value, currentSelected);
                 });
             }
         });
@@ -3669,8 +3737,8 @@
         document.getElementById('sitePlanForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const selectedActions = Array.from(document.querySelectorAll('#planActionsList input[type="checkbox"]:checked'))
-                .map(cb => cb.dataset.actionId);
+            const selectedActions = Array.from(document.querySelectorAll('.selectable-action-card.selected'))
+                .map(card => card.dataset.actionId);
 
             if (selectedActions.length === 0) {
                 showNotification('⚠️ En az bir aksiyon seçmelisiniz!', 'warning');
@@ -3678,6 +3746,7 @@
             }
 
             const planData = {
+                id: currentEditingPlanId, // Include ID for editing
                 name: document.getElementById('planName').value,
                 date: document.getElementById('planDate').value,
                 responsiblePerson: document.getElementById('planResponsible').value,
