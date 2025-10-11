@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(git reset:*)",
+      "Bash(start chrome:*)",
+      "Read(//c/Users/M-Rey/Downloads/**)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout:*)",
+      "Bash(npm i:*)",
+      "Bash(explorer:*)",
+      "Bash(start \"C:\\Users\\M-Rey\\OneDrive\\Masaüstü\\Github\\aksiyon-takip\\index.html\")",
+      "Bash(git restore:*)",
+      "Bash(git rm:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
